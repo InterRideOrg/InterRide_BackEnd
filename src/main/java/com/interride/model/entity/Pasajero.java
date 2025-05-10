@@ -28,6 +28,9 @@ public class Pasajero {
     @Column(name = "telefono", nullable = false)
     private String telefono;
 
+    @Column(name = "username", nullable = false, columnDefinition = "TEXT")
+    private String username;
+
     @Column(name = "fecha_hora_registro", nullable = false)
     private LocalDateTime fechaHoraRegistro;
 }

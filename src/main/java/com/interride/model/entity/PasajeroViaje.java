@@ -22,7 +22,7 @@ public class PasajeroViaje {
     private LocalDateTime fechaHoraLLegada;
 
     @Column(name = "costo", nullable = false)
-    private BigDecimal costo;
+    private Double costo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false, length = 20)

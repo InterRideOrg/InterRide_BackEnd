@@ -1,33 +1,33 @@
 -- Insertar datos para la tabla Pasajeros
-INSERT INTO pasajero (nombres, apellidos, correo, password, telefono, fecha_hora_registro) VALUES
-                                                                                               ('Jose', 'Perez Perez', 'jose@gmail.com', 'jose123', '987654321', CURRENT_TIMESTAMP),
-                                                                                               ('Maria', 'Gonzales Lopez', 'maria@gmail.com', 'maria456', '987654322', CURRENT_TIMESTAMP),
-                                                                                               ('Carlos', 'Sanchez Ruiz', 'carlos@gmail.com', 'carlos789', '987654323', CURRENT_TIMESTAMP),
-                                                                                               ('Luisa', 'Diaz Mendoza', 'luisa@gmail.com', 'luisa012', '987654324', CURRENT_TIMESTAMP),
-                                                                                               ('Pedro', 'Martinez Vega', 'pedro@gmail.com', 'pedro345', '987654325', CURRENT_TIMESTAMP)
+INSERT INTO pasajero (nombres, apellidos, correo, password, telefono, fecha_hora_registro, username) VALUES
+                                                                                               ('Jose', 'Perez Perez', 'jose@gmail.com', 'jose123', '987654321', CURRENT_TIMESTAMP, 'josep'),
+                                                                                               ('Maria', 'Gonzales Lopez', 'maria@gmail.com', 'maria456', '987654322', CURRENT_TIMESTAMP, 'mariaj'),
+                                                                                               ('Carlos', 'Sanchez Ruiz', 'carlos@gmail.com', 'carlos789', '987654323', CURRENT_TIMESTAMP, 'carlosc'),
+                                                                                               ('Luisa', 'Diaz Mendoza', 'luisa@gmail.com', 'luisa012', '987654324', CURRENT_TIMESTAMP, 'luisp'),
+                                                                                               ('Pedro', 'Martinez Vega', 'pedro@gmail.com', 'pedro345', '987654325', CURRENT_TIMESTAMP, 'pedrot')
     ON CONFLICT DO NOTHING;
 
 -- Insertar datos en la tabla conductor
-INSERT INTO conductor (nombres, apellidos, correo, password, telefono, fecha_hora_registro) VALUES
-                                                                                                ('Juan', 'Gomez Herrera', 'juan@gmail.com', 'juan123', '987654326', CURRENT_TIMESTAMP),
-                                                                                                ('Ana', 'Torres Flores', 'ana@gmail.com', 'ana456', '987654327', CURRENT_TIMESTAMP),
-                                                                                                ('Luis', 'Ramirez Castro', 'luis@gmail.com', 'luis789', '987654328', CURRENT_TIMESTAMP),
-                                                                                                ('Sofia', 'Vargas Paredes', 'sofia@gmail.com', 'sofia012', '987654329', CURRENT_TIMESTAMP),
-                                                                                                ('Miguel', 'Silva Rios', 'miguel@gmail.com', 'miguel345', '987654330', CURRENT_TIMESTAMP)
+INSERT INTO conductor (nombres, apellidos, correo, password, telefono, fecha_hora_registro, username) VALUES
+                                                                                                ('Juan', 'Gomez Herrera', 'juan@gmail.com', 'juan123', '987654326', CURRENT_TIMESTAMP, 'juanf'),
+                                                                                                ('Ana', 'Torres Flores', 'ana@gmail.com', 'ana456', '987654327', CURRENT_TIMESTAMP, 'anaw'),
+                                                                                                ('Luis', 'Ramirez Castro', 'luis@gmail.com', 'luis789', '987654328', CURRENT_TIMESTAMP, 'luisy'),
+                                                                                                ('Sofia', 'Vargas Paredes', 'sofia@gmail.com', 'sofia012', '987654329', CURRENT_TIMESTAMP,'sofiat'),
+                                                                                                ('Miguel', 'Silva Rios', 'miguel@gmail.com', 'miguel345', '987654330', CURRENT_TIMESTAMP, 'miguelr')
     ON CONFLICT DO NOTHING;
 
 -- Insertar datos en la tabla tarjeta
-INSERT INTO tarjeta (numero_tarjeta, nombre_titular, correo, fecha_vencimiento, cvv, pasajero_id, conductor_id) VALUES
-                                                                                                                    ('4111111111111111', 'Jose Perez', 'jose@gmail.com', '12/25', '123', 1, NULL),
-                                                                                                                    ('4222222222222222', 'Maria Gonzales', 'maria@gmail.com', '06/24', '456', 2, NULL),
-                                                                                                                    ('4333333333333333', 'Juan Gomez', 'juan@gmail.com', '09/26', '789', NULL, 1),
-                                                                                                                    ('4444444444444444', 'Ana Torres', 'ana@gmail.com', '03/25', '012', NULL, 2),
-                                                                                                                    ('4555555555555555', 'Carlos Sanchez', 'carlos@gmail.com', '11/24', '345', 3, NULL),
-                                                                                                                    ('4666666666666666', 'Luisa Diaz', 'luisa@gmail.com', '08/25', '678', 4, NULL),
-                                                                                                                    ('4777777777777777', 'Luis Ramirez', 'luis@gmail.com', '05/26', '901', NULL, 3),
-                                                                                                                    ('4888888888888888', 'Sofia Vargas', 'sofia@gmail.com', '10/24', '234', NULL, 4),
-                                                                                                                    ('4999999999999999', 'Pedro Martinez', 'pedro@gmail.com', '07/25', '567', 5, NULL),
-                                                                                                                    ('4000111122223333', 'Miguel Silva', 'miguel@gmail.com', '04/26', '890', NULL, 5)
+INSERT INTO tarjeta (numero_tarjeta, nombre_titular, correo, fecha_vencimiento, cvv, pasajero_id, conductor_id, saldo) VALUES
+                                                                                                                    ('4111111111111111', 'Jose Perez', 'jose@gmail.com', '12/25', '123', 1, NULL, 100),
+                                                                                                                    ('4222222222222222', 'Maria Gonzales', 'maria@gmail.com', '06/24', '456', 2, NULL, 100),
+                                                                                                                    ('4333333333333333', 'Juan Gomez', 'juan@gmail.com', '09/26', '789', NULL, 1, 30),
+                                                                                                                    ('4444444444444444', 'Ana Torres', 'ana@gmail.com', '03/25', '012', NULL, 2, 50),
+                                                                                                                    ('4555555555555555', 'Carlos Sanchez', 'carlos@gmail.com', '11/24', '345', 3, NULL, 100),
+                                                                                                                    ('4666666666666666', 'Luisa Diaz', 'luisa@gmail.com', '08/25', '678', 4, NULL, 100),
+                                                                                                                    ('4777777777777777', 'Luis Ramirez', 'luis@gmail.com', '05/26', '901', NULL, 3, 55),
+                                                                                                                    ('4888888888888888', 'Sofia Vargas', 'sofia@gmail.com', '10/24', '234', NULL, 4, 55),
+                                                                                                                    ('4999999999999999', 'Pedro Martinez', 'pedro@gmail.com', '07/25', '567', 5, NULL, 70),
+                                                                                                                    ('4000111122223333', 'Miguel Silva', 'miguel@gmail.com', '04/26', '890', NULL, 5, 50)
     ON CONFLICT DO NOTHING;
 
 -- Insertar datos en la tabla notificacion
