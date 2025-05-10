@@ -3,6 +3,8 @@ package com.interride.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @Entity
 @Table(name = "tarjeta")
@@ -25,6 +27,9 @@ public class Tarjeta {
 
     @Column(name = "cvv", nullable = false)
     private String cvv;
+
+    @Column(name = "saldo", nullable = false)
+    private Double saldo;
 
     @ManyToOne
     @JoinColumn(name = "conductor_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_tarjeta_conductor"))
