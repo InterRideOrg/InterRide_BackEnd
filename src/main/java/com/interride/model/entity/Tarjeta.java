@@ -2,12 +2,16 @@ package com.interride.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
-import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Table(name = "tarjeta")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Tarjeta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
