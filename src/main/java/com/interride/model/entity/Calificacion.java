@@ -2,10 +2,16 @@ package com.interride.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Table(name = "calificacion")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Calificacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

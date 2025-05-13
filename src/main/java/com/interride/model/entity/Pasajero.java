@@ -2,12 +2,18 @@ package com.interride.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
 @Table(name = "pasajero")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Pasajero {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

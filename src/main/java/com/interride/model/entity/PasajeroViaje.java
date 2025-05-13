@@ -3,6 +3,9 @@ package com.interride.model.entity;
 import com.interride.model.enums.EstadoViaje;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,6 +13,9 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "pasajero_viaje")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PasajeroViaje {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
