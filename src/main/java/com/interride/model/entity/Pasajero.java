@@ -39,4 +39,5 @@ public class Pasajero {
 
     @Column(name = "fecha_hora_registro", nullable = false)
     private LocalDateTime fechaHoraRegistro;
+
 }
