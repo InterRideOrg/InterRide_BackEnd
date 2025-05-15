@@ -37,12 +37,16 @@ public class SecurityConfig {
 
                 // ==========  Autorizaciones  ==========
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/api/v1/auth/**").permitAll()
+                        .requestMatchers("/auth/**",
+                                "/api/v1/auth/**",
+                                "/api/v1/auth/forgot-password",
+                                "/api/v1/auth/reset-password").permitAll()
                         .anyRequest().authenticated())
 
                 // ==========  Autenticación  ==========
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }

@@ -6,13 +6,18 @@ import com.interride.model.entity.Pasajero;
 import com.interride.security.TokenProvider;
 import com.interride.security.UserPrincipal;
 import com.interride.service.PasajeroService;
+import com.interride.service.PasswordResetService;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final PasajeroService pasajeroService;
+    private final PasswordResetService passwordResetService;
     private final AuthenticationManager authManager;
     private final TokenProvider tokenProvider;
     private final PasajeroMapper pasajeroMapper;
@@ -56,5 +62,22 @@ public class AuthController {
                 profileDTO              //  ← ¡Aquí ya no será null!
         );
         return ResponseEntity.ok(response);
+    }
+
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String,String>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordDTO dto) {
+        passwordResetService.createPasswordResetToken(dto.getCorreo());
+        return ResponseEntity.ok(Map.of("message", "Se envió un enlace de recuperación al correo"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String,String>> resetPassword(
+            @RequestParam String token,
+            @Valid @RequestBody ResetPasswordDTO dto) {
+
+        passwordResetService.resetPassword(token, dto.getPassword());
+        return ResponseEntity.ok(Map.of("message","Contraseña actualizada"));
     }
 }
