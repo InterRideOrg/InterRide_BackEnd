@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
 
 @Component
@@ -85,5 +86,28 @@ public class TokenProvider {
                 .setExpiration(exp)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    /**
+     * Parsea el JWT y devuelve su fecha de expiración como Instant.
+     */
+    public Instant getExpirationDate(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        Date exp = claims.getExpiration();
+        return exp.toInstant();
+    }
+
+    // Si prefieres Date:
+    public Date getExpirationAsDate(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
     }
 }
