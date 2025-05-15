@@ -1,5 +1,6 @@
 package com.interride.service.Impl;
 
+import com.interride.model.entity.Calificacion;
 import com.interride.repository.ConductorRepository;
 import com.interride.repository.VehiculoRepository;
 import com.interride.model.entity.Vehiculo;
@@ -16,7 +17,7 @@ public class VehiculoServiceImpl implements VehiculoService {
     private final VehiculoRepository vehiculoRepository;
     private final ConductorRepository conductorRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public Vehiculo update(Integer conductorId, Vehiculo vehiculoNuevo) {
         Vehiculo vehiculo = vehiculoRepository.findByConductorId(conductorId)
