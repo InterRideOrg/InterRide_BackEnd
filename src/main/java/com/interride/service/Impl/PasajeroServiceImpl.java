@@ -1,4 +1,4 @@
-package com.interride.service.impl;
+package com.interride.service.Impl;
 
 import com.interride.dto.*;
 import com.interride.mapper.PasajeroMapper;
@@ -13,6 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+/**
+ * Alta de pasajeros (HU-01) - ahora deja la contraseña
+ * cifrada antes de persistir y de mapearla de vuelta a DTO.
+ */
 @Service
 @RequiredArgsConstructor
 public class PasajeroServiceImpl implements PasajeroService {
@@ -28,21 +32,31 @@ public class PasajeroServiceImpl implements PasajeroService {
 
         if (repo.existsByCorreo(dto.getCorreo()))
             throw new RuntimeException("El correo ya está registrado");
+
         if (repo.existsByTelefono(dto.getTelefono()))
             throw new RuntimeException("El teléfono ya está registrado");
 
+        // Map DTO -> Entity
         Pasajero entity = mapper.toEntity(dto);
         entity.setPassword(encoder.encode(dto.getPassword()));
         entity.setFechaHoraRegistro(LocalDateTime.now());
 
         Pasajero saved = repo.save(entity);
 
+        // Correo de bienvenida
         emailService.sendRegistrationConfirmation(
                 saved.getCorreo(),
                 "Bienvenido a InterRide",
-                String.format("Hola %s, gracias por registrarte.", saved.getNombre())
+                "Hola " + saved.getNombre()
+                        + ", ¡gracias por registrarte en InterRide!"
         );
 
+        // Devolvemos DTO limpio (sin password)
         return mapper.toProfileDTO(saved);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public Pasajero getById(Integer id) {
+        return repo.findById(id).orElseThrow();
     }
 }

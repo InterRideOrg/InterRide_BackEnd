@@ -4,66 +4,86 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 
-@Slf4j
 @Component
 public class TokenProvider {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    /*------------------------------*/
+    /*  Valores sacados del .yml    */
+    /*------------------------------*/
+    @Value("${interride.jwt.secret}")
+    private String jwtSecret;          // en Base64 o texto plano
 
-    @Value("${jwt.expiration}")
-    private long jwtExpirationMs;
+    @Value("${interride.jwt.exp-ms}")
+    private long jwtExpirationMs;      // ej. 86400000 (24 h)
 
-    private Key key;
+    private SecretKey secretKey;
 
     @PostConstruct
-    public void init() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+    private void init() {
+        // Si tu secreto NO está Base64-encoded usa getBytes()
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(Authentication auth) {
-        UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+    /*-----------------------------------------------------*/
+    /*  *** MÉTODOS QUE ESPERAN OTRAS CLASES ***           */
+    /*-----------------------------------------------------*/
 
-        return Jwts.builder()
-                .setSubject(principal.getId().toString())
-                .claim("username", principal.getUsername())
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact();
+    /** Crea un JWT y lo devuelve en String. */
+    public String createAccessToken(Authentication authentication) {
+        return createToken(authentication);
     }
 
-    public Integer getUserIdFromToken(String token) {
-        Claims claims = parseClaims(token);
-        return Integer.parseInt(claims.getSubject());
+    /** Tiempo (en milisegundos) que durará un token nuevo. */
+    public long getExpiration() {
+        return jwtExpirationMs;
     }
 
-    public boolean validateToken(String authToken) {
+    /** Verifica firma + expiración. Devuelve true/false. */
+    public boolean validateToken(String token) {
         try {
-            parseClaims(authToken);
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException ex) {
-            log.warn("Token inválido: {}", ex.getMessage());
+            return false;
         }
-        return false;
     }
 
-    private Claims parseClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
+    /** Extrae el uid (Integer) que metimos en el claim "uid". */
+    public Integer getUserIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+        return claims.get("uid", Integer.class);
+    }
+
+    /*-----------------------------------------------------*/
+    /*  Lógica de generación interna (HS256)               */
+    /*-----------------------------------------------------*/
+    private String createToken(Authentication authentication) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        Date now  = new Date();
+        Date exp  = new Date(now.getTime() + jwtExpirationMs);
+
+        return Jwts.builder()
+                .setSubject(principal.getUsername())
+                .claim("uid", principal.getId())
+                .setIssuedAt(now)
+                .setExpiration(exp)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
     }
 }

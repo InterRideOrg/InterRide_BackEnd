@@ -1,34 +1,44 @@
 package com.interride.security;
 
-import com.interride.model.entity.Pasajero;
-import lombok.*;
-import org.springframework.security.core.*;
+import com.interride.model.entity.Pasajero;   // ← ajusta tu paquete entity si cambia
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
 
-@Getter
-@AllArgsConstructor
 public class UserPrincipal implements UserDetails {
 
-    private Integer id;
-    private String username;
-    private String password;
-    private Collection<? extends GrantedAuthority> authorities;
+    private final Pasajero pasajero;
 
-    public static UserPrincipal create(Pasajero p) {
-        return new UserPrincipal(
-                p.getId(),
-                p.getUsername(),
-                p.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
+    /*----------------------------------------------------------*/
+    /*  FACTORY METHOD ESPERADO POR CustomUserDetailsService    */
+    /*----------------------------------------------------------*/
+    public static UserPrincipal create(Pasajero pasajero) {
+        return new UserPrincipal(pasajero);
     }
 
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
+    private UserPrincipal(Pasajero pasajero) {
+        this.pasajero = pasajero;
+    }
+
+    /*----------------------------------------------------------*/
+    /*  Si el id es Integer en tu entidad, devuelve Integer     */
+    /*----------------------------------------------------------*/
+    public Integer getId() {
+        return pasajero.getId();
+    }
+
+    @Override public String getUsername()               { return pasajero.getCorreo(); }
+    @Override public String getPassword()               { return pasajero.getPassword(); }
+    @Override public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    /* Métodos de contrato UserDetails */
+    @Override public boolean isAccountNonExpired()     { return true; }
+    @Override public boolean isAccountNonLocked()      { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override public boolean isEnabled()               { return true; }
 }
