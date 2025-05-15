@@ -1,30 +1,41 @@
 package com.interride.controller;
 
-import com.interride.model.entity.Pasajero;
+import com.interride.dto.*;
+import com.interride.security.TokenProvider;
 import com.interride.service.PasajeroService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-
 public class AuthController {
 
     private final PasajeroService pasajeroService;
+    private final AuthenticationManager authManager;
+    private final TokenProvider tokenProvider;
 
-    // Endpoint para registrar pasajeros
-    @PostMapping
-    public ResponseEntity<Pasajero> register(@RequestBody Pasajero pasajero){
-        Pasajero newPasajero = pasajeroService.registerPasajero(pasajero);
-        return new ResponseEntity<>(newPasajero, HttpStatus.CREATED);
+    @PostMapping("/register")
+    public ResponseEntity<PasajeroProfileDTO> register(
+            @Valid @RequestBody PasajeroRegistrationDTO dto) {
+
+        PasajeroProfileDTO resp = pasajeroService.register(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(
+            @Valid @RequestBody LoginDTO dto) {
 
+        Authentication auth = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
+
+        String token = tokenProvider.createToken(auth);
+        return ResponseEntity.ok(new AuthResponseDTO(token));
+    }
 }

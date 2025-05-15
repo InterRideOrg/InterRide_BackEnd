@@ -1,10 +1,7 @@
 package com.interride.service;
 
-import com.interride.model.entity.Pasajero;
-
-import java.util.List;
+import com.interride.dto.*;
 
 public interface PasajeroService {
-    Pasajero registerPasajero(Pasajero pasajero);
-
+    PasajeroProfileDTO register(PasajeroRegistrationDTO dto);
 }

@@ -1,42 +1,48 @@
-package com.interride.service.Impl;
+package com.interride.service.impl;
 
+import com.interride.dto.*;
+import com.interride.mapper.PasajeroMapper;
 import com.interride.model.entity.Pasajero;
 import com.interride.repository.PasajeroRepository;
 import com.interride.service.EmailService;
 import com.interride.service.PasajeroService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class PasajeroServiceImpl implements PasajeroService {
-    private final PasajeroRepository pasajeroRepository;
+
+    private final PasajeroRepository repo;
+    private final PasajeroMapper mapper;
+    private final PasswordEncoder encoder;
     private final EmailService emailService;
 
     @Transactional
     @Override
-    public Pasajero registerPasajero(Pasajero pasajero){
-        if(pasajeroRepository.existsByCorreo(pasajero.getCorreo())){
-            throw new RuntimeException("El email ya está registrado");
-        }
-        if(pasajeroRepository.existsByTelefono(pasajero.getTelefono())){
+    public PasajeroProfileDTO register(PasajeroRegistrationDTO dto) {
+
+        if (repo.existsByCorreo(dto.getCorreo()))
+            throw new RuntimeException("El correo ya está registrado");
+        if (repo.existsByTelefono(dto.getTelefono()))
             throw new RuntimeException("El teléfono ya está registrado");
-        }
 
-        pasajero.setFechaHoraRegistro(LocalDateTime.now());
-        Pasajero saved = pasajeroRepository.save(pasajero);  // 2. Guardar primero y asignar a 'saved'
+        Pasajero entity = mapper.toEntity(dto);
+        entity.setPassword(encoder.encode(dto.getPassword()));
+        entity.setFechaHoraRegistro(LocalDateTime.now());
 
-        // --- Envío de correo de confirmación ---
-        String subject = "Bienvenido a InterRide";
-        String body = String.format(
-                "Hola %s,%n%n¡Gracias por registrarte en InterRide! Ya puedes acceder a la plataforma y reservar viajes.%n%nSaludos,%nEl equipo de InterRide",
-                saved.getNombre()
+        Pasajero saved = repo.save(entity);
+
+        emailService.sendRegistrationConfirmation(
+                saved.getCorreo(),
+                "Bienvenido a InterRide",
+                String.format("Hola %s, gracias por registrarte.", saved.getNombre())
         );
-        emailService.sendRegistrationConfirmation(saved.getCorreo(), subject, body);
 
-        return saved;  // Devolver el objeto guardado
+        return mapper.toProfileDTO(saved);
     }
 }
