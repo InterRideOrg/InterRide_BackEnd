@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ViajeService {
     List<PasajeroViajesResponse> getViajesByPasajeroId(Integer pasajeroId);
+
 }
