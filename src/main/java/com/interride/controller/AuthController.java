@@ -67,7 +67,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-
+/*
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String,String>> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequest dto) {
@@ -82,5 +82,5 @@ public class AuthController {
 
         passwordResetService.resetPassword(token, dto.getPassword());
         return ResponseEntity.ok(Map.of("message","Contraseña actualizada"));
-    }
+    }*/
 }
