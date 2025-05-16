@@ -1,17 +1,20 @@
 package com.interride.controller;
 
-import com.interride.dto.*;
+import com.interride.dto.request.ForgotPasswordRequest;
+import com.interride.dto.request.LoginRequest;
+import com.interride.dto.request.PasajeroRegistrationRequest;
+import com.interride.dto.request.ResetPasswordRequest;
+import com.interride.dto.response.AuthResponse;
+import com.interride.dto.response.PasajeroProfileResponse;
 import com.interride.mapper.PasajeroMapper;
 import com.interride.model.entity.Pasajero;
 import com.interride.security.TokenProvider;
 import com.interride.security.UserPrincipal;
 import com.interride.service.PasajeroService;
 import com.interride.service.PasswordResetService;
-import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -33,18 +36,18 @@ public class AuthController {
 
     /* ---------- registro ---------- */
     @PostMapping("/register")
-    public ResponseEntity<PasajeroProfileDTO> register(
-            @Valid @RequestBody PasajeroRegistrationDTO dto) {
+    public ResponseEntity<PasajeroProfileResponse> register(
+            @Valid @RequestBody PasajeroRegistrationRequest dto) {
 
-        PasajeroProfileDTO profile = pasajeroService.register(dto);
+        PasajeroProfileResponse profile = pasajeroService.register(dto);
         return ResponseEntity.status(201).body(profile);
     }
 
     /* ---------- login ---------- */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDTO.getCorreo(), loginDTO.getPassword())
+                new UsernamePasswordAuthenticationToken(loginRequest.getCorreo(), loginRequest.getPassword())
         );
 
         // ①  Obtenemos el Pasajero desde la autenticación
@@ -52,10 +55,10 @@ public class AuthController {
         Pasajero pasajero = pasajeroService.getById(principal.getId());
 
         // ②  Mapeamos a DTO
-        PasajeroProfileDTO profileDTO = modelMapper.map(pasajero, PasajeroProfileDTO.class);
+        PasajeroProfileResponse profileDTO = modelMapper.map(pasajero, PasajeroProfileResponse.class);
 
         // ③  Construimos la respuesta
-        AuthResponseDTO response = new AuthResponseDTO(
+        AuthResponse response = new AuthResponse(
                 tokenProvider.createAccessToken(auth),
                 tokenProvider.getExpiration(),
                 "Bearer",
@@ -67,7 +70,7 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String,String>> forgotPassword(
-            @Valid @RequestBody ForgotPasswordDTO dto) {
+            @Valid @RequestBody ForgotPasswordRequest dto) {
         passwordResetService.createPasswordResetToken(dto.getCorreo());
         return ResponseEntity.ok(Map.of("message", "Se envió un enlace de recuperación al correo"));
     }
@@ -75,7 +78,7 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<Map<String,String>> resetPassword(
             @RequestParam String token,
-            @Valid @RequestBody ResetPasswordDTO dto) {
+            @Valid @RequestBody ResetPasswordRequest dto) {
 
         passwordResetService.resetPassword(token, dto.getPassword());
         return ResponseEntity.ok(Map.of("message","Contraseña actualizada"));

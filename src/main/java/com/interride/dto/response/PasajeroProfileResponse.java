@@ -1,4 +1,4 @@
-package com.interride.dto;
+package com.interride.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PasajeroProfileDTO {
+public class PasajeroProfileResponse {
     private Integer id;
     private String nombre;
     private String apellidos;
