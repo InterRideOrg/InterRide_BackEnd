@@ -1,6 +1,7 @@
 package com.interride.service.Impl;
 
 import com.interride.dto.response.PasajeroViajesResponse;
+import com.interride.dto.response.ViajeEnCursoResponse;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.ViajeRepository;
 import com.interride.service.ViajeService;
@@ -89,6 +90,36 @@ public class ViajeServiceImpl implements ViajeService {
             detalleViajeResponse = obtenerDetalleViajeNoCancelado(idViaje, idPasajero);
         }
         return detalleViajeResponse;
+    }
+
+    public ViajeEnCursoResponse obtenerDetalleViajeEnCurso(Integer idPasajero) {
+        List<Object[]> obj = viajeRepository.getViajeEnCursoById(idPasajero);
+
+        if (obj.isEmpty()) {
+            throw new RuntimeException("No hay viajes en curso para el pasajero con id: " + idPasajero);
+        }
+
+        Object[] viaje = obj.get(0);
+
+        ViajeEnCursoResponse response = new ViajeEnCursoResponse();
+        response.setId((Integer) viaje[0]);
+        response.setNombreConductor((String) viaje[1]);
+        response.setApellidoConductor((String) viaje[2]);
+        response.setModeloVehiculo((String) viaje[3]);
+        response.setPlacaVehiculo((String) viaje[4]);
+        response.setMarcaVehiculo((String) viaje[5]);
+        response.setCantidadAsientos((Integer) viaje[6]);
+        response.setAsientosOcupados((Integer) viaje[7]);
+        response.setOrigenLongitud(((Number) viaje[8]).doubleValue());
+        response.setOrigenLatitud(((Number) viaje[9]).doubleValue());
+        response.setOrigenProvincia((String) viaje[10]);
+        response.setDestinoLongitud(((Number) viaje[11]).doubleValue());
+        response.setDestinoLatitud(((Number) viaje[12]).doubleValue());
+        response.setDestinoProvincia((String) viaje[13]);
+        response.setEstadoViaje(EstadoViaje.valueOf((String) viaje[14]));
+        response.setFecha_hora_partida(((Timestamp) viaje[15]).toLocalDateTime());
+
+        return response;
     }
 
 }
