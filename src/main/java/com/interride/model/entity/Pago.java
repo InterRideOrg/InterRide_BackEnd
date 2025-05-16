@@ -39,6 +39,11 @@ public class Pago {
     private Conductor conductor;
 
     @ManyToOne
-    @JoinColumn(name = "tarjeta_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_pago_tarjeta"))
+    @JoinColumn(name = "viaje_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_pago_viaje"))
     private Viaje viaje;
+
+    @ManyToOne
+    @JoinColumn(name = "tarjeta_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_pago_tarjeta"))
+    private Tarjeta tarjeta;
+
 }
