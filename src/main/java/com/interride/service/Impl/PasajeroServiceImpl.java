@@ -1,6 +1,7 @@
 package com.interride.service.Impl;
 
 
+import com.interride.dto.*;
 import com.interride.dto.response.PasajeroPerfilPublicoResponse;
 import com.interride.dto.response.PasajeroProfileResponse;
 import com.interride.dto.request.PasajeroRegistrationRequest;
@@ -29,7 +30,7 @@ public class PasajeroServiceImpl implements PasajeroService {
     private final PasajeroMapper mapper;
     private final PasswordEncoder encoder;
     private final EmailService emailService;
-    
+
     @Transactional
     @Override
     public PasajeroPerfilPublicoResponse obtenerPerfilPasajero(Integer idPasajero) {
@@ -44,23 +45,20 @@ public class PasajeroServiceImpl implements PasajeroService {
                 pasajero.getUsername()
         );
     }
+
     @Transactional
     @Override
     public PasajeroProfileResponse register(PasajeroRegistrationRequest dto) {
 
         if (pasajeroRepository.existsByCorreo(dto.getCorreo()))
             throw new RuntimeException("El correo ya está registrado");
-
         if (pasajeroRepository.existsByTelefono(dto.getTelefono()))
             throw new RuntimeException("El teléfono ya está registrado");
-
         // Map DTO -> Entity
         Pasajero entity = mapper.toEntity(dto);
         entity.setPassword(encoder.encode(dto.getPassword()));
         entity.setFechaHoraRegistro(LocalDateTime.now());
-
         Pasajero saved = pasajeroRepository.save(entity);
-
         // Correo de bienvenida
         emailService.sendRegistrationConfirmation(
                 saved.getCorreo(),
@@ -68,10 +66,10 @@ public class PasajeroServiceImpl implements PasajeroService {
                 "Hola " + saved.getNombre()
                         + ", ¡gracias por registrarte en InterRide!"
         );
-
         // Devolvemos DTO limpio (sin password)
         return mapper.toProfileDTO(saved);
     }
+
     @Override
     @Transactional(readOnly = true)
     public Pasajero getById(Integer id) {
