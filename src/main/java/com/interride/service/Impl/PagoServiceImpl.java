@@ -28,6 +28,14 @@ public class PagoServiceImpl implements PagoService {
     private final ViajeRepository viajeRepository;
     private final ConductorRepository conductorRepository;
 
+    private void validatePagoEfectivo(Pago pago) {
+        Pasajero pasajero = pasajeroRepository.findById(pago.getPasajero().getId())
+                .orElseThrow(() -> new RuntimeException("Pasajero no encontrado con id: " + pago.getPasajero().getId()));
+
+        Conductor conductor = conductorRepository.findById(pago.getConductor().getId())
+                .orElseThrow(() -> new RuntimeException("Conductor no encontrado con id: " + pago.getConductor().getId()));
+    }
+
     private void validatePagoTarjeta(Pago pago, Tarjeta tarjeta) {
         Pasajero pasajero = pasajeroRepository.findById(pago.getPasajero().getId())
                 .orElseThrow(() -> new RuntimeException("Pasajero no encontrado con id: " + pago.getPasajero().getId()));
@@ -66,7 +74,11 @@ public class PagoServiceImpl implements PagoService {
     @Transactional
     @Override
     public PagoResponse createPagoEfectivo(CreatePagoRequest pago) {
-        return null;
+        Pago pagoActual = pagoMapper.toEntity(pago);
+        validatePagoEfectivo(pagoActual);
+        pagoActual.setFechaHoraPago(LocalDateTime.now());
+        Pago nuevoPago = pagoRepository.save(pagoActual);
+        return pagoMapper.toResponse(nuevoPago);
     }
 
     @Transactional

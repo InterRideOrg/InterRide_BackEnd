@@ -31,6 +31,12 @@ public class PagoController {
         return new ResponseEntity<>(pago, org.springframework.http.HttpStatus.CREATED);
     }
 
+    @PostMapping("/efectivo")
+    public ResponseEntity<PagoResponse> createPagoEfectivo(@Valid @RequestBody CreatePagoRequest request){
+        PagoResponse pago = pagoService.createPagoEfectivo(request);
+        return new ResponseEntity<>(pago, org.springframework.http.HttpStatus.CREATED);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<PagoResponse> updatePago(@PathVariable Integer id, @RequestBody UpdatePagoRequest request){
         PagoResponse pago = pagoService.updatePago(id, request);
