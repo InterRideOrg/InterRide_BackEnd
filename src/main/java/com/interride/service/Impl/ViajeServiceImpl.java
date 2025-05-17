@@ -138,7 +138,7 @@ public class ViajeServiceImpl implements ViajeService {
             throw new RuntimeException("El viaje con ID " + idViaje + " no existe.");
         }
 
-        if (!viajeRepository.isViajeCancelado(idViaje)) {
+        if (viajeRepository.isViajeCancelado(idViaje)) {
             throw new RuntimeException("El viaje con ID " + idViaje + " ya está cancelado." + viajeRepository.isViajeCancelado(idViaje));
         }
         if (viajeRepository.isViajeEnCurso(idViaje).get(0)[0].equals(true)) {
