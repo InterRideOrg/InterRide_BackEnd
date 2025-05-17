@@ -7,6 +7,7 @@ import com.interride.dto.response.ViajeEnCursoResponse;
 import com.interride.service.ViajeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,5 +34,17 @@ public class ViajeController {
         ViajeEnCursoResponse response = viajeService.obtenerDetalleViajeEnCurso(id_pasajero);
         return ResponseEntity.ok(response);
     }
+
+    // Conductor cancela viaje
+    @PutMapping("/{id_conductor}/{id_viaje}/cancel")
+    public ResponseEntity<?> cancelarViaje(@PathVariable("id_viaje") Integer idViaje) {
+        boolean exito = viajeService.cancelarViaje(idViaje);
+        if (exito) {
+            return ResponseEntity.ok("Viaje cancelado correctamente.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Viaje no encontrado.");
+        }
+    }
+
 
 }

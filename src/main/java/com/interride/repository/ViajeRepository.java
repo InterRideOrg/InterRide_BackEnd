@@ -2,9 +2,14 @@ package com.interride.repository;
 
 import com.interride.model.entity.Viaje;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     @Query(value= """
@@ -60,13 +65,16 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     """, nativeQuery = true)
     List<Object[]> getDetalleViajeCancelado(@Param("idViaje") Integer idViaje);
 
-    // return bool: true si el viaje esta cancelado
     @Query(value = """
-        SELECT CASE WHEN v.estado = 'CANCELADO' THEN true ELSE false END
-        FROM viaje v
-        WHERE v.id = :idViaje
+    SELECT CASE 
+        WHEN v.estado = 'CANCELADO' THEN TRUE
+        ELSE FALSE
+    END
+    FROM viaje v
+    WHERE v.id = :idViaje
     """, nativeQuery = true)
     Boolean isViajeCancelado(@Param("idViaje") Integer idViaje);
+
 
 
     @Query(value = """
@@ -97,5 +105,40 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
       AND v.estado = 'EN_CURSO';
     """, nativeQuery = true)
     List<Object[]> getViajeEnCursoById(@Param("idPasajero") Integer idPasajero);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+    UPDATE viaje
+    SET estado = 'CANCELADO'
+    WHERE id = :idViaje
+""", nativeQuery = true)
+    int cancelarViaje(@Param("idViaje") Integer idViaje);
+
+
+
+    @Query(value = """
+        SELECT CASE WHEN v.estado = 'EN_CURSO' THEN true ELSE false END
+        FROM viaje v
+        WHERE v.id = :idViaje
+    """, nativeQuery = true)
+    List<Object[]> isViajeEnCurso(@Param("idViaje") Integer idViaje);
+
+    @Query(value = """
+        SELECT pv.pasajero_id
+        FROM pasajero_viaje pv
+        WHERE pv.viaje_id = :id_viaje
+    """, nativeQuery = true)
+    List<Object[]> getPasajerosIdsByViajeId(@Param("id_viaje") Integer idViaje);
+
+    @Query(value = """
+        SELECT v.conductor_id
+        FROM viaje v
+        WHERE v.id = :id_viaje
+        AND v.conductor_id IS NOT NULL
+""", nativeQuery = true)
+    Optional<Integer> getConductorIdByViajeId(@Param("id_viaje") Integer idViaje);
+
 
 }

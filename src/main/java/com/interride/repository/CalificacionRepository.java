@@ -15,4 +15,5 @@ public interface CalificacionRepository extends JpaRepository<Calificacion, Inte
     List<Calificacion> findByConductorId(@Param("id") Integer id);
 
 
+
 }

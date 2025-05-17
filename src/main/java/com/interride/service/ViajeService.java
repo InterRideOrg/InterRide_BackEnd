@@ -14,4 +14,5 @@ public interface ViajeService {
 
     DetalleViajeResponse obtenerDetalleViaje(Integer idViaje, Integer idPasajero);
     ViajeEnCursoResponse obtenerDetalleViajeEnCurso(Integer idPasajero);
+    boolean cancelarViaje(Integer idViaje);
 }
