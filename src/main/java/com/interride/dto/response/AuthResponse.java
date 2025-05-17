@@ -1,4 +1,4 @@
-package com.interride.dto;
+package com.interride.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import lombok.Builder.Default;
 
 @Data @AllArgsConstructor
 @Builder
-public class AuthResponseDTO {
+public class AuthResponse {
 
     private String token;
     private long   expiresIn;
@@ -16,5 +16,5 @@ public class AuthResponseDTO {
     private String tokenType = "Bearer";
 
     @Default
-    private PasajeroProfileDTO profile = null;
+    private PasajeroProfileResponse profile = null;
 }

@@ -2,8 +2,9 @@ package com.interride.service.Impl;
 
 
 import com.interride.dto.*;
-import com.interride.dto.PasajeroRegistrationDTO;
 import com.interride.dto.response.PasajeroPerfilPublicoResponse;
+import com.interride.dto.response.PasajeroProfileResponse;
+import com.interride.dto.request.PasajeroRegistrationRequest;
 import com.interride.mapper.PasajeroMapper;
 import com.interride.model.entity.Pasajero;
 import jakarta.persistence.EntityNotFoundException;      
@@ -47,7 +48,8 @@ public class PasajeroServiceImpl implements PasajeroService {
 
     @Transactional
     @Override
-    public PasajeroProfileDTO register(PasajeroRegistrationDTO dto) {
+    public PasajeroProfileResponse register(PasajeroRegistrationRequest dto) {
+
         if (pasajeroRepository.existsByCorreo(dto.getCorreo()))
             throw new RuntimeException("El correo ya está registrado");
         if (pasajeroRepository.existsByTelefono(dto.getTelefono()))

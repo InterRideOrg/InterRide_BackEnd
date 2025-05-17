@@ -1,10 +1,10 @@
-package com.interride.dto;
+package com.interride.dto.request;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
-public class PasajeroRegistrationDTO {
+public class PasajeroRegistrationRequest {
     @NotBlank private String nombre;
     @NotBlank private String apellidos;
     @Email   @NotBlank private String correo;
