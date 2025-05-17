@@ -46,7 +46,6 @@ public class ReclamoServiceImpl implements ReclamoService {
 
         Reclamo nuevoReclamo = reclamoRepository.save(reclamo);
 
-        // ⬇️ AQUÍ se construye el mensaje y se envía en el response
         return new ReclamoResponse(
                 nuevoReclamo.getId(),
                 "Reclamo enviado. Nos comunicaremos en 24h." ,
