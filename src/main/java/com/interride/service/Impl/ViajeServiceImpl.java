@@ -1,6 +1,7 @@
 package com.interride.service.Impl;
 
 import com.interride.dto.response.PasajeroViajesResponse;
+
 import com.interride.dto.response.ViajeEnCursoResponse;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.NotificacionRepository;
@@ -12,18 +13,22 @@ import org.springframework.stereotype.Service;
 import com.interride.dto.response.DetalleViajeResponse;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.time.LocalDateTime;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
+
 @RequiredArgsConstructor
 @Service
 public class ViajeServiceImpl implements ViajeService {
+
     @Autowired
     private final ViajeRepository viajeRepository;
     @Autowired
     private final NotificacionRepository notificacionRespository;
+
 
     @Override
     public List<PasajeroViajesResponse> getViajesByPasajeroId(Integer pasajeroId) {
@@ -43,6 +48,7 @@ public class ViajeServiceImpl implements ViajeService {
                 ((Number) obj[7]).doubleValue()
         )).toList();
     }
+
 
     public DetalleViajeResponse obtenerDetalleViajeNoCancelado(Integer idViaje, Integer idPasajero) {
         List<Object[]> obj = viajeRepository.getDetalleViajeById(idViaje, idPasajero);
@@ -168,3 +174,4 @@ public class ViajeServiceImpl implements ViajeService {
     }
 
 }
+

@@ -1,6 +1,7 @@
 package com.interride.controller;
 
 
+
 import com.interride.dto.response.DetalleViajeResponse;
 import com.interride.dto.response.PasajeroViajesResponse;
 import com.interride.dto.response.ViajeEnCursoResponse;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ViajeController {
     private final ViajeService viajeService;
+
 
     @GetMapping("/{id_pasajero}/history")
     public ResponseEntity<List<PasajeroViajesResponse>> getViajesByPasajeroId(@PathVariable Integer id_pasajero) {
@@ -48,3 +50,4 @@ public class ViajeController {
 
 
 }
+

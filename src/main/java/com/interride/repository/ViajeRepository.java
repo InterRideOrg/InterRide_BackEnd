@@ -2,14 +2,15 @@ package com.interride.repository;
 
 import com.interride.model.entity.Viaje;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import java.util.List;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Optional;
+
 
 public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     @Query(value= """
@@ -142,3 +143,4 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
 
 
 }
+
