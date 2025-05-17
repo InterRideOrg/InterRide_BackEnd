@@ -1,12 +1,9 @@
 package com.interride.controller;
 
-import com.interride.dto.*;
 import com.interride.dto.request.ConductorRegistroRequest;
 import com.interride.dto.response.ConductorRegistroResponse;
-import com.interride.dto.request.ForgotPasswordRequest;
 import com.interride.dto.request.LoginRequest;
 import com.interride.dto.request.PasajeroRegistrationRequest;
-import com.interride.dto.request.ResetPasswordRequest;
 import com.interride.dto.response.AuthResponse;
 import com.interride.dto.response.PasajeroProfileResponse;
 
@@ -20,6 +17,7 @@ import com.interride.service.PasswordResetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;

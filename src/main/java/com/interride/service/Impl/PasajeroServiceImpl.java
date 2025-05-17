@@ -1,7 +1,6 @@
 package com.interride.service.Impl;
 
 
-import com.interride.dto.*;
 import com.interride.dto.response.PasajeroPerfilPublicoResponse;
 import com.interride.dto.response.PasajeroProfileResponse;
 import com.interride.dto.request.PasajeroRegistrationRequest;
