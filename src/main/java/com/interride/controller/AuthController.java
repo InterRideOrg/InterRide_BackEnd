@@ -1,10 +1,13 @@
 package com.interride.controller;
 
 import com.interride.dto.*;
+import com.interride.dto.request.ConductorRegistroRequest;
+import com.interride.dto.response.ConductorRegistroResponse;
 import com.interride.mapper.PasajeroMapper;
 import com.interride.model.entity.Pasajero;
 import com.interride.security.TokenProvider;
 import com.interride.security.UserPrincipal;
+import com.interride.service.ConductorService;
 import com.interride.service.PasajeroService;
 import com.interride.service.PasswordResetService;
 import jakarta.mail.MessagingException;
@@ -30,6 +33,7 @@ public class AuthController {
     private final TokenProvider tokenProvider;
     private final PasajeroMapper pasajeroMapper;
     private final ModelMapper modelMapper;
+    private final ConductorService conductorService;
 
     /* ---------- registro ---------- */
     @PostMapping("/register")
@@ -39,6 +43,13 @@ public class AuthController {
         PasajeroProfileDTO profile = pasajeroService.register(dto);
         return ResponseEntity.status(201).body(profile);
     }
+
+    @PostMapping("/registerConductor")
+    public ResponseEntity<ConductorRegistroResponse> registrar(@RequestBody @Valid ConductorRegistroRequest request) {
+        ConductorRegistroResponse response = conductorService.registrarConductor(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
 
     /* ---------- login ---------- */
     @PostMapping("/login")
