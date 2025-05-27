@@ -4,14 +4,18 @@ package com.interride.controller;
 
 import com.interride.dto.response.DetalleViajeResponse;
 import com.interride.dto.response.PasajeroViajesResponse;
+import com.interride.dto.response.ViajeDisponibleResponse;
 import com.interride.dto.response.ViajeEnCursoResponse;
 import com.interride.service.ViajeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -48,6 +52,22 @@ public class ViajeController {
         }
     }
 
+
+    @GetMapping("/viajesDisponibles")
+    public ResponseEntity<List<ViajeDisponibleResponse>> obtenerViajesDisponibles(
+        @RequestParam String provinciaOrigen,
+        @RequestParam String provinciaDestino,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaViaje
+
+    ){
+        List<ViajeDisponibleResponse> response  = viajeService.obtenerViajesDisponibles(
+                provinciaOrigen,
+                provinciaDestino,
+                fechaViaje
+        );
+
+        return ResponseEntity.ok(response);
+    }
 
 }
 
