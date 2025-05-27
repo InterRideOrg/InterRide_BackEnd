@@ -2,6 +2,7 @@ package com.interride.service.Impl;
 
 import com.interride.dto.response.PasajeroViajesResponse;
 
+import com.interride.dto.response.ViajeDisponibleResponse;
 import com.interride.dto.response.ViajeEnCursoResponse;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.NotificacionRepository;
@@ -14,10 +15,9 @@ import com.interride.dto.response.DetalleViajeResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -171,6 +171,23 @@ public class ViajeServiceImpl implements ViajeService {
 
 
         return filas_afectadas>0;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ViajeDisponibleResponse> obtenerViajesDisponibles(String provinciaOrigen, String provinciaDestino, LocalDate fechaViaje){
+        /* Sera descomentado en la fase de produccion
+        if(fechaViaje.isBefore(LocalDate.now())){
+            throw  new RuntimeException("La fecha del viaje tiene que ser posterior o igual al de hoy");
+        }
+        */
+
+
+        return viajeRepository.findViajesDisponibles(
+                provinciaOrigen,
+                provinciaDestino,
+                fechaViaje
+        );
     }
 
 }

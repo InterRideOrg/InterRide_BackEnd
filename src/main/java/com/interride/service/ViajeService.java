@@ -3,9 +3,11 @@ package com.interride.service;
 
 import com.interride.dto.response.DetalleViajeResponse;
 import com.interride.dto.response.PasajeroViajesResponse;
+import com.interride.dto.response.ViajeDisponibleResponse;
 import com.interride.dto.response.ViajeEnCursoResponse;
 
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -19,5 +21,11 @@ public interface ViajeService {
     DetalleViajeResponse obtenerDetalleViaje(Integer idViaje, Integer idPasajero);
     ViajeEnCursoResponse obtenerDetalleViajeEnCurso(Integer idPasajero);
     boolean cancelarViaje(Integer idViaje);
+
+    List<ViajeDisponibleResponse> obtenerViajesDisponibles(String provinciaOrigen, String provinciaDestino, LocalDate fechaViaje);
+
+
+
+
 }
 
