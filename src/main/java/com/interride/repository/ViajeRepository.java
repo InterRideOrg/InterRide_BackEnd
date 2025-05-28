@@ -1,5 +1,6 @@
 package com.interride.repository;
 
+import com.interride.dto.response.ViajeCompletadoResponse;
 import com.interride.model.entity.Viaje;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -161,6 +162,22 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
             @Param("provinciaOrigen") String provinciaOrigen,
             @Param("provinciaDestino") String provinciaDestino,
             @Param("fechaPartida") LocalDate fechaPartida
+    );
+
+    @Query("SELECT NEW com.interride.dto.response.ViajeCompletadoResponse(" +
+            "v.id, uo.provincia, ud.provincia, uo.direccion, v.fechaHoraPartida, " +
+            "SUM(pv.costo), AVG(c.estrellas)) " +
+            "FROM Viaje v " +
+            "JOIN Ubicacion uo ON uo.viaje.id = v.id " + // Origen
+            "JOIN PasajeroViaje pv ON pv.viaje.id = v.id " +
+            "JOIN Ubicacion ud ON ud.id = pv.ubicacion.id " + // Destino
+            "JOIN Calificacion c ON c.id = v.id " +
+            "WHERE v.estado = com.interride.model.enums.EstadoViaje.COMPLETADO " +
+            "AND v.conductor.id = :idConductor " +
+            "GROUP BY v.id , uo.provincia, ud.provincia, uo.direccion, v.fechaHoraPartida " +
+            "ORDER BY v.fechaHoraPartida DESC")
+    List<ViajeCompletadoResponse> findViajesCompletadosByConductorId(
+            @Param("idConductor") Integer idConductor
     );
 
 }
