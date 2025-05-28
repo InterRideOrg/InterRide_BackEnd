@@ -2,10 +2,7 @@ package com.interride.controller;
 
 
 
-import com.interride.dto.response.DetalleViajeResponse;
-import com.interride.dto.response.PasajeroViajesResponse;
-import com.interride.dto.response.ViajeDisponibleResponse;
-import com.interride.dto.response.ViajeEnCursoResponse;
+import com.interride.dto.response.*;
 import com.interride.service.ViajeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +63,12 @@ public class ViajeController {
                 fechaViaje
         );
 
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/viajesCompletados/{id_conductor}")
+    public ResponseEntity<List<ViajeCompletadoResponse>> obtenerViajesCompletados(@PathVariable Integer id_conductor) {
+        List<ViajeCompletadoResponse> response = viajeService.obtenerViajesCompletados(id_conductor);
         return ResponseEntity.ok(response);
     }
 

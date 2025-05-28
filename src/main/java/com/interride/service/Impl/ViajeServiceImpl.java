@@ -1,9 +1,7 @@
 package com.interride.service.Impl;
 
-import com.interride.dto.response.PasajeroViajesResponse;
+import com.interride.dto.response.*;
 
-import com.interride.dto.response.ViajeDisponibleResponse;
-import com.interride.dto.response.ViajeEnCursoResponse;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.NotificacionRepository;
 import com.interride.repository.ViajeRepository;
@@ -11,7 +9,6 @@ import com.interride.service.ViajeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.interride.dto.response.DetalleViajeResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -181,13 +178,17 @@ public class ViajeServiceImpl implements ViajeService {
             throw  new RuntimeException("La fecha del viaje tiene que ser posterior o igual al de hoy");
         }
         */
-
-
         return viajeRepository.findViajesDisponibles(
                 provinciaOrigen,
                 provinciaDestino,
                 fechaViaje
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor) {
+        return viajeRepository.findViajesCompletadosByConductorId(idConductor);
     }
 
 }
