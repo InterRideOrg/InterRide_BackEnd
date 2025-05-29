@@ -1,5 +1,6 @@
 package com.interride.service;
 
+import com.interride.dto.response.CalificacionPromedioConductorResponse;
 import com.interride.dto.response.CalificacionResponse;
 import com.interride.dto.request.CreateCalificacionRequest;
 import com.interride.dto.request.UpdateCalificacionRequest;
@@ -16,4 +17,5 @@ public interface CalificacionService {
     CalificacionResponse update(Integer id, UpdateCalificacionRequest request);
     void delete(Integer id);
 
+    CalificacionPromedioConductorResponse findAverageRatingAndCommentsByConductorId(Integer conductorId);
 }
