@@ -12,15 +12,6 @@ import java.util.List;
 
 @Component
 public class ViajeMapper {
-    /*
-    Integer idViaje,
-        EstadoViaje estadoViaje,
-        String provinciaOrigen,
-        String provinciaDestino,
-        String direccionOrigen,
-        LocalDateTime fechaHoraPartida,
-        Integer asientosDisponibles
-     */
     public ViajeAceptadoResponse toViajeAceptadoResponse(Viaje viaje, Conductor conductor, Ubicacion origen, Ubicacion destino) {
         return new ViajeAceptadoResponse(
                 viaje.getId(),
