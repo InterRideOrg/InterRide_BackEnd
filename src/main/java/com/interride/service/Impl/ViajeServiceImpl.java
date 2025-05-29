@@ -2,9 +2,15 @@ package com.interride.service.Impl;
 
 import com.interride.dto.response.*;
 
+import com.interride.exception.BusinessRuleException;
+import com.interride.exception.ResourceNotFoundException;
+import com.interride.mapper.ViajeMapper;
+import com.interride.model.entity.Conductor;
+import com.interride.model.entity.PasajeroViaje;
+import com.interride.model.entity.Ubicacion;
+import com.interride.model.entity.Viaje;
 import com.interride.model.enums.EstadoViaje;
-import com.interride.repository.NotificacionRepository;
-import com.interride.repository.ViajeRepository;
+import com.interride.repository.*;
 import com.interride.service.ViajeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +31,14 @@ public class ViajeServiceImpl implements ViajeService {
     private final ViajeRepository viajeRepository;
     @Autowired
     private final NotificacionRepository notificacionRespository;
+    @Autowired
+    private final ConductorRepository conductorRepository;
+    @Autowired
+    private final PasajeroViajeRepository pasajeroViajeRepository;
+    @Autowired
+    private final UbicacionRepository ubicacionRepository;
 
+    private final ViajeMapper viajeMapper;
 
     @Override
     public List<PasajeroViajesResponse> getViajesByPasajeroId(Integer pasajeroId) {
@@ -189,6 +202,57 @@ public class ViajeServiceImpl implements ViajeService {
     @Transactional(readOnly = true)
     public List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor) {
         return viajeRepository.findViajesCompletadosByConductorId(idConductor);
+    }
+
+    @Override
+    @Transactional
+    public ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor) {
+        // Verificar si el viaje existe
+        Viaje viaje = viajeRepository.findById(idViaje)
+                .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
+
+        // Verificar si el conductor existe
+        Conductor conductor = conductorRepository.findById(idConductor)
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
+
+        // Obtener el ID de la ubicación de destino del viaje
+        PasajeroViaje boletoInicial = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
+        ;
+
+
+        Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
+
+        Ubicacion destino = ubicacionRepository.findById(boletoInicial.getUbicacion().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("La ubicación de destino con ID " + boletoInicial.getUbicacion().getId() + " no existe."));
+
+        // Verificar si el viaje ya está aceptado
+        if (!viaje.getEstado().equals(EstadoViaje.SOLICITADO)) {
+            throw new BusinessRuleException("Solo se puede aceptar un viaje con estado 'SOLICITADO'. El viaje con ID " + idViaje + " tiene estado: " + viaje.getEstado());
+        }
+
+        // Verificar si el conductor tiene un vehiculo
+        if (conductor.getVehiculo() == null) {
+            throw new BusinessRuleException("El conductor con ID " + idConductor + " no tiene un vehículo asociado.");
+        }
+
+        //Verificar si el carro del conductor tiene asientos suficientes
+        if(viaje.getAsientosOcupados() > conductor.getVehiculo().getCantidadAsientos()){
+            throw new BusinessRuleException("El carro del conductor con ID " + idConductor + " no tiene asientos suficientes para aceptar el viaje.");
+        }
+
+        //Actualizar el boleto inicial
+        boletoInicial.setEstado(EstadoViaje.ACEPTADO);
+        pasajeroViajeRepository.save(boletoInicial);
+
+
+        // Actualizar el estado del viaje a ACEPTADO
+        viaje.setEstado(EstadoViaje.ACEPTADO);
+        viaje.setAsientosDisponibles(conductor.getVehiculo().getCantidadAsientos() - viaje.getAsientosOcupados());
+        viaje.setConductor(conductor);
+
+        Viaje viajeAceptado = viajeRepository.save(viaje);
+
+        return viajeMapper.toViajeAceptadoResponse(viajeAceptado, conductor, origen, destino);
     }
 
 }
