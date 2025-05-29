@@ -244,6 +244,7 @@ public class ViajeServiceImpl implements ViajeService {
         boletoInicial.setEstado(EstadoViaje.ACEPTADO);
         pasajeroViajeRepository.save(boletoInicial);
 
+
         // Actualizar el estado del viaje a ACEPTADO
         viaje.setEstado(EstadoViaje.ACEPTADO);
         viaje.setAsientosDisponibles(conductor.getVehiculo().getCantidadAsientos() - viaje.getAsientosOcupados());
