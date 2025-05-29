@@ -1,16 +1,12 @@
 package com.interride.repository;
 
-import com.interride.dto.response.ViajeCompletadoResponse;
 import com.interride.model.entity.Viaje;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.transaction.annotation.Transactional;
-import com.interride.dto.response.ViajeDisponibleResponse;
 
 import java.sql.Timestamp;
 import java.util.Optional;
@@ -145,40 +141,6 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
 """, nativeQuery = true)
     Optional<Integer> getConductorIdByViajeId(@Param("id_viaje") Integer idViaje);
 
-
-    @Query("SELECT NEW com.interride.dto.response.ViajeDisponibleResponse(" +
-            "v.id, v.conductor.id,  uo.provincia, ud.provincia, v.fechaHoraPartida, " +
-            "uo.direccion, v.asientosDisponibles) " +
-            "FROM Viaje v " +
-            "JOIN Ubicacion uo ON uo.viaje.id = v.id " + // Origen
-            "JOIN PasajeroViaje pv ON pv.viaje.id = v.id " +
-            "JOIN Ubicacion ud ON ud.id = pv.ubicacion.id " + // Destino
-            "WHERE v.estado = com.interride.model.enums.EstadoViaje.ACEPTADO " +
-            "AND v.asientosDisponibles > 0 " +
-            "AND uo.provincia = :provinciaOrigen " +
-            "AND ud.provincia = :provinciaDestino " +
-            "AND DATE(v.fechaHoraPartida) = :fechaPartida")
-    List<ViajeDisponibleResponse> findViajesDisponibles(
-            @Param("provinciaOrigen") String provinciaOrigen,
-            @Param("provinciaDestino") String provinciaDestino,
-            @Param("fechaPartida") LocalDate fechaPartida
-    );
-
-    @Query("SELECT NEW com.interride.dto.response.ViajeCompletadoResponse(" +
-            "v.id, uo.provincia, ud.provincia, uo.direccion, v.fechaHoraPartida, " +
-            "SUM(pv.costo), AVG(c.estrellas)) " +
-            "FROM Viaje v " +
-            "JOIN Ubicacion uo ON uo.viaje.id = v.id " + // Origen
-            "JOIN PasajeroViaje pv ON pv.viaje.id = v.id " +
-            "JOIN Ubicacion ud ON ud.id = pv.ubicacion.id " + // Destino
-            "JOIN Calificacion c ON c.id = v.id " +
-            "WHERE v.estado = com.interride.model.enums.EstadoViaje.COMPLETADO " +
-            "AND v.conductor.id = :idConductor " +
-            "GROUP BY v.id , uo.provincia, ud.provincia, uo.direccion, v.fechaHoraPartida " +
-            "ORDER BY v.fechaHoraPartida DESC")
-    List<ViajeCompletadoResponse> findViajesCompletadosByConductorId(
-            @Param("idConductor") Integer idConductor
-    );
 
 }
 
