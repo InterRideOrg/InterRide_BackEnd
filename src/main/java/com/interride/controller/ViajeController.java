@@ -72,5 +72,15 @@ public class ViajeController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id_viaje}/aceptar/{id_conductor}")
+    public ResponseEntity<ViajeAceptadoResponse> aceptarViaje(
+            @PathVariable("id_viaje") Integer idViaje,
+            @PathVariable("id_conductor") Integer idConductor
+    ) {
+        ViajeAceptadoResponse response = viajeService.aceptarViaje(idViaje, idConductor);
+        return ResponseEntity.ok(response);
+    }
+
+
 }
 

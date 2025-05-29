@@ -23,6 +23,7 @@ public interface ViajeService {
 
     List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor);
 
+    ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor);
 
 }
 
