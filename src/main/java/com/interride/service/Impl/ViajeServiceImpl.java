@@ -217,6 +217,8 @@ public class ViajeServiceImpl implements ViajeService {
 
         // Obtener el ID de la ubicación de destino del viaje
         PasajeroViaje boletoInicial = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
+        ;
+
 
         Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
 
@@ -237,6 +239,10 @@ public class ViajeServiceImpl implements ViajeService {
         if(viaje.getAsientosOcupados() > conductor.getVehiculo().getCantidadAsientos()){
             throw new BusinessRuleException("El carro del conductor con ID " + idConductor + " no tiene asientos suficientes para aceptar el viaje.");
         }
+
+        //Actualizar el boleto inicial
+        boletoInicial.setEstado(EstadoViaje.ACEPTADO);
+        pasajeroViajeRepository.save(boletoInicial);
 
         // Actualizar el estado del viaje a ACEPTADO
         viaje.setEstado(EstadoViaje.ACEPTADO);
