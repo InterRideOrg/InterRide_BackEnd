@@ -2,7 +2,6 @@ package com.interride.controller;
 
 import com.interride.dto.request.CreateCalificacionRequest;
 import com.interride.dto.request.UpdateCalificacionRequest;
-import com.interride.dto.response.CalificacionPromedioConductorResponse;
 import com.interride.dto.response.CalificacionResponse;
 import com.interride.model.entity.Calificacion;
 import com.interride.service.CalificacionService;
@@ -33,9 +32,9 @@ public class CalificacionController {
     }
 
     @GetMapping("/conductor/{id}")
-    public ResponseEntity<CalificacionPromedioConductorResponse> getCalificacionPromedioYComentariosByConductorId(@PathVariable Integer id){
-        CalificacionPromedioConductorResponse calificaciones = calificacionService.findAverageRatingAndCommentsByConductorId(id);
-        return ResponseEntity.ok(calificaciones);
+    public ResponseEntity<List<CalificacionResponse>> getCalificacionByConductorId(@PathVariable Integer id){
+        List<CalificacionResponse> calificacionesPorConductor = calificacionService.findByConductorId(id);
+        return new ResponseEntity<>(calificacionesPorConductor, HttpStatus.OK);
     }
 
     @PostMapping

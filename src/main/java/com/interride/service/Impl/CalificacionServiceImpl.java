@@ -1,10 +1,8 @@
 package com.interride.service.Impl;
 
-import com.interride.dto.response.CalificacionPromedioConductorResponse;
 import com.interride.dto.response.CalificacionResponse;
 import com.interride.dto.request.CreateCalificacionRequest;
 import com.interride.dto.request.UpdateCalificacionRequest;
-import com.interride.exception.ResourceNotFoundException;
 import com.interride.model.entity.Calificacion;
 import com.interride.model.entity.Conductor;
 import com.interride.model.entity.Pasajero;
@@ -64,6 +62,7 @@ public class CalificacionServiceImpl implements CalificacionService {
         }
         // Otras validaciones for the future :b
     }
+
 
 
     @Transactional(readOnly = true)
@@ -131,22 +130,5 @@ public class CalificacionServiceImpl implements CalificacionService {
         calificacionRepository.delete(calificacion);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public CalificacionPromedioConductorResponse findAverageRatingAndCommentsByConductorId(Integer conductorId) {
-        Double promedioCalificacion = calificacionRepository.findAverageRatingByConductorId(conductorId);
-        List<CalificacionResponse> calificaciones = calificacionRepository.findByConductorId(conductorId)
-                .stream().map(calificacionMapper::toResponse).toList();
-
-        if (calificaciones.isEmpty()) {
-            throw new ResourceNotFoundException("No se encontraron calificaciones para el conductor con id: " + conductorId);
-        }
-
-        return new CalificacionPromedioConductorResponse(
-                conductorId,
-                promedioCalificacion,
-                calificaciones
-        );
-    }
 
 }
