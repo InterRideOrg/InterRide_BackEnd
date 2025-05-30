@@ -5,10 +5,7 @@ import com.interride.dto.response.*;
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.ViajeMapper;
-import com.interride.model.entity.Conductor;
-import com.interride.model.entity.PasajeroViaje;
-import com.interride.model.entity.Ubicacion;
-import com.interride.model.entity.Viaje;
+import com.interride.model.entity.*;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.*;
 import com.interride.service.ViajeService;
@@ -20,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -147,40 +145,56 @@ public class ViajeServiceImpl implements ViajeService {
 
     @Override
     @Transactional
-    public boolean cancelarViaje(Integer idViaje) {
+    public ViajeCanceladoResponse cancelarViaje(Integer idViaje) {
         // Verificar si el viaje existe
+        Viaje viaje = viajeRepository.findById(idViaje)
+                .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
+        Conductor conductor = conductorRepository.findById(viaje.getConductor().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + viaje.getConductor().getId() + " no existe."));
 
-        if (!viajeRepository.existsById(idViaje)) {
-            throw new RuntimeException("El viaje con ID " + idViaje + " no existe.");
+        List<PasajeroViaje> boletos = pasajeroViajeRepository.findPasajerosAceptadosByViajeId(viaje.getId());
+
+        if(!viaje.getEstado().equals(EstadoViaje.ACEPTADO)){
+            throw  new BusinessRuleException("El viaje con ID " + idViaje + " no está en estado ACEPTADO y no puede ser cancelado.");
         }
 
-        if (viajeRepository.isViajeCancelado(idViaje)) {
-            throw new RuntimeException("El viaje con ID " + idViaje + " ya está cancelado." + viajeRepository.isViajeCancelado(idViaje));
-        }
-        if (viajeRepository.isViajeEnCurso(idViaje).get(0)[0].equals(true)) {
-            throw new RuntimeException("El viaje con ID " + idViaje + " se encuentra en curso y no es cancelable.");
-        }
+        Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
 
+        Ubicacion destino = ubicacionRepository.findById(boletos.getFirst().getUbicacion().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("La ubicación de destino con ID " + boletos.getFirst().getUbicacion().getId() + " no existe."));
 
-        // Actualizar el estado del viaje a CANCELADO
-        int filas_afectadas = viajeRepository.cancelarViaje(idViaje);
+        //Actualizar el estado del viaje y de los boletos de pasajeros
+        viaje.setEstado(EstadoViaje.CANCELADO);
 
-        // si se cancelo correctamente, enviar una notificacion a los pasajeros y al conductor
-        if (filas_afectadas > 0) {
-            String mensaje = "Su viaje con ID " + idViaje + " ha sido cancelado.";
-            int conductorId = viajeRepository.getConductorIdByViajeId(idViaje).orElse(-1);
-            if (conductorId != -1) {
-                notificacionRespository.enviarNotificacionConductor(mensaje, conductorId);
-            }
-            List<Object[]> pasajerosIds = viajeRepository.getPasajerosIdsByViajeId(idViaje);
-            for (Object[] pasajeroId : pasajerosIds) {
-                int idPasajero = (Integer) pasajeroId[0];
-                notificacionRespository.enviarNotificacionPasajero(mensaje, idPasajero);
-            }
+        for(PasajeroViaje boleto : boletos){
+            boleto.setEstado(EstadoViaje.CANCELADO);
+            pasajeroViajeRepository.save(boleto);
         }
 
+        // Enviar notificación al conductor y a los pasajeros
+        notificacionRespository.enviarNotificacionConductor(
+                "El viaje con ID " + idViaje + " ha sido cancelado por el conductor.",
+                conductor.getId()
+        );
 
-        return filas_afectadas>0;
+        for(PasajeroViaje boleto : boletos){
+            notificacionRespository.enviarNotificacionPasajero(
+                    "El viaje con ID " + idViaje + " ha sido cancelado por el conductor. ¿Desea solicitar el mismo viaje?",
+                    boleto.getPasajero().getId()
+            );
+        }
+
+        // Guardar el viaje actualizado
+        Viaje viajeCancelado = viajeRepository.save(viaje);
+
+        return new ViajeCanceladoResponse(
+                viajeCancelado.getId(),
+                viajeCancelado.getEstado(),
+                origen.getProvincia(),
+                destino.getProvincia(),
+                viajeCancelado.getFechaHoraPartida(),
+                LocalDateTime.now()
+        );
     }
 
     @Override
