@@ -9,4 +9,7 @@ public interface UbicacionRepository extends JpaRepository<Ubicacion, Integer> {
 
     @Query("SELECT u FROM Ubicacion u WHERE u.viaje.id = :id")
     Ubicacion findByViajeId(@Param("id") Integer id);
+
+    @Query("SELECT u FROM Ubicacion u WHERE u.pasajeroViaje.id = :id")
+    Ubicacion findByPasajeroViajeId(@Param("id") Integer id);
 }

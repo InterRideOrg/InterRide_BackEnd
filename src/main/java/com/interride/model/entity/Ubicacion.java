@@ -34,4 +34,8 @@ public class Ubicacion {
     @OneToOne
     @JoinColumn(name = "viaje_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_ubicacion_viaje"))
     private Viaje viaje;
+
+    @OneToOne
+    @JoinColumn(name = "pasajero_viaje_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_ubicacion_pasajero_viaje"))
+    private PasajeroViaje pasajeroViaje;
 }

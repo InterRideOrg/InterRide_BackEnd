@@ -79,27 +79,38 @@ INSERT INTO viaje (fecha_hora_creacion, fecha_hora_partida, asientos_disponibles
                                                                                                                                (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day', 0, 3, 'SOLICITADO', NULL)
     ON CONFLICT DO NOTHING;
 
--- Insertar datos en la tabla ubicacion
-INSERT INTO ubicacion (latitud, longitud, direccion, provincia, viaje_id) VALUES
-                                                                              (-12.046373, -77.042754, 'Av. Arequipa 123', 'Lima', 1),
-                                                                              (-12.056373, -77.052754, 'Av. Javier Prado 456', 'Lima', 2),
-                                                                              (-12.066373, -77.062754, 'Av. La Marina 789', 'Lima', 3),
-                                                                              (-12.076373, -77.072754, 'Av. Brasil 012', 'Lima', 4),
-                                                                              (-12.086373, -77.082754, 'Av. Salaverry 345', 'Lima', 5),
-                                                                              (-12.096373, -77.092754, 'Av. Universitaria 678', 'Lima', 6),
-                                                                              (-12.106373, -77.102754, 'Av. Angamos 901', 'Lima', 7),
-                                                                              (-12.116373, -77.112754, 'Av. Benavides 234', 'Lima', 8),
-                                                                              (-11.853928, -77.119382, 'Av. San Martín 123', 'Huaral', NULL),
-                                                                              (-11.494987, -77.212345, 'Plaza de Armas', 'Huacho', NULL),
-                                                                              (-11.128976, -77.194563, 'Calle Comercio 456', 'Barranca', NULL),
-                                                                              (-12.231456, -76.897654, 'Av. Los Héroes 789', 'Cañete',  NULL),
-                                                                              (-10.876543, -77.654321, 'Jr. Lima 234', 'Huaura', NULL),
-                                                                              (-12.345678, -76.789012, 'Av. Progreso 567', 'Yauyos', NULL),
-                                                                              (-11.567890, -76.345678, 'Calle Grau 890', 'Cajatambo', NULL),
-                                                                              (-12.456789, -76.234567, 'Av. Libertad 123', 'Huarochirí', NULL),
-                                                                              (-11.234567, -77.012345, 'Jr. Bolívar 456', 'Oyón', NULL),
-                                                                              (-12.567890, -76.123456, 'Av. San Juan 789', 'Canta', NULL)
+INSERT INTO pasajero_viaje (fecha_hora_union, fecha_hora_llegada, costo, estado, pasajero_id, viaje_id) VALUES
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 hour', 15.50, 'COMPLETADO', 1, 1),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 20.00, 'EN_CURSO', 2, 2),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 12.75, 'SOLICITADO', 3, 3),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '30 minutes', 18.25, 'COMPLETADO', 4, 4),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 22.50, 'ACEPTADO', 5, 5),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 hour', 16.80, 'COMPLETADO', 1, 6),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 14.30, 'EN_CURSO', 1, 7),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 19.90, 'SOLICITADO', 3, 8)
     ON CONFLICT DO NOTHING;
+
+
+-- Insertar datos en la tabla ubicacion
+INSERT INTO ubicacion (latitud, longitud, direccion, provincia, viaje_id, pasajero_viaje_id) VALUES
+                                                                              (-12.046373, -77.042754, 'Av. Arequipa 123', 'Lima', 1, NULL),
+                                                                              (-12.056373, -77.052754, 'Av. Javier Prado 456', 'Lima', 2, NULL),
+                                                                              (-12.066373, -77.062754, 'Av. La Marina 789', 'Lima', 3, NULL),
+                                                                              (-12.076373, -77.072754, 'Av. Brasil 012', 'Lima', 4, NULL),
+                                                                              (-12.086373, -77.082754, 'Av. Salaverry 345', 'Lima', 5, NULL),
+                                                                              (-12.096373, -77.092754, 'Av. Universitaria 678', 'Lima', 6, NULL),
+                                                                              (-12.106373, -77.102754, 'Av. Angamos 901', 'Lima', 7, NULL),
+                                                                              (-12.116373, -77.112754, 'Av. Benavides 234', 'Lima', 8, NULL),
+                                                                              (-11.853928, -77.119382, 'Av. San Martín 123', 'Huaral', NULL, 1),
+                                                                              (-11.494987, -77.212345, 'Plaza de Armas', 'Huacho', NULL, 2),
+                                                                              (-11.128976, -77.194563, 'Calle Comercio 456', 'Barranca', NULL, 3),
+                                                                              (-12.231456, -76.897654, 'Av. Los Héroes 789', 'Cañete',  NULL, 4),
+                                                                              (-10.876543, -77.654321, 'Jr. Lima 234', 'Huaura', NULL, 5),
+                                                                              (-12.345678, -76.789012, 'Av. Progreso 567', 'Yauyos', NULL, 6),
+                                                                              (-11.567890, -76.345678, 'Calle Grau 890', 'Cajatambo', NULL, 7),
+                                                                              (-12.456789, -76.234567, 'Av. Libertad 123', 'Huarochirí', NULL, 8)
+
+    ;
 
 -- Insertar datos en la tabla calificacion
 INSERT INTO calificacion (estrellas, comentario, conductor_id, pasajero_id, viaje_id) VALUES
@@ -115,13 +126,3 @@ INSERT INTO calificacion (estrellas, comentario, conductor_id, pasajero_id, viaj
                                                                                           (3, 'El auto hacía ruidos extraños', 3, 1, 6)
     ON CONFLICT DO NOTHING;
 
-INSERT INTO pasajero_viaje (fecha_hora_union, fecha_hora_llegada, costo, estado, pasajero_id, viaje_id, ubicacion_id) VALUES
-                                                                                                                          (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 hour', 15.50, 'COMPLETADO', 1, 1, 9),
-                                                                                                                          (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 20.00, 'EN_CURSO', 2, 2, 10),
-                                                                                                                          (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 12.75, 'SOLICITADO', 3, 3, 11),
-                                                                                                                          (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '30 minutes', 18.25, 'COMPLETADO', 4, 4, 12),
-                                                                                                                          (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 22.50, 'ACEPTADO', 5, 5, 13),
-                                                                                                                          (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 hour', 16.80, 'COMPLETADO', 1, 6, 14),
-                                                                                                                          (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 14.30, 'EN_CURSO', 1, 7, 15),
-                                                                                                                          (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 19.90, 'SOLICITADO', 3, 8, 16)
-    ON CONFLICT DO NOTHING;

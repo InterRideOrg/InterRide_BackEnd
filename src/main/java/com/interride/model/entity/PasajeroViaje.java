@@ -41,8 +41,4 @@ public class PasajeroViaje {
     @ManyToOne
     @JoinColumn(name = "viaje_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_pasajeroViaje_viaje"))
     private Viaje viaje;
-
-    @ManyToOne
-    @JoinColumn(name = "ubicacion_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_pasajeroViaje_ubicacion"))
-    private Ubicacion ubicacion;
 }

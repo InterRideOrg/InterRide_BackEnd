@@ -13,7 +13,6 @@ import com.interride.repository.UbicacionRepository;
 import com.interride.repository.ViajeRepository;
 import com.interride.service.PasajeroViajeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +34,8 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
                 .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con id: " + boleto.getViaje().getId()));
 
         Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
-        Ubicacion destino = ubicacionRepository.findById(boleto.getUbicacion().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ubicación no encontrada con id: " + boleto.getUbicacion().getId()));
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boleto.getId());
+
 
         List<PasajeroViaje> pasajeros = pasajeroViajeRepository.findPasajerosAceptadosByViajeId(viaje.getId());
         //Validaciones

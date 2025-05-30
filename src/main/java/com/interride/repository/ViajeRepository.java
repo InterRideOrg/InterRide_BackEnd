@@ -141,7 +141,7 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
             "FROM Viaje v " +
             "JOIN Ubicacion uo ON uo.viaje.id = v.id " + // Origen
             "JOIN PasajeroViaje pv ON pv.viaje.id = v.id " +
-            "JOIN Ubicacion ud ON ud.id = pv.ubicacion.id " + // Destino
+            "JOIN Ubicacion ud ON ud.pasajeroViaje.id = pv.id " + // Destino
             "WHERE v.estado = com.interride.model.enums.EstadoViaje.ACEPTADO " +
             "AND v.asientosDisponibles > 0 " +
             "AND uo.provincia = :provinciaOrigen " +
@@ -159,7 +159,7 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
             "FROM Viaje v " +
             "JOIN Ubicacion uo ON uo.viaje.id = v.id " + // Origen
             "JOIN PasajeroViaje pv ON pv.viaje.id = v.id " +
-            "JOIN Ubicacion ud ON ud.id = pv.ubicacion.id " + // Destino
+            "JOIN Ubicacion ud ON ud.pasajeroViaje.id = pv.id " + // Destino
             "JOIN Calificacion c ON c.id = v.id " +
             "WHERE v.estado = com.interride.model.enums.EstadoViaje.COMPLETADO " +
             "AND v.conductor.id = :idConductor " +

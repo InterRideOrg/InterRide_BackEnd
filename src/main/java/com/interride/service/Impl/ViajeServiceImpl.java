@@ -10,7 +10,6 @@ import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.*;
 import com.interride.service.ViajeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,16 +23,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ViajeServiceImpl implements ViajeService {
-
-    @Autowired
     private final ViajeRepository viajeRepository;
-    @Autowired
-    private final NotificacionRepository notificacionRespository;
-    @Autowired
+    private final NotificacionRepository notificacionRepository;
     private final ConductorRepository conductorRepository;
-    @Autowired
     private final PasajeroViajeRepository pasajeroViajeRepository;
-    @Autowired
     private final UbicacionRepository ubicacionRepository;
 
     private final ViajeMapper viajeMapper;
@@ -43,7 +36,7 @@ public class ViajeServiceImpl implements ViajeService {
         List<Object[]> resultados = viajeRepository.getViajesByPasajeroId(pasajeroId);
         // Verificar si se encontraron resultados
         if (resultados.isEmpty()) {
-            throw new RuntimeException("No se encontraron viajes para el pasajero con id: " + pasajeroId);
+            throw new ResourceNotFoundException("No se encontraron viajes para el pasajero con id: " + pasajeroId);
         }
         return resultados.stream().map(obj -> new PasajeroViajesResponse(
                 (Integer) obj[0],
@@ -62,10 +55,10 @@ public class ViajeServiceImpl implements ViajeService {
         List<Object[]> obj = viajeRepository.getDetalleViajeById(idViaje, idPasajero);
 
         if (obj.isEmpty()) {
-            throw new RuntimeException("Viaje no encontrado.");
+            throw new ResourceNotFoundException("Viaje no encontrado.");
         }
 
-        Object[] viaje = obj.get(0);
+        Object[] viaje = obj.getFirst();
 
         DetalleViajeResponse response = new DetalleViajeResponse();
         response.setFechaHora(((Timestamp) viaje[0]).toLocalDateTime());
@@ -83,9 +76,9 @@ public class ViajeServiceImpl implements ViajeService {
         List<Object[]> obj = viajeRepository.getDetalleViajeCancelado(idViaje);
 
         if (obj.isEmpty()) {
-            throw new RuntimeException("Viaje no encontrado.");
+            throw new ResourceNotFoundException("Viaje no encontrado.");
         }
-        Object[] viaje = obj.get(0);
+        Object[] viaje = obj.getFirst();
 
         DetalleViajeResponse response = new DetalleViajeResponse();
         response.setFechaHora(((Timestamp) viaje[0]).toLocalDateTime());
@@ -117,10 +110,10 @@ public class ViajeServiceImpl implements ViajeService {
         List<Object[]> obj = viajeRepository.getViajeEnCursoById(idPasajero);
 
         if (obj.isEmpty()) {
-            throw new RuntimeException("No hay viajes en curso para el pasajero con id: " + idPasajero);
+            throw new ResourceNotFoundException("No hay viajes en curso para el pasajero con id: " + idPasajero);
         }
 
-        Object[] viaje = obj.get(0);
+        Object[] viaje = obj.getFirst();
 
         ViajeEnCursoResponse response = new ViajeEnCursoResponse();
         response.setId((Integer) viaje[0]);
@@ -160,9 +153,7 @@ public class ViajeServiceImpl implements ViajeService {
 
         Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
 
-        Ubicacion destino = ubicacionRepository.findById(boletos.getFirst().getUbicacion().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("La ubicación de destino con ID " + boletos.getFirst().getUbicacion().getId() + " no existe."));
-
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boletos.getFirst().getId());
         //Actualizar el estado del viaje y de los boletos de pasajeros
         viaje.setEstado(EstadoViaje.CANCELADO);
 
@@ -172,13 +163,13 @@ public class ViajeServiceImpl implements ViajeService {
         }
 
         // Enviar notificación al conductor y a los pasajeros
-        notificacionRespository.enviarNotificacionConductor(
+        notificacionRepository.enviarNotificacionConductor(
                 "El viaje con ID " + idViaje + " ha sido cancelado por el conductor.",
                 conductor.getId()
         );
 
         for(PasajeroViaje boleto : boletos){
-            notificacionRespository.enviarNotificacionPasajero(
+            notificacionRepository.enviarNotificacionPasajero(
                     "El viaje con ID " + idViaje + " ha sido cancelado por el conductor. ¿Desea solicitar el mismo viaje?",
                     boleto.getPasajero().getId()
             );
@@ -231,14 +222,12 @@ public class ViajeServiceImpl implements ViajeService {
 
         // Obtener el ID de la ubicación de destino del viaje
         PasajeroViaje boletoInicial = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
-        ;
+
 
 
         Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
 
-        Ubicacion destino = ubicacionRepository.findById(boletoInicial.getUbicacion().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("La ubicación de destino con ID " + boletoInicial.getUbicacion().getId() + " no existe."));
-
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boletoInicial.getId());
         // Verificar si el viaje ya está aceptado
         if (!viaje.getEstado().equals(EstadoViaje.SOLICITADO)) {
             throw new BusinessRuleException("Solo se puede aceptar un viaje con estado 'SOLICITADO'. El viaje con ID " + idViaje + " tiene estado: " + viaje.getEstado());
