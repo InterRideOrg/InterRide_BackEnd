@@ -39,14 +39,10 @@ public class ViajeController {
     }
 
     // Conductor cancela viaje
-    @PutMapping("/{id_conductor}/{id_viaje}/cancel")
-    public ResponseEntity<?> cancelarViaje(@PathVariable("id_viaje") Integer idViaje) {
-        boolean exito = viajeService.cancelarViaje(idViaje);
-        if (exito) {
-            return ResponseEntity.ok("Viaje cancelado correctamente.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Viaje no encontrado.");
-        }
+    @PutMapping("/{id_viaje}/cancelar")
+    public ResponseEntity<ViajeCanceladoResponse> cancelarViaje(@PathVariable("id_viaje") Integer idViaje) {
+        ViajeCanceladoResponse response = viajeService.cancelarViaje(idViaje);
+        return ResponseEntity.ok(response);
     }
 
 

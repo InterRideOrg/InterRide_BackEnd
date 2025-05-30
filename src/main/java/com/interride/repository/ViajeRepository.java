@@ -112,17 +112,6 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     List<Object[]> getViajeEnCursoById(@Param("idPasajero") Integer idPasajero);
 
 
-    @Modifying
-    @Transactional
-    @Query(value = """
-    UPDATE viaje
-    SET estado = 'CANCELADO'
-    WHERE id = :idViaje
-""", nativeQuery = true)
-    int cancelarViaje(@Param("idViaje") Integer idViaje);
-
-
-
     @Query(value = """
         SELECT CASE WHEN v.estado = 'EN_CURSO' THEN true ELSE false END
         FROM viaje v
