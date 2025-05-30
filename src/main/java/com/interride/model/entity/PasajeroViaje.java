@@ -34,6 +34,9 @@ public class PasajeroViaje {
     @Column(name = "estado", nullable = false, length = 20)
     private EstadoViaje estado;
 
+    @Column(name = "asientos_ocupados", nullable = false)
+    private Integer asientosOcupados;
+
     @ManyToOne
     @JoinColumn(name = "pasajero_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_pasajeroViaje_pasajero"))
     private Pasajero pasajero;
