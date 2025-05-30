@@ -51,4 +51,11 @@ public class RestExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(ValidationException.class)
+    public ProblemDetail handleValidationException(ValidationException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Error de validación");
+        return problemDetail;
+    }
+
 }

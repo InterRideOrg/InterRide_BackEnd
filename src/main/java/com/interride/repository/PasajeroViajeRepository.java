@@ -5,8 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface PasajeroViajeRepository extends JpaRepository<PasajeroViaje, Integer> {
 
     @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :id")
     PasajeroViaje findBoletoInicialIdByViajeId(@Param("id") Integer viajeId);
+
+    @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId " +
+            "AND pv.estado = 'ACEPTADO'")
+    List<PasajeroViaje> findPasajerosAceptadosByViajeId(@Param("viajeId") Integer viajeId);
 }
