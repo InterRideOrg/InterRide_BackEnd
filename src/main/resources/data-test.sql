@@ -79,15 +79,15 @@ INSERT INTO viaje (fecha_hora_creacion, fecha_hora_partida, asientos_disponibles
                                                                                                                                (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day', 0, 3, 'SOLICITADO', NULL)
     ON CONFLICT DO NOTHING;
 
-INSERT INTO pasajero_viaje (fecha_hora_union, fecha_hora_llegada, costo, estado, asientos_ocupados, pasajero_id, viaje_id) VALUES
-                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 hour', 15.50, 'ACEPTADO', 1, 1, 1),
-                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 20.00, 'EN_CURSO', 2, 2, 2),
-                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 12.75, 'SOLICITADO', 4, 3, 3),
-                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '30 minutes', 18.25, 'COMPLETADO', 4, 4, 4),
-                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 22.50, 'ACEPTADO', 2, 5, 5),
-                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 hour', 16.80, 'COMPLETADO', 3, 1, 6),
-                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 14.30, 'EN_CURSO', 2, 1, 7),
-                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 19.90, 'SOLICITADO', 3, 3, 8)
+INSERT INTO pasajero_viaje (fecha_hora_union, fecha_hora_llegada, costo, estado, asientos_ocupados, abordo, pasajero_id, viaje_id) VALUES
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 hour', 15.50, 'ACEPTADO', 1, FALSE, 1, 1),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 20.00, 'EN_CURSO', 2, TRUE,2, 2),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 12.75, 'SOLICITADO', 4, FALSE, 3, 3),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '30 minutes', 18.25, 'COMPLETADO', 4, TRUE, 4, 4),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 22.50, 'ACEPTADO', 2, FALSE, 5, 5),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 hour', 16.80, 'COMPLETADO', 3, TRUE, 1, 6),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 14.30, 'EN_CURSO', 2, TRUE, 1, 7),
+                                                                                                            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 hours', 19.90, 'SOLICITADO', 3, FALSE, 3, 8)
     ON CONFLICT DO NOTHING;
 
 
