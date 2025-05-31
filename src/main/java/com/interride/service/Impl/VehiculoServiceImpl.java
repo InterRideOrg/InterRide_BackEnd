@@ -1,7 +1,6 @@
 package com.interride.service.Impl;
 
 import com.interride.dto.request.RegistroDeVehiculoRequest;
-import com.interride.model.entity.Calificacion;
 import com.interride.repository.ConductorRepository;
 import com.interride.repository.VehiculoRepository;
 import com.interride.model.entity.Vehiculo;
