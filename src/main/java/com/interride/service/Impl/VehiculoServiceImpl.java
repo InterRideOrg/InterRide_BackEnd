@@ -1,5 +1,6 @@
 package com.interride.service.Impl;
 
+import com.interride.dto.request.RegistroDeVehiculoRequest;
 import com.interride.model.entity.Calificacion;
 import com.interride.repository.ConductorRepository;
 import com.interride.repository.VehiculoRepository;
@@ -29,6 +30,28 @@ public class VehiculoServiceImpl implements VehiculoService {
         vehiculo.setAnio(vehiculoNuevo.getAnio());
         vehiculo.setCantidadAsientos(vehiculoNuevo.getCantidadAsientos());
 
+        return vehiculoRepository.save(vehiculo);
+    }
+
+    @Transactional
+    @Override
+    public Vehiculo registrar(Integer conductorId, RegistroDeVehiculoRequest registroDeVehiculoRequest) {
+        // Verificar que el conductor no tenga vehiculo registrado
+        if (vehiculoRepository.existsByConductorId(conductorId)) {
+            throw new IllegalStateException("El conductor ya tiene un vehículo registrado.");
+        }
+
+        Vehiculo vehiculo = new Vehiculo();
+        vehiculo.setPlaca(registroDeVehiculoRequest.getPlaca());
+        vehiculo.setMarca(registroDeVehiculoRequest.getMarca());
+        vehiculo.setModelo(registroDeVehiculoRequest.getModelo());
+        vehiculo.setAnio(registroDeVehiculoRequest.getAnio());
+        vehiculo.setCantidadAsientos(registroDeVehiculoRequest.getCantidadAsientos());
+
+        // Asignar el conductor al vehículo
+        vehiculo.setConductor(conductorRepository.findById(conductorId)
+                .orElseThrow(() -> new EntityNotFoundException("Conductor no encontrado con ID: " + conductorId)));
+        // Guardar el vehículo en la base de datos
         return vehiculoRepository.save(vehiculo);
     }
 

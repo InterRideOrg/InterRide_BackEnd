@@ -1,6 +1,7 @@
 package com.interride.controller;
 
 
+import com.interride.dto.request.RegistroDeVehiculoRequest;
 import com.interride.model.entity.Vehiculo;
 import com.interride.service.VehiculoService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,11 @@ public class VehiculoController {
         return ResponseEntity.ok(actualizado);
     }
 
-
-
+    @PutMapping("/registrar/{conductorId}")
+    public ResponseEntity<Vehiculo> registrarVehiculo(
+            @PathVariable Integer conductorId,
+            @RequestBody RegistroDeVehiculoRequest registroDeVehiculoRequest) {
+        Vehiculo registrado = vehiculoService.registrar(conductorId, registroDeVehiculoRequest);
+        return ResponseEntity.ok(registrado);
+    }
 }
