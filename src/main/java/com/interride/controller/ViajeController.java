@@ -3,6 +3,7 @@ package com.interride.controller;
 
 
 import com.interride.dto.response.*;
+import com.interride.model.entity.Viaje;
 import com.interride.service.ViajeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +78,17 @@ public class ViajeController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id_viaje}/empezar/{id_conductor}")
+    public ResponseEntity<?> empezarViaje(
+            @PathVariable("id_viaje") Integer idViaje,
+            @PathVariable("id_conductor") Integer idConductor) {
+        boolean complete = viajeService.empezarViaje(idViaje, idConductor);
+        if (complete) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo iniciar el viaje");
+        }
+    }
 
 }
 

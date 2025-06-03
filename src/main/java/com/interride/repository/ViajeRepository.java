@@ -1,6 +1,8 @@
 package com.interride.repository;
 
 import com.interride.dto.response.ViajeCompletadoResponse;
+import com.interride.model.entity.Pasajero;
+import com.interride.model.entity.PasajeroViaje;
 import com.interride.model.entity.Viaje;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,6 +19,15 @@ import java.util.Optional;
 
 
 public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
+    //getViajesById
+    @Query(value = """
+        SELECT v.id, v.fecha_hora_partida, v.estado, c.nombres, c.apellidos
+        FROM viaje v
+        LEFT JOIN conductor c ON v.conductor_id = c.id
+        WHERE v.id = :idViaje;
+        """, nativeQuery = true)
+    Viaje getById(@Param("idViaje") Integer idViaje);
+
     @Query(value= """
         SELECT
             v.id AS viaje_id,
@@ -168,6 +179,15 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     List<ViajeCompletadoResponse> findViajesCompletadosByConductorId(
             @Param("idConductor") Integer idConductor
     );
+
+    //get PasajeroViaje by viaje id
+    @Query(value = """
+        SELECT pv
+        FROM PasajeroViaje pv
+        WHERE pv.viaje.id = :idViaje
+    """, nativeQuery = false)
+    List<Pasajero> getPasajeroViajesByViajeId(@Param("idViaje") Integer idViaje);
+
 
 }
 

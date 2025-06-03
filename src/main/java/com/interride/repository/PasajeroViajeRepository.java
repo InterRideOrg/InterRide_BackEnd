@@ -15,4 +15,5 @@ public interface PasajeroViajeRepository extends JpaRepository<PasajeroViaje, In
     @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId " +
             "AND pv.estado = 'ACEPTADO'")
     List<PasajeroViaje> findPasajerosAceptadosByViajeId(@Param("viajeId") Integer viajeId);
+
 }
