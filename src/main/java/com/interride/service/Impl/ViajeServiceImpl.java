@@ -297,8 +297,6 @@ public class ViajeServiceImpl implements ViajeService {
         viaje.setEstado(EstadoViaje.EN_CURSO);
         viaje.setFechaHoraPartida(LocalDateTime.now());
 
-        PasajeroViaje boletoInicial = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
-
         // Enviar notificación al conductor
         notificacionRepository.enviarNotificacionConductor(
                 "El viaje con ID " + idViaje + " ha comenzado.",
