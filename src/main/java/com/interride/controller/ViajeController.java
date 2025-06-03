@@ -3,11 +3,8 @@ package com.interride.controller;
 
 
 import com.interride.dto.response.*;
-import com.interride.model.entity.Viaje;
 import com.interride.service.ViajeService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
