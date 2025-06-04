@@ -4,6 +4,7 @@ import com.interride.dto.response.NotificacionConductorResponse;
 import com.interride.dto.response.NotificacionPasajeroResponse;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.exception.ValidationException;
+import com.interride.model.entity.Calificacion;
 import com.interride.model.entity.Notificacion;
 import com.interride.model.entity.Pasajero;
 import com.interride.repository.ConductorRepository;
@@ -83,5 +84,13 @@ public class NotificacionServiceImpl implements  NotificacionService  {
                 nuevaNotificacion.getLeido(),
                 nuevaNotificacion.getConductor().getId()
         );
+    }
+
+    @Override
+    @Transactional
+    public void delete(Integer id){
+        Notificacion notificacion = notificacionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notificación no encontrada con ID: " + id));
+        notificacionRepository.delete(notificacion);
     }
 }
