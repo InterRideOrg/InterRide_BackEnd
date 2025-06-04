@@ -1,18 +1,29 @@
 package com.interride.repository;
 
+import com.interride.dto.response.ViajeCompletadoResponse;
+import com.interride.model.entity.Pasajero;
 import com.interride.model.entity.Viaje;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import java.util.List;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.util.List;
+import com.interride.dto.response.ViajeDisponibleResponse;
+
 import java.util.Optional;
 
 
 public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
+    //getViajesById
+    @Query(value = """
+        SELECT v.id, v.fecha_hora_partida, v.estado, c.nombres, c.apellidos
+        FROM viaje v
+        LEFT JOIN conductor c ON v.conductor_id = c.id
+        WHERE v.id = :idViaje;
+        """, nativeQuery = true)
+    Viaje getById(@Param("idViaje") Integer idViaje);
+
     @Query(value= """
         SELECT
             v.id AS viaje_id,
@@ -108,17 +119,6 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     List<Object[]> getViajeEnCursoById(@Param("idPasajero") Integer idPasajero);
 
 
-    @Modifying
-    @Transactional
-    @Query(value = """
-    UPDATE viaje
-    SET estado = 'CANCELADO'
-    WHERE id = :idViaje
-""", nativeQuery = true)
-    int cancelarViaje(@Param("idViaje") Integer idViaje);
-
-
-
     @Query(value = """
         SELECT CASE WHEN v.estado = 'EN_CURSO' THEN true ELSE false END
         FROM viaje v
@@ -140,6 +140,49 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
         AND v.conductor_id IS NOT NULL
 """, nativeQuery = true)
     Optional<Integer> getConductorIdByViajeId(@Param("id_viaje") Integer idViaje);
+
+
+    @Query("SELECT NEW com.interride.dto.response.ViajeDisponibleResponse(" +
+            "v.id, v.conductor.id,  uo.provincia, ud.provincia, v.fechaHoraPartida, " +
+            "uo.direccion, v.asientosDisponibles) " +
+            "FROM Viaje v " +
+            "JOIN Ubicacion uo ON uo.viaje.id = v.id " + // Origen
+            "JOIN PasajeroViaje pv ON pv.viaje.id = v.id " +
+            "JOIN Ubicacion ud ON ud.pasajeroViaje.id = pv.id " + // Destino
+            "WHERE v.estado = com.interride.model.enums.EstadoViaje.ACEPTADO " +
+            "AND v.asientosDisponibles > 0 " +
+            "AND uo.provincia = :provinciaOrigen " +
+            "AND ud.provincia = :provinciaDestino " +
+            "AND DATE(v.fechaHoraPartida) = :fechaPartida")
+    List<ViajeDisponibleResponse> findViajesDisponibles(
+            @Param("provinciaOrigen") String provinciaOrigen,
+            @Param("provinciaDestino") String provinciaDestino,
+            @Param("fechaPartida") LocalDate fechaPartida
+    );
+
+    @Query("SELECT NEW com.interride.dto.response.ViajeCompletadoResponse(" +
+            "v.id, uo.provincia, ud.provincia, uo.direccion, v.fechaHoraPartida, " +
+            "SUM(pv.costo), AVG(c.estrellas)) " +
+            "FROM Viaje v " +
+            "JOIN Ubicacion uo ON uo.viaje.id = v.id " + // Origen
+            "JOIN PasajeroViaje pv ON pv.viaje.id = v.id " +
+            "JOIN Ubicacion ud ON ud.pasajeroViaje.id = pv.id " + // Destino
+            "JOIN Calificacion c ON c.id = v.id " +
+            "WHERE v.estado = com.interride.model.enums.EstadoViaje.COMPLETADO " +
+            "AND v.conductor.id = :idConductor " +
+            "GROUP BY v.id , uo.provincia, ud.provincia, uo.direccion, v.fechaHoraPartida " +
+            "ORDER BY v.fechaHoraPartida DESC")
+    List<ViajeCompletadoResponse> findViajesCompletadosByConductorId(
+            @Param("idConductor") Integer idConductor
+    );
+
+    //get PasajeroViaje by viaje id
+    @Query(value = """
+        SELECT pv
+        FROM PasajeroViaje pv
+        WHERE pv.viaje.id = :idViaje
+    """, nativeQuery = false)
+    List<Pasajero> getPasajeroViajesByViajeId(@Param("idViaje") Integer idViaje);
 
 
 }

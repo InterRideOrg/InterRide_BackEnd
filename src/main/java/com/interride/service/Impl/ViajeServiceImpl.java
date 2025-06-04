@@ -1,41 +1,42 @@
 package com.interride.service.Impl;
 
-import com.interride.dto.response.PasajeroViajesResponse;
+import com.interride.dto.response.*;
 
-import com.interride.dto.response.ViajeEnCursoResponse;
+import com.interride.exception.BusinessRuleException;
+import com.interride.exception.ResourceNotFoundException;
+import com.interride.mapper.ViajeMapper;
+import com.interride.model.entity.*;
 import com.interride.model.enums.EstadoViaje;
-import com.interride.repository.NotificacionRepository;
-import com.interride.repository.ViajeRepository;
+import com.interride.repository.*;
 import com.interride.service.ViajeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.interride.dto.response.DetalleViajeResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 
 @RequiredArgsConstructor
 @Service
 public class ViajeServiceImpl implements ViajeService {
-
-    @Autowired
     private final ViajeRepository viajeRepository;
-    @Autowired
-    private final NotificacionRepository notificacionRespository;
+    private final NotificacionRepository notificacionRepository;
+    private final ConductorRepository conductorRepository;
+    private final PasajeroViajeRepository pasajeroViajeRepository;
+    private final UbicacionRepository ubicacionRepository;
 
+    private final ViajeMapper viajeMapper;
 
     @Override
     public List<PasajeroViajesResponse> getViajesByPasajeroId(Integer pasajeroId) {
         List<Object[]> resultados = viajeRepository.getViajesByPasajeroId(pasajeroId);
         // Verificar si se encontraron resultados
         if (resultados.isEmpty()) {
-            throw new RuntimeException("No se encontraron viajes para el pasajero con id: " + pasajeroId);
+            throw new ResourceNotFoundException("No se encontraron viajes para el pasajero con id: " + pasajeroId);
         }
         return resultados.stream().map(obj -> new PasajeroViajesResponse(
                 (Integer) obj[0],
@@ -54,10 +55,10 @@ public class ViajeServiceImpl implements ViajeService {
         List<Object[]> obj = viajeRepository.getDetalleViajeById(idViaje, idPasajero);
 
         if (obj.isEmpty()) {
-            throw new RuntimeException("Viaje no encontrado.");
+            throw new ResourceNotFoundException("Viaje no encontrado.");
         }
 
-        Object[] viaje = obj.get(0);
+        Object[] viaje = obj.getFirst();
 
         DetalleViajeResponse response = new DetalleViajeResponse();
         response.setFechaHora(((Timestamp) viaje[0]).toLocalDateTime());
@@ -75,9 +76,9 @@ public class ViajeServiceImpl implements ViajeService {
         List<Object[]> obj = viajeRepository.getDetalleViajeCancelado(idViaje);
 
         if (obj.isEmpty()) {
-            throw new RuntimeException("Viaje no encontrado.");
+            throw new ResourceNotFoundException("Viaje no encontrado.");
         }
-        Object[] viaje = obj.get(0);
+        Object[] viaje = obj.getFirst();
 
         DetalleViajeResponse response = new DetalleViajeResponse();
         response.setFechaHora(((Timestamp) viaje[0]).toLocalDateTime());
@@ -109,10 +110,10 @@ public class ViajeServiceImpl implements ViajeService {
         List<Object[]> obj = viajeRepository.getViajeEnCursoById(idPasajero);
 
         if (obj.isEmpty()) {
-            throw new RuntimeException("No hay viajes en curso para el pasajero con id: " + idPasajero);
+            throw new ResourceNotFoundException("No hay viajes en curso para el pasajero con id: " + idPasajero);
         }
 
-        Object[] viaje = obj.get(0);
+        Object[] viaje = obj.getFirst();
 
         ViajeEnCursoResponse response = new ViajeEnCursoResponse();
         response.setId((Integer) viaje[0]);
@@ -137,41 +138,180 @@ public class ViajeServiceImpl implements ViajeService {
 
     @Override
     @Transactional
-    public boolean cancelarViaje(Integer idViaje) {
+    public ViajeCanceladoResponse cancelarViaje(Integer idViaje) {
         // Verificar si el viaje existe
+        Viaje viaje = viajeRepository.findById(idViaje)
+                .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
+        Conductor conductor = conductorRepository.findById(viaje.getConductor().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + viaje.getConductor().getId() + " no existe."));
 
-        if (!viajeRepository.existsById(idViaje)) {
-            throw new RuntimeException("El viaje con ID " + idViaje + " no existe.");
+        List<PasajeroViaje> boletos = pasajeroViajeRepository.findPasajerosAceptadosByViajeId(viaje.getId());
+
+        if(!viaje.getEstado().equals(EstadoViaje.ACEPTADO)){
+            throw  new BusinessRuleException("El viaje con ID " + idViaje + " no está en estado ACEPTADO y no puede ser cancelado.");
         }
 
-        if (viajeRepository.isViajeCancelado(idViaje)) {
-            throw new RuntimeException("El viaje con ID " + idViaje + " ya está cancelado." + viajeRepository.isViajeCancelado(idViaje));
-        }
-        if (viajeRepository.isViajeEnCurso(idViaje).get(0)[0].equals(true)) {
-            throw new RuntimeException("El viaje con ID " + idViaje + " se encuentra en curso y no es cancelable.");
-        }
+        Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
 
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boletos.getFirst().getId());
+        //Actualizar el estado del viaje y de los boletos de pasajeros
+        viaje.setEstado(EstadoViaje.CANCELADO);
 
-        // Actualizar el estado del viaje a CANCELADO
-        int filas_afectadas = viajeRepository.cancelarViaje(idViaje);
-
-        // si se cancelo correctamente, enviar una notificacion a los pasajeros y al conductor
-        if (filas_afectadas > 0) {
-            String mensaje = "Su viaje con ID " + idViaje + " ha sido cancelado.";
-            int conductorId = viajeRepository.getConductorIdByViajeId(idViaje).orElse(-1);
-            if (conductorId != -1) {
-                notificacionRespository.enviarNotificacionConductor(mensaje, conductorId);
-            }
-            List<Object[]> pasajerosIds = viajeRepository.getPasajerosIdsByViajeId(idViaje);
-            for (Object[] pasajeroId : pasajerosIds) {
-                int idPasajero = (Integer) pasajeroId[0];
-                notificacionRespository.enviarNotificacionPasajero(mensaje, idPasajero);
-            }
+        for(PasajeroViaje boleto : boletos){
+            boleto.setEstado(EstadoViaje.CANCELADO);
+            pasajeroViajeRepository.save(boleto);
         }
 
+        // Enviar notificación al conductor y a los pasajeros
+        notificacionRepository.enviarNotificacionConductor(
+                "El viaje con ID " + idViaje + " ha sido cancelado por el conductor.",
+                conductor.getId()
+        );
 
-        return filas_afectadas>0;
+        for(PasajeroViaje boleto : boletos){
+            notificacionRepository.enviarNotificacionPasajero(
+                    "El viaje con ID " + idViaje + " ha sido cancelado por el conductor. ¿Desea solicitar el mismo viaje?",
+                    boleto.getPasajero().getId()
+            );
+        }
+
+        // Guardar el viaje actualizado
+        Viaje viajeCancelado = viajeRepository.save(viaje);
+
+        return new ViajeCanceladoResponse(
+                viajeCancelado.getId(),
+                viajeCancelado.getEstado(),
+                origen.getProvincia(),
+                destino.getProvincia(),
+                viajeCancelado.getFechaHoraPartida(),
+                LocalDateTime.now()
+        );
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ViajeDisponibleResponse> obtenerViajesDisponibles(String provinciaOrigen, String provinciaDestino, LocalDate fechaViaje){
+        /* Sera descomentado en la fase de produccion
+        if(fechaViaje.isBefore(LocalDate.now())){
+            throw  new RuntimeException("La fecha del viaje tiene que ser posterior o igual al de hoy");
+        }
+        */
+        return viajeRepository.findViajesDisponibles(
+                provinciaOrigen,
+                provinciaDestino,
+                fechaViaje
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor) {
+        return viajeRepository.findViajesCompletadosByConductorId(idConductor);
+    }
+
+    @Override
+    @Transactional
+    public ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor) {
+        // Verificar si el viaje existe
+        Viaje viaje = viajeRepository.findById(idViaje)
+                .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
+
+        // Verificar si el conductor existe
+        Conductor conductor = conductorRepository.findById(idConductor)
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
+
+        // Obtener el ID de la ubicación de destino del viaje
+        PasajeroViaje boletoInicial = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
+
+
+
+        Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
+
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boletoInicial.getId());
+        // Verificar si el viaje ya está aceptado
+        if (!viaje.getEstado().equals(EstadoViaje.SOLICITADO)) {
+            throw new BusinessRuleException("Solo se puede aceptar un viaje con estado 'SOLICITADO'. El viaje con ID " + idViaje + " tiene estado: " + viaje.getEstado());
+        }
+
+        // Verificar si el conductor tiene un vehiculo
+        if (conductor.getVehiculo() == null) {
+            throw new BusinessRuleException("El conductor con ID " + idConductor + " no tiene un vehículo asociado.");
+        }
+
+        //Verificar si el carro del conductor tiene asientos suficientes
+        if(viaje.getAsientosOcupados() > conductor.getVehiculo().getCantidadAsientos()){
+            throw new BusinessRuleException("El carro del conductor con ID " + idConductor + " no tiene asientos suficientes para aceptar el viaje.");
+        }
+
+        //Actualizar el boleto inicial
+        boletoInicial.setEstado(EstadoViaje.ACEPTADO);
+        pasajeroViajeRepository.save(boletoInicial);
+
+
+        // Actualizar el estado del viaje a ACEPTADO
+        viaje.setEstado(EstadoViaje.ACEPTADO);
+        viaje.setAsientosDisponibles(conductor.getVehiculo().getCantidadAsientos() - viaje.getAsientosOcupados());
+        viaje.setConductor(conductor);
+
+        Viaje viajeAceptado = viajeRepository.save(viaje);
+
+        return viajeMapper.toViajeAceptadoResponse(viajeAceptado, conductor, origen, destino);
+    }
+
+    @Override
+    @Transactional
+    public boolean empezarViaje(Integer idViaje, Integer idConductor) {
+
+        // Verificar si el viaje existe
+        Viaje viaje = viajeRepository.findById(idViaje)
+                .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
+
+        // Verificar si es la hora de inicio del viaje con margen de 30 minutos
+        LocalDateTime horaInicioViaje = viaje.getFechaHoraPartida();
+        LocalDateTime horaActual = LocalDateTime.now();
+        if (horaActual.isBefore(horaInicioViaje.minusMinutes(30)) || horaActual.isAfter(horaInicioViaje.plusMinutes(30))) {
+            throw new BusinessRuleException("El viaje con ID " + idViaje + " no puede comenzar ahora. La hora de inicio es: " + horaInicioViaje);
+        }
+
+        // Verificar si el conductor existe
+        Conductor conductor = conductorRepository.findById(idConductor)
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
+
+        // Verificar si el viaje está en estado ACEPTADO
+        if (!viaje.getEstado().equals(EstadoViaje.ACEPTADO)) {
+            throw new BusinessRuleException("Solo se puede empezar un viaje con estado 'ACEPTADO'. El viaje con ID " + idViaje + " tiene estado: " + viaje.getEstado());
+        }
+
+        // Verificar que los pasajeros estan estan abordo (PasajerViaje.abordo == true)
+        List<PasajeroViaje> boletos = pasajeroViajeRepository.findPasajerosAceptadosByViajeId(viaje.getId());
+        if (boletos.isEmpty()) {
+            throw new BusinessRuleException("No hay pasajeros aceptados para el viaje con ID " + idViaje + ".");
+        }
+        for (PasajeroViaje boleto : boletos) {
+            if (!boleto.getAbordo()) {
+                throw new BusinessRuleException("El pasajero con ID " + boleto.getPasajero().getId() + " no está a bordo del viaje con ID " + idViaje + ".");
+            }
+        }
+
+        // Actualizar el estado del viaje a EN CURSO
+        viaje.setEstado(EstadoViaje.EN_CURSO);
+        viaje.setFechaHoraPartida(LocalDateTime.now());
+
+        // Enviar notificación al conductor
+        notificacionRepository.enviarNotificacionConductor(
+                "El viaje con ID " + idViaje + " ha comenzado.",
+                conductor.getId()
+        );
+        // Enviar notificación a los pasajeros
+        for (PasajeroViaje boleto : boletos) {
+            notificacionRepository.enviarNotificacionPasajero(
+                    "El viaje con ID " + idViaje + " ha comenzado.",
+                    boleto.getPasajero().getId()
+            );
+        }
+
+        // Crear la respuesta
+        return true;
+    }
 }
 

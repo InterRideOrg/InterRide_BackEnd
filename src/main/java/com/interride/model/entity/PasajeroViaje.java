@@ -34,6 +34,12 @@ public class PasajeroViaje {
     @Column(name = "estado", nullable = false, length = 20)
     private EstadoViaje estado;
 
+    @Column(name = "asientos_ocupados", nullable = false)
+    private Integer asientosOcupados;
+
+    @Column(name = "abordo", nullable = false)
+    private Boolean abordo;
+
     @ManyToOne
     @JoinColumn(name = "pasajero_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_pasajeroViaje_pasajero"))
     private Pasajero pasajero;
@@ -41,8 +47,4 @@ public class PasajeroViaje {
     @ManyToOne
     @JoinColumn(name = "viaje_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_pasajeroViaje_viaje"))
     private Viaje viaje;
-
-    @ManyToOne
-    @JoinColumn(name = "ubicacion_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_pasajeroViaje_ubicacion"))
-    private Ubicacion ubicacion;
 }
