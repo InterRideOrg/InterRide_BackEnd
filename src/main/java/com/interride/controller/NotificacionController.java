@@ -18,7 +18,7 @@ public class NotificacionController {
     private final NotificacionService notificacionService;
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<NotificacionResponse> deleteNotificacion(@PathVariable("id") Integer id){
+    public ResponseEntity<NotificacionResponse> deleteNotificacion(@PathVariable Integer id){
         notificacionService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

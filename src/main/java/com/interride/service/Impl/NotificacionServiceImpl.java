@@ -4,7 +4,9 @@ import com.interride.dto.response.NotificacionConductorResponse;
 import com.interride.dto.response.NotificacionPasajeroResponse;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.exception.ValidationException;
+import com.interride.mapper.NotificacionMapper;
 import com.interride.model.entity.Calificacion;
+import com.interride.model.entity.Conductor;
 import com.interride.model.entity.Notificacion;
 import com.interride.model.entity.Pasajero;
 import com.interride.repository.ConductorRepository;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -24,6 +27,8 @@ public class NotificacionServiceImpl implements  NotificacionService  {
     private final NotificacionRepository notificacionRepository;
     private final PasajeroRepository pasajeroRepository;
     private final ConductorRepository conductorRepository;
+
+    private final NotificacionMapper notificacionMapper;
 
     public boolean enviarNotificacionPasajero(String mensaje, int pasajero_id) {
         int resultado = notificacionRepository.enviarNotificacionPasajero(mensaje, pasajero_id);
@@ -84,6 +89,46 @@ public class NotificacionServiceImpl implements  NotificacionService  {
                 nuevaNotificacion.getLeido(),
                 nuevaNotificacion.getConductor().getId()
         );
+    }
+
+    @Override
+    @Transactional
+    public void eliminarNotificacionesAntiguasPasajero(int pasajeroId){
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con ID: " + pasajeroId));
+        LocalDateTime hace21Dias = LocalDateTime.now().minusDays(21);
+        notificacionRepository.deleteByPasajeroIdAndFechaHoraEnvioBefore(pasajero.getId(), hace21Dias);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarNotificacionesAntiguasConductor(int conductorId){
+        Conductor conductor = conductorRepository.findById(conductorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conductor no encontrado con ID: " + conductorId));
+        LocalDateTime hace21Dias = LocalDateTime.now().minusDays(21);
+        notificacionRepository.deleteByConductorIdAndFechaHoraEnvioBefore(conductor.getId(), hace21Dias);
+    }
+
+    @Override
+    @Transactional
+    public List<NotificacionPasajeroResponse> obtenerNotificacionesPasajero(int pasajeroId){
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con ID: " + pasajeroId));
+        List<Notificacion> notificaciones = notificacionRepository.findByPasajeroId(pasajero.getId());
+        return notificaciones.stream()
+                .map(notificacionMapper::toNotificacionPasajeroResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public List<NotificacionConductorResponse> obtenerNotificacionesConductor(int conductorId){
+        Conductor conductor = conductorRepository.findById(conductorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conductor no encontrado con ID: " + conductorId));
+        List<Notificacion> notificaciones = notificacionRepository.findByConductorId(conductor.getId());
+        return notificaciones.stream()
+                .map(notificacionMapper::toNotificacionConductorResponse)
+                .toList();
     }
 
     @Override
