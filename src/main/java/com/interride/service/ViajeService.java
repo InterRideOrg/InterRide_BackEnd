@@ -25,5 +25,7 @@ public interface ViajeService {
 
     ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor);
 
+    boolean empezarViaje(Integer idViaje, Integer idConductor);
+
 }
 

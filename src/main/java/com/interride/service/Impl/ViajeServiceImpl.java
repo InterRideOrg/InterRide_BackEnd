@@ -258,5 +258,60 @@ public class ViajeServiceImpl implements ViajeService {
         return viajeMapper.toViajeAceptadoResponse(viajeAceptado, conductor, origen, destino);
     }
 
+    @Override
+    @Transactional
+    public boolean empezarViaje(Integer idViaje, Integer idConductor) {
+
+        // Verificar si el viaje existe
+        Viaje viaje = viajeRepository.findById(idViaje)
+                .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
+
+        // Verificar si es la hora de inicio del viaje con margen de 30 minutos
+        LocalDateTime horaInicioViaje = viaje.getFechaHoraPartida();
+        LocalDateTime horaActual = LocalDateTime.now();
+        if (horaActual.isBefore(horaInicioViaje.minusMinutes(30)) || horaActual.isAfter(horaInicioViaje.plusMinutes(30))) {
+            throw new BusinessRuleException("El viaje con ID " + idViaje + " no puede comenzar ahora. La hora de inicio es: " + horaInicioViaje);
+        }
+
+        // Verificar si el conductor existe
+        Conductor conductor = conductorRepository.findById(idConductor)
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
+
+        // Verificar si el viaje está en estado ACEPTADO
+        if (!viaje.getEstado().equals(EstadoViaje.ACEPTADO)) {
+            throw new BusinessRuleException("Solo se puede empezar un viaje con estado 'ACEPTADO'. El viaje con ID " + idViaje + " tiene estado: " + viaje.getEstado());
+        }
+
+        // Verificar que los pasajeros estan estan abordo (PasajerViaje.abordo == true)
+        List<PasajeroViaje> boletos = pasajeroViajeRepository.findPasajerosAceptadosByViajeId(viaje.getId());
+        if (boletos.isEmpty()) {
+            throw new BusinessRuleException("No hay pasajeros aceptados para el viaje con ID " + idViaje + ".");
+        }
+        for (PasajeroViaje boleto : boletos) {
+            if (!boleto.getAbordo()) {
+                throw new BusinessRuleException("El pasajero con ID " + boleto.getPasajero().getId() + " no está a bordo del viaje con ID " + idViaje + ".");
+            }
+        }
+
+        // Actualizar el estado del viaje a EN CURSO
+        viaje.setEstado(EstadoViaje.EN_CURSO);
+        viaje.setFechaHoraPartida(LocalDateTime.now());
+
+        // Enviar notificación al conductor
+        notificacionRepository.enviarNotificacionConductor(
+                "El viaje con ID " + idViaje + " ha comenzado.",
+                conductor.getId()
+        );
+        // Enviar notificación a los pasajeros
+        for (PasajeroViaje boleto : boletos) {
+            notificacionRepository.enviarNotificacionPasajero(
+                    "El viaje con ID " + idViaje + " ha comenzado.",
+                    boleto.getPasajero().getId()
+            );
+        }
+
+        // Crear la respuesta
+        return true;
+    }
 }
 
