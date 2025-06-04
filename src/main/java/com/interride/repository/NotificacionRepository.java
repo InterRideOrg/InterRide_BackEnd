@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public interface NotificacionRepository extends JpaRepository<Notificacion, Integer> {
     @Modifying
     @Transactional
@@ -23,4 +26,10 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Inte
         VALUES (:mensaje, :conductor_id, false, NOW())
         """, nativeQuery = true)
     int enviarNotificacionConductor(@Param("mensaje") String mensaje, @Param("conductor_id") Integer conductor_id);
+
+    List<Notificacion> findByConductorId(Integer conductorId);
+    List<Notificacion> findByPasajeroId(Integer pasajeroId);
+
+    void deleteByPasajeroIdAndFechaHoraEnvioBefore(Integer pasajeroId, LocalDateTime limite);
+    void deleteByConductorIdAndFechaHoraEnvioBefore(Integer conductorId, LocalDateTime  limite);
 }
