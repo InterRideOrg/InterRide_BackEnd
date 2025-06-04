@@ -9,4 +9,6 @@ public interface NotificacionService {
 
     NotificacionPasajeroResponse crearNotificacionPasajero(String mensaje, int pasajero_id);
     NotificacionConductorResponse crearNotificacionConductor(String mensaje, int conductor_id);
+
+    void delete(Integer id);
 }
