@@ -1,6 +1,7 @@
 package com.interride.mapper;
 
 import com.interride.dto.request.PasajeroViajeRequest;
+import com.interride.dto.response.BoletoCompletadoResponse;
 import com.interride.model.entity.Pasajero;
 import com.interride.model.entity.PasajeroViaje;
 import com.interride.model.entity.Viaje;
@@ -26,5 +27,20 @@ public class PasajeroViajeMapper {
                                 .build()
                 )
                 .build();
+    }
+
+    public BoletoCompletadoResponse toBoletoResponse(PasajeroViaje boleto, String mensaje) {
+        if(boleto == null) {
+            return null;
+        }
+        return new BoletoCompletadoResponse(
+                boleto.getId(),
+                boleto.getFechaHoraLLegada().toString(),
+                boleto.getCosto(),
+                boleto.getEstado(),
+                boleto.getPasajero().getId(),
+                boleto.getViaje().getId(),
+                mensaje
+        );
     }
 }

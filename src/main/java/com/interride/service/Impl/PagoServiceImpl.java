@@ -106,7 +106,6 @@ public class PagoServiceImpl implements PagoService {
 
         //Enviar notificacion al conductor y al pasajero
         Notificacion notificacionConductor = Notificacion.builder()
-                .conductor(pagoActual.getConductor())
                 .mensaje("Pago completado por el pasajero " + pasajero.getUsername() + " por un monto de S/" + formatoPago)
                 .fechaHoraEnvio(LocalDateTime.now())
                 .leido(false)
@@ -116,7 +115,6 @@ public class PagoServiceImpl implements PagoService {
         //El pago debe tener dos decimales
 
         Notificacion notificacionPasajero = Notificacion.builder()
-                .pasajero(pagoActual.getPasajero())
                 .mensaje("Tu pago por S/" + formatoPago + " ha sido completado exitosamente.")
                 .fechaHoraEnvio(LocalDateTime.now())
                 .leido(false)
