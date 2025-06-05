@@ -2,8 +2,10 @@ package com.interride.controller;
 
 
 
+import com.interride.dto.request.ViajeSolicitadoRequest;
 import com.interride.dto.response.*;
 import com.interride.service.ViajeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -85,6 +87,12 @@ public class ViajeController {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo iniciar el viaje");
         }
+    }
+
+    @PostMapping("/solicitar")
+    public ResponseEntity<ViajeSolicitadoResponse> solicitarViaje(@Valid @RequestBody ViajeSolicitadoRequest request) {
+        ViajeSolicitadoResponse response = viajeService.crearViajeSolicitado(request);
+        return ResponseEntity.ok(response);
     }
 
 }

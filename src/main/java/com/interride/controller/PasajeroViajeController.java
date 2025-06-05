@@ -18,7 +18,7 @@ public class PasajeroViajeController {
 
     @PutMapping("/{id_boleto}/cancelar")
     public ResponseEntity<BoletoCanceladoResponse> cancelarBoleto(@PathVariable Integer id_boleto) {
-        BoletoCanceladoResponse response = pasajeroViajeService.ObtenerViajeCanceladoById(id_boleto);
+        BoletoCanceladoResponse response = pasajeroViajeService.cancelarBoleto(id_boleto);
         return ResponseEntity.ok(response);
     }
 
