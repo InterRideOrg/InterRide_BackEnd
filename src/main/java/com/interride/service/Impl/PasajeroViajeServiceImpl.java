@@ -35,7 +35,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
 
     @Transactional
     @Override
-    public BoletoCanceladoResponse ObtenerViajeCanceladoById(Integer id) {
+    public BoletoCanceladoResponse cancelarBoleto(Integer id) {
         PasajeroViaje boleto = pasajeroViajeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Boleto no encontrado con id: " + id));
         Viaje viaje = viajeRepository.findById(boleto.getViaje().getId())
@@ -57,8 +57,12 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
                 );
             }
 
+            Integer asientosOcupadosAntiguos = boleto.getAsientosOcupados();
+            viaje.setAsientosOcupados(viaje.getAsientosOcupados() - asientosOcupadosAntiguos);
+            viaje.setAsientosDisponibles(viaje.getAsientosDisponibles() + asientosOcupadosAntiguos);
+
             notificacionRepository.enviarNotificacionPasajero(
-                    "El viaje con ID " + viaje.getId() + " ha sido cancelado.",
+                    "Tu boleto con ID " + boleto.getId() + " ha sido cancelado.",
                     boleto.getPasajero().getId()
             );
             boleto.setEstado(EstadoViaje.CANCELADO);
@@ -92,6 +96,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         boleto.setPasajero(Pasajero.builder().id(pasajeroId).build());
         boleto.setViaje(Viaje.builder().id(viajeId).build());
         boleto.setAsientosOcupados(asientosOcupados);
+        boleto.setAbordo(false);
 
         Ubicacion ubicacionDestino = ubicacionMapper.toEntity(ubicacionRequest);
         Viaje viaje = viajeRepository.findById(boleto.getViaje().getId())
