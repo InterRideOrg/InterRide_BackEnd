@@ -185,5 +185,10 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     List<Pasajero> getPasajeroViajesByViajeId(@Param("idViaje") Integer idViaje);
 
 
+    @Query("SELECT COUNT(pv) " +
+            "FROM PasajeroViaje pv " +
+            "WHERE pv.viaje.id = :idViaje " +
+            "AND pv.estado = com.interride.model.enums.EstadoViaje.EN_CURSO")
+    Integer cantidadBoletosEnCursoPorViaje(@Param("idViaje") Integer idViaje);
 }
 

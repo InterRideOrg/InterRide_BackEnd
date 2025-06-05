@@ -2,15 +2,13 @@ package com.interride.service.Impl;
 
 import com.interride.dto.request.UbicacionRequest;
 import com.interride.dto.response.BoletoCanceladoResponse;
+import com.interride.dto.response.BoletoCompletadoResponse;
 import com.interride.dto.response.BoletoUnionResponse;
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.PasajeroViajeMapper;
 import com.interride.mapper.UbicacionMapper;
-import com.interride.model.entity.Pasajero;
-import com.interride.model.entity.PasajeroViaje;
-import com.interride.model.entity.Ubicacion;
-import com.interride.model.entity.Viaje;
+import com.interride.model.entity.*;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.NotificacionRepository;
 import com.interride.repository.PasajeroViajeRepository;
@@ -143,5 +141,56 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
                 ubicacionOrigen.getProvincia(),
                 ubicacionDestinoGuardada.getProvincia()
         );
+    }
+
+    @Transactional
+    @Override
+    public BoletoCompletadoResponse finalizarBoleto(Integer id){
+        PasajeroViaje boleto = pasajeroViajeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Boleto no encontrado con id: " + id));
+
+        if(!boleto.getEstado().equals(EstadoViaje.EN_CURSO)){
+            throw new BusinessRuleException("Solo se puede finalizar un viaje en curso.");
+        }
+
+        Viaje viaje = boleto.getViaje();
+
+        boleto.setEstado(EstadoViaje.COMPLETADO);
+
+        String formatoCosto = String.format("%.2f", boleto.getCosto());
+
+        //Notificacion al conductor del boleto finalizado
+        Notificacion notificacionBoletoFinalizado = Notificacion.paraConductor(
+                viaje.getConductor().getId(),
+                "Viaje de " + boleto.getPasajero().getUsername() + " finalizado. Monto recibido: S/" + formatoCosto
+                );
+
+        notificacionRepository.save(notificacionBoletoFinalizado);
+
+
+        //Si el boleto es el último en curso del viaje, se marca el viaje como completado
+        Integer viajesRestantes = cantidadBoletoEnCursoPorViaje(boleto.getViaje().getId());
+        if(viajesRestantes == 0){
+            viaje.setEstado(EstadoViaje.COMPLETADO);
+            Notificacion notificacionViajeCompletado = Notificacion.paraConductor(
+                    viaje.getConductor().getId(),
+                    "Viaje completado. Resumen de ingresos disponible en tu Billetera."
+            );
+            notificacionRepository.save(notificacionViajeCompletado);
+        }
+
+
+
+        return pasajeroViajeMapper.toBoletoResponse(
+                boleto,
+                "Viaje de " + boleto.getPasajero().getUsername() + " finalizado. Monto recibido: S/" + formatoCosto
+        );
+    }
+
+
+    //Funciones extra
+
+    Integer cantidadBoletoEnCursoPorViaje(Integer viajeId) {
+        return viajeRepository.cantidadBoletosEnCursoPorViaje(viajeId);
     }
 }
