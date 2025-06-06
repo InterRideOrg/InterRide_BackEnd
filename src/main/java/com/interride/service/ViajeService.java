@@ -1,6 +1,7 @@
 package com.interride.service;
 
 
+import com.interride.dto.request.ViajeSolicitadoRequest;
 import com.interride.dto.response.*;
 
 
@@ -11,6 +12,7 @@ import java.util.List;
 public interface ViajeService {
     List<PasajeroViajesResponse> getViajesByPasajeroId(Integer pasajeroId);
 
+    ViajeSolicitadoResponse crearViajeSolicitado(Integer pasajeroId, ViajeSolicitadoRequest request);
 
     DetalleViajeResponse obtenerDetalleViajeNoCancelado(Integer id, Integer idPasajero);
     DetalleViajeResponse obtenerDetalleViajeCancelado(Integer id);
@@ -24,6 +26,8 @@ public interface ViajeService {
     List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor);
 
     ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor);
+
+    boolean empezarViaje(Integer idViaje, Integer idConductor);
 
 }
 

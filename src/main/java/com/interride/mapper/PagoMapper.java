@@ -7,6 +7,7 @@ import com.interride.model.entity.Conductor;
 import com.interride.model.entity.Pago;
 import com.interride.model.entity.Pasajero;
 import com.interride.model.entity.Viaje;
+import com.interride.model.enums.EstadoPago;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +17,7 @@ public class PagoMapper {
             return null;
         }
         return Pago.builder()
-                .estado(request.estado())
+                .estado(EstadoPago.PENDIENTE)
                 .monto(request.monto())
                 .pasajero(
                         Pasajero.builder()

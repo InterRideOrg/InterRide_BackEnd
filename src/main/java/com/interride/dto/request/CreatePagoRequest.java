@@ -5,9 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 
 public record CreatePagoRequest(
-        @NotNull(message = "El estado del pago es obligatorio")
-        EstadoPago estado,
-
         @NotNull(message = "El monto del pago es obligatorio")
         Double monto,
 
