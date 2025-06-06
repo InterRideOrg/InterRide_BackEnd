@@ -9,9 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record ViajeSolicitadoRequest(
-        @NotNull(message = "El ID del pasajero es obligatorio")
-        Integer pasajeroId,
-
         @NotBlank(message = "La fecha y hora de partida es obligatoria")
         String fechaHoraPartida,
 
