@@ -89,9 +89,9 @@ public class ViajeController {
         }
     }
 
-    @PostMapping("/solicitar")
-    public ResponseEntity<ViajeSolicitadoResponse> solicitarViaje(@Valid @RequestBody ViajeSolicitadoRequest request) {
-        ViajeSolicitadoResponse response = viajeService.crearViajeSolicitado(request);
+    @PostMapping("/solicitar/{id_pasajero}")
+    public ResponseEntity<ViajeSolicitadoResponse> solicitarViaje(@PathVariable("id_pasajero") Integer id, @Valid @RequestBody ViajeSolicitadoRequest request) {
+        ViajeSolicitadoResponse response = viajeService.crearViajeSolicitado(id, request);
         return ResponseEntity.ok(response);
     }
 

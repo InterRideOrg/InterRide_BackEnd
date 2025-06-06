@@ -264,6 +264,14 @@ public class ViajeServiceImpl implements ViajeService {
         viaje.setAsientosDisponibles(conductor.getVehiculo().getCantidadAsientos() - viaje.getAsientosOcupados());
         viaje.setConductor(conductor);
 
+        //Enviar notificacion al usuario del viaje aceptado
+        Notificacion notificacionPasajero = Notificacion.paraPasajero(
+                boletoInicial.getPasajero().getId(),
+                "Tu viaje de " + origen.getProvincia() + " a " + destino.getProvincia() + " ha sido aceptado por el conductor " + conductor.getNombre() + "."
+        );
+
+        notificacionRepository.save(notificacionPasajero);
+
         Viaje viajeAceptado = viajeRepository.save(viaje);
 
         return viajeMapper.toViajeAceptadoResponse(viajeAceptado, conductor, origen, destino);
@@ -327,9 +335,9 @@ public class ViajeServiceImpl implements ViajeService {
 
     @Override
     @Transactional
-    public ViajeSolicitadoResponse crearViajeSolicitado(ViajeSolicitadoRequest request) {
-        Pasajero pasajero = pasajeroRepository.findById(request.pasajeroId())
-                .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + request.pasajeroId()));
+    public ViajeSolicitadoResponse crearViajeSolicitado(Integer pasajeroId, ViajeSolicitadoRequest request) {
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
 
         Viaje viaje = viajeMapper.toEntity(request);
         Pair<Ubicacion, Ubicacion> origenANDdestino = ubicacionMapper.OrigenDestinotoEntity(request);
