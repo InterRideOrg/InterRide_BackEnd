@@ -1,9 +1,11 @@
 package com.interride.controller;
 
+import com.interride.dto.request.ActualizarPasajeroPerfilRequest;
 import com.interride.dto.response.NotificacionPasajeroResponse;
 import com.interride.dto.response.PasajeroPerfilPublicoResponse;
 import com.interride.service.NotificacionService;
 import com.interride.service.PasajeroService;
+import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +33,11 @@ public class PasajeroController {
     @GetMapping("/{id}")
     public PasajeroPerfilPublicoResponse obtenerPerfilPasajero(@PathVariable Integer id) {
         return pasajeroService.obtenerPerfilPasajero(id);
+    }
+
+    @PutMapping("/{id}")
+    public PasajeroPerfilPublicoResponse actualizarPerfilPasajero(@PathVariable Integer id, @RequestBody ActualizarPasajeroPerfilRequest perfilActualizado) {
+        return pasajeroService.actualizarPerfilPasajero(id, perfilActualizado);
     }
 
     @GetMapping("/{id}/notificaciones")

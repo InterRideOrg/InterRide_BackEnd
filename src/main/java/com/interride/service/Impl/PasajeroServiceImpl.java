@@ -1,6 +1,7 @@
 package com.interride.service.Impl;
 
 
+import com.interride.dto.request.ActualizarPasajeroPerfilRequest;
 import com.interride.dto.response.PasajeroPerfilPublicoResponse;
 import com.interride.dto.response.PasajeroProfileResponse;
 import com.interride.dto.request.PasajeroRegistrationRequest;
@@ -73,5 +74,45 @@ public class PasajeroServiceImpl implements PasajeroService {
     @Transactional(readOnly = true)
     public Pasajero getById(Integer id) {
         return pasajeroRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public PasajeroPerfilPublicoResponse actualizarPerfilPasajero(Integer id, ActualizarPasajeroPerfilRequest perfilActualizado) {
+        Pasajero pasajero = pasajeroRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pasajero con ID " + id + " no encontrado."));
+
+        // Actualizar los campos del pasajero
+        if (perfilActualizado.getNombres() != null && !perfilActualizado.getNombres().isEmpty()) {
+            pasajero.setNombre(perfilActualizado.getNombres());
+        }
+        if (perfilActualizado.getApellidos() != null && !perfilActualizado.getApellidos().isEmpty()) {
+            pasajero.setApellidos(perfilActualizado.getApellidos());
+        }
+        if (perfilActualizado.getTelefono() != null && !perfilActualizado.getTelefono().isEmpty()) {
+            // Verificar si el teléfono ya está registrado por otro pasajero
+            if (pasajeroRepository.existsByTelefono(perfilActualizado.getTelefono())) {
+                throw new RuntimeException("El teléfono ya está registrado por otro pasajero.");
+            }
+            pasajero.setTelefono(perfilActualizado.getTelefono());
+        }
+        if (perfilActualizado.getCorreo() != null && !perfilActualizado.getCorreo().isEmpty()) {
+            // Verificar si el correo ya está registrado por otro pasajero
+            if (pasajeroRepository.existsByCorreo(perfilActualizado.getCorreo())) {
+                throw new RuntimeException("El correo ya está registrado por otro pasajero.");
+            }
+            pasajero.setCorreo(perfilActualizado.getCorreo());
+        }
+
+        // Guardar los cambios
+        Pasajero updatedPasajero = pasajeroRepository.save(pasajero);
+
+        return new PasajeroPerfilPublicoResponse(
+                updatedPasajero.getNombre(),
+                updatedPasajero.getApellidos(),
+                updatedPasajero.getCorreo(),
+                updatedPasajero.getTelefono(),
+                updatedPasajero.getUsername()
+        );
     }
 }
