@@ -2,6 +2,8 @@ package com.interride.controller;
 
 import com.interride.dto.request.CreatePagoRequest;
 import com.interride.dto.request.UpdatePagoRequest;
+import com.interride.dto.response.AnnualProfitReport;
+import com.interride.dto.response.MonthlyProfitReport;
 import com.interride.dto.response.PagoResponse;
 import com.interride.service.PagoService;
 import jakarta.validation.Valid;
@@ -39,5 +41,22 @@ public class PagoController {
     public ResponseEntity<PagoResponse> completarPago(@PathVariable Integer id){
         PagoResponse pago = pagoService.completarPago(id);
         return ResponseEntity.ok(pago);
+    }
+
+    @GetMapping("/conductor/{id}/anual-report")
+    public ResponseEntity<List<AnnualProfitReport>> getAnnualProfitReportByConductor(
+            @PathVariable Integer id,
+            @RequestParam Integer year) {
+        List<AnnualProfitReport> report = pagoService.getAnnualProfitReportByConductor(year, id);
+        return ResponseEntity.ok(report);
+    }
+
+    @GetMapping("/conductor/{id}/monthly-report")
+    public ResponseEntity<List<MonthlyProfitReport>> getMonthlyProfitReportByConductor(
+            @PathVariable Integer id,
+            @RequestParam Integer year,
+            @RequestParam Integer month) {
+        List<MonthlyProfitReport> report = pagoService.getMonthlyProfitReportByConductor(year, month, id);
+        return ResponseEntity.ok(report);
     }
 }

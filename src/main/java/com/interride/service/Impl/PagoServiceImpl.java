@@ -2,6 +2,8 @@ package com.interride.service.Impl;
 
 import com.interride.dto.request.CreatePagoRequest;
 import com.interride.dto.request.UpdatePagoRequest;
+import com.interride.dto.response.AnnualProfitReport;
+import com.interride.dto.response.MonthlyProfitReport;
 import com.interride.dto.response.PagoResponse;
 import com.interride.mapper.PagoMapper;
 import com.interride.model.entity.*;
@@ -126,5 +128,27 @@ public class PagoServiceImpl implements PagoService {
 
         Pago pagoCompletado = pagoRepository.save(pagoActual);
         return pagoMapper.toResponse(pagoCompletado);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AnnualProfitReport> getAnnualProfitReportByConductor(Integer year, Integer conductorId){
+        List<Object[]> results = pagoRepository.findPagosByYearGroupedByMonth(year, conductorId);
+        return results.stream()
+                .map(result -> new AnnualProfitReport(
+                        ((Number) result[0]).intValue(), // mes
+                        ((Number) result[1]).doubleValue() // total
+                )).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MonthlyProfitReport> getMonthlyProfitReportByConductor(Integer year, Integer month, Integer conductorId){
+        List<Object[]> results = pagoRepository.findPagosByMonthGroupedByDay(year, month, conductorId);
+        return results.stream()
+                .map(result -> new MonthlyProfitReport(
+                        ((Number) result[0]).intValue(), // dia
+                        ((Number) result[1]).doubleValue() // total
+                )).toList();
     }
 }
