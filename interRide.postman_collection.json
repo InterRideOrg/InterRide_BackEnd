@@ -1,0 +1,178 @@
+{
+	"info": {
+		"_postman_id": "05cf7c45-074a-48bb-80c2-e2b2e4dfade7",
+		"name": "interRide",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38137369"
+	},
+	"item": [
+		{
+			"name": "Vehiculo",
+			"item": [
+				{
+					"name": "ActualizarVehiculo",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"placa\": \"ASK874\",\r\n    \"marca\": \"HYUNDAI\",\r\n    \"modelo\": \"EVERLESS\",\r\n    \"anio\": 2025,\r\n    \"cantidadAsientos\": 8\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/vehiculo/actualizar/5",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vehiculo",
+								"actualizar",
+								"5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pasajero",
+			"item": [
+				{
+					"name": "Ver_perfil_de_viajero",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/pasajero/4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pasajero",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reclamo",
+			"item": [
+				{
+					"name": "Crear/Enviar reclamo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mensaje\": \"El conductor no me llevo a mi destino.\",\r\n  \"idPasajero\": 4,\r\n  \"idConductor\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/reclamo/enviar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reclamo",
+								"enviar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Conductor",
+			"item": [
+				{
+					"name": "Registro conductor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nombre\": \"Christian\",\r\n    \"apellidos\": \"Montoya\",\r\n    \"correo\": \"christian1@gmail.com\",\r\n    \"telefono\": \"123456798\",\r\n    \"username\": \"christian12345\",\r\n    \"password\": \"13579\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/registerConductor",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"registerConductor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ver_perfil_publico_conductor_segun_viaje",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/conductor/perfil-publico/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"conductor",
+								"perfil-publico",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8081/api/v1",
+			"type": "string"
+		}
+	]
+}
