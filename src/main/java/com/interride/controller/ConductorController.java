@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.interride.dto.response.ConductorPerfilPublicoResponse;
 import com.interride.dto.response.NotificacionConductorResponse;
-import com.interride.service.ConductorService;
 import com.interride.service.NotificacionService;
 
 import org.springframework.http.ResponseEntity;
