@@ -33,6 +33,7 @@ public class ViajeServiceImpl implements ViajeService {
     private final PasajeroViajeRepository pasajeroViajeRepository;
     private final UbicacionRepository ubicacionRepository;
     private final PasajeroRepository pasajeroRepository;
+    private final CalificacionRepository calificacionRepository;
 
     private final ViajeMapper viajeMapper;
     private final UbicacionMapper ubicacionMapper;
@@ -371,5 +372,24 @@ public class ViajeServiceImpl implements ViajeService {
 
         return viajeMapper.toViajeSolicitadoResponse(viajeSolicitado, boletoCreado, origenCreado, destinoCreado);
     }
+
+
+    @Override
+    public ViajeCompletadoConductorResponse verDetalleViajeCompletadoPorConductor(Integer viajeId) {
+        Viaje viaje = viajeRepository.findById(viajeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con ID: " + viajeId));
+
+        List<PasajeroViaje> pasajerosViaje = pasajeroViajeRepository.findPasajerosCompletadosByViajeId(viajeId);
+        if (pasajerosViaje.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron pasajeros completados para este viaje.");
+        }
+
+        Ubicacion ubicacion = ubicacionRepository.findByViajeId(viajeId);
+        List<Calificacion> calificaciones = calificacionRepository.findByViajeId(viajeId);
+
+        return ViajeMapper.toDetalleViajeConductorResponse(viaje, ubicacion, pasajerosViaje, calificaciones);
+    }
+
+
 }
 

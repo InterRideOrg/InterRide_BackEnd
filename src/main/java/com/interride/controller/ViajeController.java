@@ -95,5 +95,12 @@ public class ViajeController {
         return ResponseEntity.ok(response);
     }
 
+
+    @GetMapping("/viajeCompletado/detalle/{viajeId}")
+    public ResponseEntity<ViajeCompletadoConductorResponse> obtenerDetalleViaje(@PathVariable Integer viajeId) {
+        ViajeCompletadoConductorResponse detalle = viajeService.verDetalleViajeCompletadoPorConductor(viajeId);
+        return ResponseEntity.ok(detalle);
+    }
+
 }
 
