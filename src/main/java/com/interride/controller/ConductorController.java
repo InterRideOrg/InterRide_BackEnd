@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.interride.dto.response.ConductorPerfilPublicoResponse;
 import com.interride.dto.response.NotificacionConductorResponse;
-import com.interride.service.ConductorService;
 import com.interride.service.NotificacionService;
 
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,6 @@ import java.util.List;
 public class ConductorController {
     private final ConductorService conductorService;
     private final NotificacionService notificacionService;
-    private final ConductorService conductorService;
 
     @PutMapping("/{id}")
     public ConductorPerfilActualizadoResponse actualizarPerfilPasajero(@PathVariable Integer id, @RequestBody ActualizarConductorPerfilRequest perfilActualizado) {
