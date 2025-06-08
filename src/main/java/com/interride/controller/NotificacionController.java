@@ -1,14 +1,16 @@
 package com.interride.controller;
 
+import com.interride.dto.response.NotificacionConductorResponse;
+import com.interride.dto.response.NotificacionPasajeroResponse;
 import com.interride.dto.response.NotificacionResponse;
+import com.interride.dto.response.NotificacionSimpleResponse;
 import com.interride.service.NotificacionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,4 +24,22 @@ public class NotificacionController {
         notificacionService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
+    @GetMapping("/pasajero/{pasajeroId}")
+    public ResponseEntity<List<NotificacionSimpleResponse>> listarPorPasajero(
+            @PathVariable Integer pasajeroId,
+            @RequestParam(defaultValue = "desc") String orden // "asc" o "desc"
+    ) {
+        return ResponseEntity.ok(notificacionService.listarPorPasajero(pasajeroId, orden));
+    }
+
+    @GetMapping("/conductor/{conductorId}")
+    public ResponseEntity<List<NotificacionSimpleResponse>> listarPorConductor(
+            @PathVariable Integer conductorId,
+            @RequestParam(defaultValue = "desc") String orden // "asc" o "desc"
+    ) {
+        return ResponseEntity.ok(notificacionService.listarPorConductor(conductorId, orden));
+    }
+
 }
