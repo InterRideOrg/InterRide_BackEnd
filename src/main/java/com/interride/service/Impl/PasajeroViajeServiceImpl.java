@@ -2,15 +2,13 @@ package com.interride.service.Impl;
 
 import com.interride.dto.request.UbicacionRequest;
 import com.interride.dto.response.BoletoCanceladoResponse;
+import com.interride.dto.response.BoletoCompletadoResponse;
 import com.interride.dto.response.BoletoUnionResponse;
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.PasajeroViajeMapper;
 import com.interride.mapper.UbicacionMapper;
-import com.interride.model.entity.Pasajero;
-import com.interride.model.entity.PasajeroViaje;
-import com.interride.model.entity.Ubicacion;
-import com.interride.model.entity.Viaje;
+import com.interride.model.entity.*;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.NotificacionRepository;
 import com.interride.repository.PasajeroViajeRepository;
@@ -37,7 +35,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
 
     @Transactional
     @Override
-    public BoletoCanceladoResponse ObtenerViajeCanceladoById(Integer id) {
+    public BoletoCanceladoResponse cancelarBoleto(Integer id) {
         PasajeroViaje boleto = pasajeroViajeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Boleto no encontrado con id: " + id));
         Viaje viaje = viajeRepository.findById(boleto.getViaje().getId())
@@ -59,8 +57,12 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
                 );
             }
 
+            Integer asientosOcupadosAntiguos = boleto.getAsientosOcupados();
+            viaje.setAsientosOcupados(viaje.getAsientosOcupados() - asientosOcupadosAntiguos);
+            viaje.setAsientosDisponibles(viaje.getAsientosDisponibles() + asientosOcupadosAntiguos);
+
             notificacionRepository.enviarNotificacionPasajero(
-                    "El viaje con ID " + viaje.getId() + " ha sido cancelado.",
+                    "Tu boleto con ID " + boleto.getId() + " ha sido cancelado.",
                     boleto.getPasajero().getId()
             );
             boleto.setEstado(EstadoViaje.CANCELADO);
@@ -94,6 +96,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         boleto.setPasajero(Pasajero.builder().id(pasajeroId).build());
         boleto.setViaje(Viaje.builder().id(viajeId).build());
         boleto.setAsientosOcupados(asientosOcupados);
+        boleto.setAbordo(false);
 
         Ubicacion ubicacionDestino = ubicacionMapper.toEntity(ubicacionRequest);
         Viaje viaje = viajeRepository.findById(boleto.getViaje().getId())
@@ -143,5 +146,56 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
                 ubicacionOrigen.getProvincia(),
                 ubicacionDestinoGuardada.getProvincia()
         );
+    }
+
+    @Transactional
+    @Override
+    public BoletoCompletadoResponse finalizarBoleto(Integer id){
+        PasajeroViaje boleto = pasajeroViajeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Boleto no encontrado con id: " + id));
+
+        if(!boleto.getEstado().equals(EstadoViaje.EN_CURSO)){
+            throw new BusinessRuleException("Solo se puede finalizar un viaje en curso.");
+        }
+
+        Viaje viaje = boleto.getViaje();
+
+        boleto.setEstado(EstadoViaje.COMPLETADO);
+
+        String formatoCosto = String.format("%.2f", boleto.getCosto());
+
+        //Notificacion al conductor del boleto finalizado
+        Notificacion notificacionBoletoFinalizado = Notificacion.paraConductor(
+                viaje.getConductor().getId(),
+                "Viaje de " + boleto.getPasajero().getUsername() + " finalizado. Monto recibido: S/" + formatoCosto
+                );
+
+        notificacionRepository.save(notificacionBoletoFinalizado);
+
+
+        //Si el boleto es el último en curso del viaje, se marca el viaje como completado
+        Integer viajesRestantes = cantidadBoletoEnCursoPorViaje(boleto.getViaje().getId());
+        if(viajesRestantes == 0){
+            viaje.setEstado(EstadoViaje.COMPLETADO);
+            Notificacion notificacionViajeCompletado = Notificacion.paraConductor(
+                    viaje.getConductor().getId(),
+                    "Viaje completado. Resumen de ingresos disponible en tu Billetera."
+            );
+            notificacionRepository.save(notificacionViajeCompletado);
+        }
+
+
+
+        return pasajeroViajeMapper.toBoletoResponse(
+                boleto,
+                "Viaje de " + boleto.getPasajero().getUsername() + " finalizado. Monto recibido: S/" + formatoCosto
+        );
+    }
+
+
+    //Funciones extra
+
+    Integer cantidadBoletoEnCursoPorViaje(Integer viajeId) {
+        return viajeRepository.cantidadBoletosEnCursoPorViaje(viajeId);
     }
 }

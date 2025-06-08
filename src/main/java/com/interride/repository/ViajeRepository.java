@@ -1,6 +1,7 @@
 package com.interride.repository;
 
 import com.interride.dto.response.ViajeCompletadoResponse;
+import com.interride.model.entity.Pasajero;
 import com.interride.model.entity.Viaje;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -8,15 +9,21 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.transaction.annotation.Transactional;
 import com.interride.dto.response.ViajeDisponibleResponse;
 
-import java.sql.Timestamp;
 import java.util.Optional;
 
 
 public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
+    //getViajesById
+    @Query(value = """
+        SELECT v.id, v.fecha_hora_partida, v.estado, c.nombres, c.apellidos
+        FROM viaje v
+        LEFT JOIN conductor c ON v.conductor_id = c.id
+        WHERE v.id = :idViaje;
+        """, nativeQuery = true)
+    Viaje getById(@Param("idViaje") Integer idViaje);
+
     @Query(value= """
         SELECT
             v.id AS viaje_id,
@@ -169,5 +176,19 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
             @Param("idConductor") Integer idConductor
     );
 
+    //get PasajeroViaje by viaje id
+    @Query(value = """
+        SELECT pv
+        FROM PasajeroViaje pv
+        WHERE pv.viaje.id = :idViaje
+    """, nativeQuery = false)
+    List<Pasajero> getPasajeroViajesByViajeId(@Param("idViaje") Integer idViaje);
+
+
+    @Query("SELECT COUNT(pv) " +
+            "FROM PasajeroViaje pv " +
+            "WHERE pv.viaje.id = :idViaje " +
+            "AND pv.estado = com.interride.model.enums.EstadoViaje.EN_CURSO")
+    Integer cantidadBoletosEnCursoPorViaje(@Param("idViaje") Integer idViaje);
 }
 

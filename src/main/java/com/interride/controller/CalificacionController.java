@@ -45,14 +45,14 @@ public class CalificacionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CalificacionResponse> updateCalificacion(@PathVariable("id") Integer id,
+    public ResponseEntity<CalificacionResponse> updateCalificacion(@PathVariable Integer id,
                                                @Valid @RequestBody UpdateCalificacionRequest calificacion){
         CalificacionResponse calificacionActual = calificacionService.update(id, calificacion);
         return new ResponseEntity<>(calificacionActual, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<CalificacionResponse> deleteCalificacion(@PathVariable("id") Integer id){
+    public ResponseEntity<CalificacionResponse> deleteCalificacion(@PathVariable Integer id){
         calificacionService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

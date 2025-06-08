@@ -2,9 +2,11 @@ package com.interride.controller;
 
 import com.interride.dto.request.UbicacionRequest;
 import com.interride.dto.response.BoletoCanceladoResponse;
+import com.interride.dto.response.BoletoCompletadoResponse;
 import com.interride.dto.response.BoletoUnionResponse;
 import com.interride.service.PasajeroViajeService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +18,7 @@ public class PasajeroViajeController {
 
     @PutMapping("/{id_boleto}/cancelar")
     public ResponseEntity<BoletoCanceladoResponse> cancelarBoleto(@PathVariable Integer id_boleto) {
-        BoletoCanceladoResponse response = pasajeroViajeService.ObtenerViajeCanceladoById(id_boleto);
+        BoletoCanceladoResponse response = pasajeroViajeService.cancelarBoleto(id_boleto);
         return ResponseEntity.ok(response);
     }
 
@@ -28,6 +30,12 @@ public class PasajeroViajeController {
             @RequestParam Integer asientosOcupados
             ){
         BoletoUnionResponse response = pasajeroViajeService.createBoletoUnion(id_pasajero, id_viaje, asientosOcupados, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id_boleto}/finalizar")
+    public ResponseEntity<BoletoCompletadoResponse> finalizarBoleto(@PathVariable Integer id_boleto) {
+        BoletoCompletadoResponse response = pasajeroViajeService.finalizarBoleto(id_boleto);
         return ResponseEntity.ok(response);
     }
 

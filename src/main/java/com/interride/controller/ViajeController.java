@@ -2,11 +2,11 @@ package com.interride.controller;
 
 
 
+import com.interride.dto.request.ViajeSolicitadoRequest;
 import com.interride.dto.response.*;
 import com.interride.service.ViajeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,6 +77,23 @@ public class ViajeController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id_viaje}/empezar/{id_conductor}")
+    public ResponseEntity<?> empezarViaje(
+            @PathVariable("id_viaje") Integer idViaje,
+            @PathVariable("id_conductor") Integer idConductor) {
+        boolean complete = viajeService.empezarViaje(idViaje, idConductor);
+        if (complete) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo iniciar el viaje");
+        }
+    }
+
+    @PostMapping("/solicitar/{id_pasajero}")
+    public ResponseEntity<ViajeSolicitadoResponse> solicitarViaje(@PathVariable("id_pasajero") Integer id, @Valid @RequestBody ViajeSolicitadoRequest request) {
+        ViajeSolicitadoResponse response = viajeService.crearViajeSolicitado(id, request);
+        return ResponseEntity.ok(response);
+    }
 
 }
 
