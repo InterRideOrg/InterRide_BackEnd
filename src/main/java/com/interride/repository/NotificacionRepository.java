@@ -1,6 +1,7 @@
 package com.interride.repository;
 
 import com.interride.model.entity.Notificacion;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -29,6 +30,10 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Inte
 
     List<Notificacion> findByConductorId(Integer conductorId);
     List<Notificacion> findByPasajeroId(Integer pasajeroId);
+
+    List<Notificacion> findAllByPasajeroId(Integer pasajeroId, Sort sort);
+    List<Notificacion> findAllByConductorId(Integer conductorId, Sort sort);
+
 
     void deleteByPasajeroIdAndFechaHoraEnvioBefore(Integer pasajeroId, LocalDateTime limite);
     void deleteByConductorIdAndFechaHoraEnvioBefore(Integer conductorId, LocalDateTime  limite);

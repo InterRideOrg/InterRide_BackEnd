@@ -29,5 +29,7 @@ public interface ViajeService {
 
     boolean empezarViaje(Integer idViaje, Integer idConductor);
 
+    ViajeCompletadoConductorResponse verDetalleViajeCompletadoPorConductor(Integer idViaje);
+
 }
 

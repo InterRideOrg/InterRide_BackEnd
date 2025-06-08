@@ -6,7 +6,9 @@ import com.interride.service.ConductorService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.*;
+import com.interride.dto.response.ConductorPerfilPublicoResponse;
 import com.interride.dto.response.NotificacionConductorResponse;
+import com.interride.service.ConductorService;
 import com.interride.service.NotificacionService;
 
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import java.util.List;
 public class ConductorController {
     private final ConductorService conductorService;
     private final NotificacionService notificacionService;
+    private final ConductorService conductorService;
 
     @PutMapping("/{id}")
     public ConductorPerfilActualizadoResponse actualizarPerfilPasajero(@PathVariable Integer id, @RequestBody ActualizarConductorPerfilRequest perfilActualizado) {
@@ -39,5 +42,11 @@ public class ConductorController {
     public ResponseEntity<List<NotificacionConductorResponse>> obtenerNotificacionesConductor(@PathVariable Integer id) {
         List<NotificacionConductorResponse> notificaciones = notificacionService.obtenerNotificacionesConductor(id);
         return ResponseEntity.ok(notificaciones);
+    }
+
+    @GetMapping("/perfil-publico/{idViaje}")
+    public ResponseEntity<ConductorPerfilPublicoResponse> obtenerPerfilConductorAsignado(@PathVariable Integer idViaje) {
+        ConductorPerfilPublicoResponse response = conductorService.obtenerPerfilConductorAsignado(idViaje);
+        return ResponseEntity.ok(response);
     }
 }

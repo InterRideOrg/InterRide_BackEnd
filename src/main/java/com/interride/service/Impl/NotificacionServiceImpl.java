@@ -2,10 +2,11 @@ package com.interride.service.Impl;
 
 import com.interride.dto.response.NotificacionConductorResponse;
 import com.interride.dto.response.NotificacionPasajeroResponse;
+import com.interride.dto.response.NotificacionSimpleResponse;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.exception.ValidationException;
 import com.interride.mapper.NotificacionMapper;
-import com.interride.model.entity.Calificacion;
+
 import com.interride.model.entity.Conductor;
 import com.interride.model.entity.Notificacion;
 import com.interride.model.entity.Pasajero;
@@ -14,7 +15,8 @@ import com.interride.repository.PasajeroRepository;
 import com.interride.service.NotificacionService;
 import com.interride.repository.NotificacionRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -138,4 +140,31 @@ public class NotificacionServiceImpl implements  NotificacionService  {
                 .orElseThrow(() -> new ResourceNotFoundException("Notificación no encontrada con ID: " + id));
         notificacionRepository.delete(notificacion);
     }
+
+
+    @Override
+    public List<NotificacionSimpleResponse> listarPorPasajero(Integer pasajeroId, String orden) {
+        Sort sort = orden.equalsIgnoreCase("asc") ? Sort.by("fechaHoraEnvio").ascending()
+                : Sort.by("fechaHoraEnvio").descending();
+
+        List<Notificacion> notificaciones = notificacionRepository.findAllByPasajeroId(pasajeroId, sort);
+
+        return notificaciones.stream()
+                .map(notificacionMapper::toNotificacionSimpleResponse)
+                .toList();
+    }
+
+    @Override
+    public List<NotificacionSimpleResponse> listarPorConductor(Integer conductorId, String orden) {
+        Sort sort = orden.equalsIgnoreCase("asc") ? Sort.by("fechaHoraEnvio").ascending()
+                : Sort.by("fechaHoraEnvio").descending();
+
+        List<Notificacion> notificaciones = notificacionRepository.findAllByConductorId(conductorId, sort);
+
+        return notificaciones.stream()
+                .map(notificacionMapper::toNotificacionSimpleResponse)
+                .toList();
+    }
+
+
 }
