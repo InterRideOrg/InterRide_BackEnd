@@ -94,7 +94,7 @@ public class ConductorServiceImpl implements ConductorService {
                 updatedConductor.getTelefono(),
                 updatedConductor.getUsername()
         );
-
+    }
     @Override
     public ConductorPerfilPublicoResponse obtenerPerfilConductorAsignado(Integer idViaje) {
         Viaje viaje = viajeRepository.findById(idViaje)

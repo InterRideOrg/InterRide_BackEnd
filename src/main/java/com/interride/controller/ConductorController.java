@@ -25,7 +25,6 @@ import java.util.List;
 public class ConductorController {
     private final ConductorService conductorService;
     private final NotificacionService notificacionService;
-    private final ConductorService conductorService;
 
     @PutMapping("/{id}")
     public ConductorPerfilActualizadoResponse actualizarPerfilPasajero(@PathVariable Integer id, @RequestBody ActualizarConductorPerfilRequest perfilActualizado) {
