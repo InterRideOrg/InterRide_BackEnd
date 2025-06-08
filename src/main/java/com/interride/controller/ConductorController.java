@@ -1,10 +1,15 @@
 package com.interride.controller;
 
+import com.interride.dto.request.ActualizarConductorPerfilRequest;
+import com.interride.dto.response.ConductorPerfilActualizadoResponse;
+import com.interride.service.ConductorService;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.web.bind.annotation.*;
 import com.interride.dto.response.ConductorPerfilPublicoResponse;
 import com.interride.dto.response.NotificacionConductorResponse;
 import com.interride.service.ConductorService;
 import com.interride.service.NotificacionService;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +19,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
 @RequestMapping("/conductor")
+@RestController
 @RequiredArgsConstructor
 public class ConductorController {
+    private final ConductorService conductorService;
     private final NotificacionService notificacionService;
     private final ConductorService conductorService;
 
+    @PutMapping("/{id}")
+    public ConductorPerfilActualizadoResponse actualizarPerfilPasajero(@PathVariable Integer id, @RequestBody ActualizarConductorPerfilRequest perfilActualizado) {
+        return conductorService.actualizarPerfilConductor(id, perfilActualizado);
+    }
     //Se utiliza para eliminar las notificaciones antiguas del pasajero al iniciar la aplicación
     @GetMapping("{id}/inicio")
     public ResponseEntity<String> inicioApp(@PathVariable int id) {
