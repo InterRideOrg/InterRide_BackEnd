@@ -169,6 +169,61 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Notificación",
+			"item": [
+				{
+					"name": "Obtener_notificaciones_de_conductor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notificaciones/conductor/5?orden=desc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"notificaciones",
+								"conductor",
+								"5"
+							],
+							"query": [
+								{
+									"key": "orden",
+									"value": "desc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener_notificaciones_de_pasajero",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notificaciones/pasajero/1?orden=asc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"notificaciones",
+								"pasajero",
+								"1"
+							],
+							"query": [
+								{
+									"key": "orden",
+									"value": "asc"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
