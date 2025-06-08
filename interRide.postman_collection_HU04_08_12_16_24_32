@@ -144,6 +144,31 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Viaje",
+			"item": [
+				{
+					"name": "Detalle_viaje_completado_por_conductor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/trips/viajeCompletado/detalle/4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"trips",
+								"viajeCompletado",
+								"detalle",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
