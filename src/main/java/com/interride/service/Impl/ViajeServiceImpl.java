@@ -346,6 +346,10 @@ public class ViajeServiceImpl implements ViajeService {
         Ubicacion destino = origenANDdestino.getSecond();
         PasajeroViaje boleto = pasajeroViajeMapper.toEntity(request);
 
+        if(boleto.getAsientosOcupados() <= 0){
+            throw new BusinessRuleException("El número de asientos ocupados debe ser mayor a 0.");
+        }
+
         //Creacion del viaje
         Viaje viajeSolicitado = viajeRepository.save(viaje);
 
