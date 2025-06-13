@@ -370,7 +370,9 @@ public class ViajeServiceUnitTest {
         assertThrows(ResourceNotFoundException.class, () -> {
             viajeService.getViajesByPasajeroId(pasajeroId);
         });
+
     }
+
 
     @DisplayName("UH11 - CP01 - Aceptar viaje con exito")
     void aceptarViaje_success_returnsAccepted() {
