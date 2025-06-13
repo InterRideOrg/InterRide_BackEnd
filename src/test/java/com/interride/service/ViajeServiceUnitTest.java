@@ -398,4 +398,57 @@ public class ViajeServiceUnitTest {
         System.out.println(exception.getMessage());
     }
 
+    @Test
+    @DisplayName("UH13 - CP01 - Notificar viaje aceptado con exito")
+    void notificarViajeAceptado_success() {
+        Integer idViaje = 1;
+        Integer idConductor = 1;
+
+        Viaje viaje = new Viaje();
+        viaje.setId(idViaje);
+        viaje.setEstado(EstadoViaje.SOLICITADO);
+        viaje.setAsientosOcupados(2);
+
+        Vehiculo vehiculo = new Vehiculo();
+        vehiculo.setCantidadAsientos(4);
+
+        Conductor conductor = new Conductor();
+        conductor.setId(idConductor);
+        conductor.setNombre("Juan Pérez");
+        conductor.setVehiculo(vehiculo);
+
+        Pasajero pasajero = new Pasajero();
+        pasajero.setId(2);
+        pasajero.setNombre("Ana Gómez");
+
+        PasajeroViaje boletoInicial = new PasajeroViaje();
+        boletoInicial.setAsientosOcupados(2);
+        boletoInicial.setPasajero(pasajero);
+        boletoInicial.setEstado(EstadoViaje.SOLICITADO);
+
+
+
+        Ubicacion origen = new Ubicacion();
+        origen.setProvincia("Lima");
+
+        Ubicacion destino = new Ubicacion();
+        destino.setProvincia("Haura");
+
+        Notificacion notificacion = new Notificacion();
+        notificacion.setMensaje("Tu viaje de " + origen.getProvincia() + " a " + destino.getProvincia() + " ha sido aceptado por el conductor " + conductor.getNombre() + ".");
+
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
+        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boletoInicial);
+        when(ubicacionRepository.findByViajeId(idViaje)).thenReturn(origen);
+        when(ubicacionRepository.findByPasajeroViajeId(boletoInicial.getId())).thenReturn(destino);
+        when(pasajeroViajeRepository.save(any(PasajeroViaje.class))).thenReturn(boletoInicial);
+        when(notificacionRepository.save(any(Notificacion.class))).thenReturn(notificacion);
+
+        viajeService.aceptarViaje(idViaje, idConductor);
+
+        assertEquals(EstadoViaje.ACEPTADO, boletoInicial.getEstado());
+        assertEquals("Tu viaje de " + origen.getProvincia() + " a " + destino.getProvincia() + " ha sido aceptado por el conductor " + conductor.getNombre() + ".", notificacion.getMensaje());
+    }
+
 }
