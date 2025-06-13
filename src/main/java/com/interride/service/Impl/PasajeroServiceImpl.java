@@ -5,6 +5,7 @@ import com.interride.dto.request.ActualizarPasajeroPerfilRequest;
 import com.interride.dto.response.PasajeroPerfilPublicoResponse;
 import com.interride.dto.response.PasajeroProfileResponse;
 import com.interride.dto.request.PasajeroRegistrationRequest;
+import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.PasajeroMapper;
 import com.interride.model.entity.Pasajero;
 import jakarta.persistence.EntityNotFoundException;      
@@ -30,20 +31,15 @@ public class PasajeroServiceImpl implements PasajeroService {
     private final PasajeroMapper mapper;
     private final PasswordEncoder encoder;
     private final EmailService emailService;
+    private final PasajeroMapper pasajeroMapper;
 
     @Transactional
     @Override
     public PasajeroPerfilPublicoResponse obtenerPerfilPasajero(Integer idPasajero) {
         Pasajero pasajero = pasajeroRepository.findById(idPasajero)
-                .orElseThrow(() -> new EntityNotFoundException("Pasajero con ID " + idPasajero + " no encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero con ID " + idPasajero + " no encontrado."));
 
-        return new PasajeroPerfilPublicoResponse(
-                pasajero.getNombre(),
-                pasajero.getApellidos(),
-                pasajero.getCorreo(),
-                pasajero.getTelefono(),
-                pasajero.getUsername()
-        );
+        return pasajeroMapper.toPublicProfileDTO(pasajero);
     }
 
     @Transactional
