@@ -1,6 +1,10 @@
 package com.interride.service.Impl;
 
 import com.interride.dto.request.RegistroDeVehiculoRequest;
+import com.interride.dto.request.UpdateVehiculoRequest;
+import com.interride.exception.DuplicateResourceException;
+import com.interride.exception.ResourceNotFoundException;
+import com.interride.mapper.VehiculoMapper;
 import com.interride.repository.ConductorRepository;
 import com.interride.repository.VehiculoRepository;
 import com.interride.model.entity.Vehiculo;
@@ -16,18 +20,19 @@ public class VehiculoServiceImpl implements VehiculoService {
 
     private final VehiculoRepository vehiculoRepository;
     private final ConductorRepository conductorRepository;
+    private final VehiculoMapper vehiculoMapper;
 
     @Transactional
     @Override
-    public Vehiculo update(Integer conductorId, Vehiculo vehiculoNuevo) {
+    public Vehiculo update(Integer conductorId, UpdateVehiculoRequest request) {
         Vehiculo vehiculo = vehiculoRepository.findByConductorId(conductorId)
-                .orElseThrow(() -> new EntityNotFoundException("Vehículo no encontrado para el conductor"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vehículo no encontrado para el conductor"));
 
-        vehiculo.setPlaca(vehiculoNuevo.getPlaca());
-        vehiculo.setMarca(vehiculoNuevo.getMarca());
-        vehiculo.setModelo(vehiculoNuevo.getModelo());
-        vehiculo.setAnio(vehiculoNuevo.getAnio());
-        vehiculo.setCantidadAsientos(vehiculoNuevo.getCantidadAsientos());
+        if (vehiculoRepository.existsByPlaca(request.placa())) {
+            throw new DuplicateResourceException("Placa ya registrada. Ingrese otro.");
+        }
+
+        vehiculoMapper.updateEntity(vehiculo, request);
 
         return vehiculoRepository.save(vehiculo);
     }

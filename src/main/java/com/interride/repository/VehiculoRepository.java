@@ -18,4 +18,6 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Integer> {
             WHERE v.conductor_id = :id_conductor
             """, nativeQuery = true)
     boolean existsByConductorId(@Param("id_conductor") Integer conductorId);
+
+    boolean existsByPlaca(String placa);
 }
