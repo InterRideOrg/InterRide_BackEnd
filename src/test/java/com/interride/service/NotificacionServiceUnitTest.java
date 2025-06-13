@@ -1,11 +1,9 @@
 package com.interride.service;
 
-import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.interride.dto.response.NotificacionPasajeroResponse;
 import com.interride.mapper.NotificacionMapper;
 import com.interride.model.entity.Notificacion;
 import com.interride.model.entity.Pasajero;
-import com.interride.repository.ConductorRepository;
 import com.interride.repository.NotificacionRepository;
 import com.interride.repository.PasajeroRepository;
 import com.interride.service.Impl.NotificacionServiceImpl;
