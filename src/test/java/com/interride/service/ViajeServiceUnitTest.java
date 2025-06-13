@@ -3,6 +3,7 @@ package com.interride.service;
 import com.interride.dto.request.ViajeSolicitadoRequest;
 import com.interride.dto.response.PasajeroViajesResponse;
 import com.interride.dto.response.ViajeAceptadoResponse;
+import com.interride.dto.response.ViajeEnCursoResponse;
 import com.interride.dto.response.ViajeSolicitadoResponse;
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
@@ -234,7 +235,6 @@ public class ViajeServiceUnitTest {
     }
 
     @Test
-
     @DisplayName("UH21 - CP01 - Visualizar historial de viajes de un pasajero con exito")
     void verHistorialViajesPasajero_success_returnsHistory() {
         Integer pasajeroId = 1;
@@ -591,6 +591,77 @@ public class ViajeServiceUnitTest {
 
         assertEquals(EstadoViaje.ACEPTADO, boletoInicial.getEstado());
         assertEquals("Tu viaje de " + origen.getProvincia() + " a " + destino.getProvincia() + " ha sido aceptado por el conductor " + conductor.getNombre() + ".", notificacion.getMensaje());
+    }
+
+    @Test
+    @DisplayName("UH25 - CP01 - Visualizar viaje en curso con exito")
+    void verViajeEnCurso_success() {
+        Integer idPasajero = 1;
+        Integer idViaje = 1;
+        // Datos de prueba
+        Viaje viaje = Viaje.builder()
+                .id(idViaje)
+                .estado(EstadoViaje.EN_CURSO)
+                .asientosOcupados(2)
+                .fechaHoraPartida(LocalDateTime.parse("2025-05-31T17:02:40.728967"))
+                .build();
+        Conductor conductor = Conductor.builder()
+                .id(1)
+                .nombre("Juan Pérez Gómez")
+                .apellidos("Gómez")
+                .build();
+        Vehiculo vehiculo = Vehiculo.builder()
+                .modelo("Toyota Corolla")
+                .placa("ABC-123")
+                .marca("Toyota")
+                .cantidadAsientos(4)
+                .build();
+        Ubicacion origen = Ubicacion.builder()
+                .longitud(BigDecimal.valueOf(-77.04275400))
+                .latitud(BigDecimal.valueOf(-12.04637300))
+                .provincia("Lima")
+                .build();
+        Ubicacion destino = Ubicacion.builder()
+                .longitud(BigDecimal.valueOf(-77.65432100))
+                .latitud(BigDecimal.valueOf(-10.87654300))
+                .provincia("Haura")
+                .build();
+
+        // Simulación de la respuesta del repositorio
+
+        List<Object[]> responseData = new ArrayList<>();
+        Object[] data = new Object[]{
+                viaje.getId(),
+                conductor.getNombre(),
+                conductor.getApellidos(),
+                vehiculo.getModelo(),
+                vehiculo.getPlaca(),
+                vehiculo.getMarca(),
+                vehiculo.getCantidadAsientos(),
+                viaje.getAsientosOcupados(),
+                origen.getLongitud(),
+                origen.getLatitud(),
+                origen.getProvincia(),
+                destino.getLongitud(),
+                destino.getLatitud(),
+                destino.getProvincia(),
+                viaje.getEstado().toString(),
+                new Timestamp(viaje.getFechaHoraPartida().toInstant(java.time.ZoneOffset.UTC).toEpochMilli()),
+        };
+        responseData.add(data);
+
+        when(viajeRepository.getViajeEnCursoById(idPasajero)).thenReturn(responseData);
+
+        ViajeEnCursoResponse response = viajeService.obtenerDetalleViajeEnCurso(idPasajero);
+
+        assertEquals(idViaje, response.getId());
+        assertEquals("Lima", response.getOrigenProvincia());
+        assertEquals("Haura", response.getDestinoProvincia());
+        assertEquals("Juan Pérez Gómez", response.getNombreConductor());
+        assertEquals(EstadoViaje.EN_CURSO, response.getEstadoViaje());
+        assertEquals("Toyota Corolla", response.getModeloVehiculo());
+        assertEquals("ABC-123", response.getPlacaVehiculo());
+        assertEquals("Toyota", response.getMarcaVehiculo());
     }
 
 }
