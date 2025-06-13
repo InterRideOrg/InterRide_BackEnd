@@ -27,8 +27,6 @@ public class ConductorServiceUnitTest {
     @InjectMocks
     private ConductorServiceImpl conductorService;
 
-    private ConductorRegistroRequest request;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
