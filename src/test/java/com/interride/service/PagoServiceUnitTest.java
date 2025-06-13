@@ -205,4 +205,126 @@ public class PagoServiceUnitTest {
         System.out.println(exception.getMessage());
     }
 
+    @Test
+    @DisplayName("UH18 - CP01 - Crear pago en efectivo con éxito")
+    void createPagoEfectivo_success_returnsPagoResponse() {
+        Integer pasajeroId = 1;
+        Integer conductorId = 1;
+        Integer viajeId = 1;
+        CreatePagoRequest request = new CreatePagoRequest(
+                23.0,
+                pasajeroId,
+                conductorId,
+                viajeId
+        );
+
+        Pasajero pasajero = new Pasajero();
+        pasajero.setId(pasajeroId);
+
+        Conductor conductor = new Conductor();
+        conductor.setId(conductorId);
+
+        Viaje viaje = new Viaje();
+        viaje.setId(viajeId);
+
+        Pago pago = new Pago();
+        pago.setId(1);
+        pago.setEstado(EstadoPago.PENDIENTE);
+        pago.setMonto(23.0);
+        pago.setFechaHoraPago(LocalDateTime.now());
+        pago.setPasajero(pasajero);
+        pago.setConductor(conductor);
+        pago.setViaje(viaje);
+
+        when(pagoMapper.toEntity(request)).thenReturn(pago);
+        when(pasajeroRepository.findById(pasajeroId)).thenReturn(Optional.of(pasajero));
+        when(conductorRepository.findById(conductorId)).thenReturn(Optional.of(conductor));
+        when(pagoRepository.save(pago)).thenReturn(pago);
+        when(pagoMapper.toResponse(pago)).thenReturn(new PagoResponse(
+                pago.getId(),
+                pago.getEstado(),
+                pago.getFechaHoraPago(),
+                pago.getMonto(),
+                pasajeroId,
+                conductorId,
+                viajeId
+        ));
+        PagoResponse resultado = pagoService.createPagoEfectivo(request);
+        assertEquals(EstadoPago.PENDIENTE, resultado.estado());
+        assertEquals(23.0, resultado.monto());
+        assertEquals(pasajeroId, resultado.pasajeroId());
+        assertEquals(conductorId, resultado.conductorId());
+        assertEquals(viajeId, resultado.viajeId());
+    }
+
+    @Test
+    @DisplayName("UH18 - CP02 - Crear pago en efectivo con error de pasajero no encontrado")
+    void createPagoEfectivo_error_pasajeroNotFound() {
+        Integer pasajeroId = 1;
+        Integer conductorId = 1;
+        Integer viajeId = 1;
+        CreatePagoRequest request = new CreatePagoRequest(
+                23.0,
+                pasajeroId,
+                conductorId,
+                viajeId
+        );
+
+        Conductor conductor = new Conductor();
+        conductor.setId(conductorId);
+
+        Viaje viaje = new Viaje();
+        viaje.setId(viajeId);
+
+        Pago pago = new Pago();
+        pago.setEstado(EstadoPago.PENDIENTE);
+        pago.setMonto(23.0);
+        pago.setFechaHoraPago(LocalDateTime.now());
+        pago.setConductor(conductor);
+        pago.setPasajero(Pasajero.builder().id(1000).build());
+        pago.setViaje(viaje);
+
+        when(pagoMapper.toEntity(request)).thenReturn(pago);
+        when(pasajeroRepository.findById(pasajeroId)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> pagoService.createPagoEfectivo(request));
+        System.out.println(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("UH18 - CP03 - Crear pago en efectivo con error de conductor no encontrado")
+    void createPagoEfectivo_error_conductorNotFound() {
+        Integer pasajeroId = 1;
+        Integer conductorId = 1;
+        Integer viajeId = 1;
+        CreatePagoRequest request = new CreatePagoRequest(
+                23.0,
+                pasajeroId,
+                conductorId,
+                viajeId
+        );
+
+        Pasajero pasajero = new Pasajero();
+        pasajero.setId(pasajeroId);
+
+        Viaje viaje = new Viaje();
+        viaje.setId(viajeId);
+
+        Pago pago = new Pago();
+        pago.setEstado(EstadoPago.PENDIENTE);
+        pago.setMonto(23.0);
+        pago.setFechaHoraPago(LocalDateTime.now());
+        pago.setPasajero(pasajero);
+        pago.setConductor(Conductor.builder().id(1000).build());
+        pago.setViaje(viaje);
+
+        when(pagoMapper.toEntity(request)).thenReturn(pago);
+        when(pasajeroRepository.findById(pasajeroId)).thenReturn(Optional.of(pasajero));
+        when(conductorRepository.findById(conductorId)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> pagoService.createPagoEfectivo(request));
+        System.out.println(exception.getMessage());
+    }
+
+
 }
