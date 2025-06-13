@@ -1,6 +1,7 @@
 package com.interride.service;
 
 import com.interride.dto.request.ViajeSolicitadoRequest;
+import com.interride.dto.response.PasajeroViajesResponse;
 import com.interride.dto.response.ViajeSolicitadoResponse;
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
@@ -23,8 +24,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.util.Pair;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -226,6 +230,144 @@ public class ViajeServiceUnitTest {
 
 
         assertThrows(BusinessRuleException.class, () -> viajeService.crearViajeSolicitado(pasajeroId, request));
+    }
+
+    @Test
+    @DisplayName("UH21 - CP01 - Visualizar historial de viajes de un pasajero con exito")
+    void verHistorialViajesPasajero_success_returnsHistory() {
+        Integer pasajeroId = 1;
+        Pasajero pasajero = Pasajero.builder().id(pasajeroId).build();
+
+        Viaje viaje1 = Viaje.builder().id(1).build();
+        Ubicacion origen1 = Ubicacion.builder()
+                .latitud(BigDecimal.valueOf(-12.04637300))
+                .longitud(BigDecimal.valueOf(-77.04275400))
+                .direccion("Av. Arequipa 123")
+                .provincia("Lima")
+                .build();
+        Ubicacion destino1 = Ubicacion.builder()
+                .latitud(BigDecimal.valueOf(-10.87654300))
+                .longitud(BigDecimal.valueOf(-77.65432100))
+                .direccion("Jr. Leon Velarde 234")
+                .provincia("Haura")
+                .build();
+        PasajeroViaje boleto1 = PasajeroViaje.builder()
+                .id(1)
+                .fechaHoraUnion(LocalDateTime.parse("2025-05-31T17:02:40.728967"))
+                .asientosOcupados(2)
+                .estado(EstadoViaje.COMPLETADO)
+                .pasajero(pasajero)
+                .viaje(viaje1)
+                .fechaHoraLLegada(LocalDateTime.parse("2025-06-03T17:02:40.728967"))
+                .costo(25.0)
+                .abordo(false)
+                .build();
+
+
+        Viaje viaje2 = Viaje.builder().id(2).build();
+        Ubicacion origen2 = Ubicacion.builder()
+                .latitud(BigDecimal.valueOf(-12.04637300))
+                .longitud(BigDecimal.valueOf(-77.04275400))
+                .direccion("Av. Arequipa 456")
+                .provincia("Lima")
+                .build();
+        Ubicacion destino2 = Ubicacion.builder()
+                .latitud(BigDecimal.valueOf(-10.87654300))
+                .longitud(BigDecimal.valueOf(-77.65432100))
+                .direccion("Jr. Leon Velarde 567")
+                .provincia("Haura")
+                .build();
+        PasajeroViaje boleto2 = PasajeroViaje.builder()
+                .id(2)
+                .fechaHoraUnion(LocalDateTime.parse("2025-05-26T17:02:40.728967"))
+                .asientosOcupados(1)
+                .estado(EstadoViaje.CANCELADO)
+                .pasajero(pasajero)
+                .viaje(viaje2)
+                .fechaHoraLLegada(LocalDateTime.parse("2025-05-29T17:02:40.728967"))
+                .costo(15.0)
+                .abordo(false)
+                .build();
+
+        List<PasajeroViajesResponse> historial = new ArrayList<>();
+        historial.add(new PasajeroViajesResponse(
+                viaje1.getId(),
+                boleto1.getFechaHoraUnion(),
+                boleto1.getEstado(),
+                "Conductor Nombres",
+                "Conductor Apellidos",
+                boleto1.getFechaHoraUnion(),
+                boleto1.getFechaHoraLLegada(),
+                boleto1.getCosto()
+        ));
+        historial.add(new PasajeroViajesResponse(
+                viaje2.getId(),
+                boleto2.getFechaHoraUnion(),
+                boleto2.getEstado(),
+                "Conductor Nombres 2",
+                "Conductor Apellidos 2",
+                boleto2.getFechaHoraUnion(),
+                boleto2.getFechaHoraLLegada(),
+                boleto2.getCosto()
+        ));
+
+        List<Object[]> viajeData = new ArrayList<>();
+        Object[] row1 = new Object[]{
+                viaje1.getId(),
+                new Timestamp(boleto1.getFechaHoraUnion().toInstant(java.time.ZoneOffset.UTC).toEpochMilli()),
+                boleto1.getEstado().toString(),
+                "Conductor Nombres",
+                "Conductor Apellidos",
+                new Timestamp(boleto1.getFechaHoraUnion().toInstant(java.time.ZoneOffset.UTC).toEpochMilli()),
+                new Timestamp(boleto1.getFechaHoraLLegada().toInstant(java.time.ZoneOffset.UTC).toEpochMilli()),
+                boleto1.getCosto()
+        };
+        Object[] row2 = new Object[]{
+                viaje2.getId(),
+                new Timestamp(boleto2.getFechaHoraUnion().toInstant(java.time.ZoneOffset.UTC).toEpochMilli()),
+                boleto2.getEstado().toString(),
+                "Conductor Nombres 2",
+                "Conductor Apellidos 2",
+                new Timestamp(boleto2.getFechaHoraUnion().toInstant(java.time.ZoneOffset.UTC).toEpochMilli()),
+                new Timestamp(boleto2.getFechaHoraLLegada().toInstant(java.time.ZoneOffset.UTC).toEpochMilli()),
+                boleto2.getCosto()
+        };
+
+        viajeData.add(row1);
+        viajeData.add(row2);
+
+        when(pasajeroRepository.findById(pasajeroId)).thenReturn(Optional.of(pasajero));
+        when(viajeRepository.getViajesByPasajeroId(pasajeroId)).thenReturn(viajeData);
+
+        assertEquals(2, viajeData.size());
+
+        List<PasajeroViajesResponse> historialResponse = viajeService.getViajesByPasajeroId(pasajeroId);
+
+        assertEquals(2, historialResponse.size());
+        assertEquals(historial.get(0).getViaje_id(), historialResponse.get(0).getViaje_id());
+        assertEquals(historial.get(1).getViaje_id(), historialResponse.get(1).getViaje_id());
+        assertEquals(historial.get(0).getEstado(), historialResponse.get(0).getEstado());
+        assertEquals(historial.get(1).getEstado(), historialResponse.get(1).getEstado());
+        assertEquals(historial.get(0).getConductor_nombres(), historialResponse.get(0).getConductor_nombres());
+        assertEquals(historial.get(1).getConductor_nombres(), historialResponse.get(1).getConductor_nombres());
+        assertEquals(historial.get(0).getConductor_apellidos(), historialResponse.get(0).getConductor_apellidos());
+        assertEquals(historial.get(1).getConductor_apellidos(), historialResponse.get(1).getConductor_apellidos());
+        assertEquals(historial.get(0).getCosto(), historialResponse.get(0).getCosto());
+        assertEquals(historial.get(1).getCosto(), historialResponse.get(1).getCosto());
+    }
+
+    @Test
+    @DisplayName("UH21 - CP02 - Visualizar historial de viajes de un pasajero sin viajes")
+    void verHistorialViajesPasajero_noViajes_trowsExeption() {
+        Integer pasajeroId = 1;
+        Pasajero pasajero = Pasajero.builder().id(pasajeroId).build();
+
+        when(pasajeroRepository.findById(pasajeroId)).thenReturn(Optional.of(pasajero));
+        when(viajeRepository.getViajesByPasajeroId(pasajeroId)).thenReturn(new ArrayList<>());
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            viajeService.getViajesByPasajeroId(pasajeroId);
+        });
     }
 
 }
