@@ -1,16 +1,14 @@
 package com.interride.service;
 
 import com.interride.dto.request.ViajeSolicitadoRequest;
+import com.interride.dto.response.ViajeAceptadoResponse;
 import com.interride.dto.response.ViajeSolicitadoResponse;
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.PasajeroViajeMapper;
 import com.interride.mapper.UbicacionMapper;
 import com.interride.mapper.ViajeMapper;
-import com.interride.model.entity.Pasajero;
-import com.interride.model.entity.PasajeroViaje;
-import com.interride.model.entity.Ubicacion;
-import com.interride.model.entity.Viaje;
+import com.interride.model.entity.*;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.*;
 import com.interride.service.Impl.ViajeServiceImpl;
@@ -25,11 +23,14 @@ import org.springframework.data.util.Pair;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.when;
 
 public class ViajeServiceUnitTest {
@@ -226,6 +227,175 @@ public class ViajeServiceUnitTest {
 
 
         assertThrows(BusinessRuleException.class, () -> viajeService.crearViajeSolicitado(pasajeroId, request));
+    }
+
+    @Test
+    @DisplayName("UH11 - CP01 - Aceptar viaje con exito")
+    void aceptarViaje_success_returnsAccepted() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+
+        Integer idViaje = 1;
+        Integer idConductor = 1;
+
+        Viaje viaje = new Viaje();
+        viaje.setId(idViaje);
+        viaje.setEstado(EstadoViaje.SOLICITADO);
+        viaje.setAsientosOcupados(2);
+
+        Vehiculo vehiculo = new Vehiculo();
+        vehiculo.setCantidadAsientos(4);
+
+        Conductor conductor = new Conductor();
+        conductor.setId(idConductor);
+        conductor.setNombre("Juan Pérez");
+        conductor.setVehiculo(vehiculo);
+
+        Pasajero pasajero = new Pasajero();
+        pasajero.setId(1);
+
+        PasajeroViaje boletoInicial = new PasajeroViaje();
+        boletoInicial.setId(1);
+        boletoInicial.setPasajero(pasajero);
+        boletoInicial.setEstado(EstadoViaje.SOLICITADO);
+
+        Ubicacion origen = new Ubicacion();
+        origen.setProvincia("Lima");
+
+        Ubicacion destino = new Ubicacion();
+        destino.setProvincia("Haura");
+
+        ViajeAceptadoResponse expectedResponse = new ViajeAceptadoResponse(
+                idViaje,
+                idConductor,
+                EstadoViaje.ACEPTADO,
+                "Lima",
+                "Haura",
+                "Av. Arequipa 123",
+                LocalDateTime.parse("2025-05-31 17:02:40.728967", formatter),
+                2
+        );
+
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
+        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boletoInicial);
+        when(ubicacionRepository.findByViajeId(idViaje)).thenReturn(origen);
+        when(ubicacionRepository.findByPasajeroViajeId(boletoInicial.getId())).thenReturn(destino);
+        when(pasajeroViajeRepository.save(any(PasajeroViaje.class))).thenReturn(boletoInicial);
+        when(notificacionRepository.save(any(Notificacion.class))).thenReturn(new Notificacion());
+        when(viajeRepository.save(any(Viaje.class))).thenReturn(viaje);
+        when(viajeMapper.toViajeAceptadoResponse(viaje, conductor, origen, destino)).thenReturn(expectedResponse);
+
+
+        ViajeAceptadoResponse result = viajeService.aceptarViaje(idViaje, idConductor);
+
+        assertEquals(idViaje, result.idViaje());
+        assertEquals(EstadoViaje.ACEPTADO, result.estadoViaje());
+        assertEquals("Lima", result.provinciaOrigen());
+        assertEquals("Haura", result.provinciaDestino());
+        assertEquals("Av. Arequipa 123", result.direccionOrigen());
+        assertEquals(2, result.asientosDisponibles());
+        assertEquals(EstadoViaje.ACEPTADO, boletoInicial.getEstado());
+    }
+
+    @Test
+    @DisplayName("UH11 - CP02 - Aceptar viaje con viaje no encontrado")
+    void aceptarViaje_viajeNotFound_throwsException() {
+        Integer idViaje = 1;
+        Integer idConductor = 1;
+
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> viajeService.aceptarViaje(idViaje, idConductor));
+        System.out.println(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("UH11 - CP03 - Aceptar viaje con conductor no encontrado")
+    void aceptarViaje_conductorNotFound_throwsException() {
+        Integer idViaje = 1;
+        Integer idConductor = 1;
+
+        Viaje viaje = new Viaje();
+        viaje.setId(idViaje);
+        viaje.setEstado(EstadoViaje.SOLICITADO);
+
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> viajeService.aceptarViaje(idViaje, idConductor));
+        System.out.println(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("UH11 - CP04 - Aceptar viaje con viaje no solicitado")
+    void aceptarViaje_viajeNotSolicitado_throwsException() {
+        Integer idViaje = 1;
+        Integer idConductor = 1;
+
+        Viaje viaje = new Viaje();
+        viaje.setId(idViaje);
+        viaje.setEstado(EstadoViaje.CANCELADO); // Estado no solicitado
+
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(new Conductor()));
+        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(new PasajeroViaje());
+        when(ubicacionRepository.findByViajeId(idViaje)).thenReturn(new Ubicacion());
+        when(ubicacionRepository.findByPasajeroViajeId(any(Integer.class))).thenReturn(new Ubicacion());
+
+        BusinessRuleException exception = assertThrows(BusinessRuleException.class, () -> viajeService.aceptarViaje(idViaje, idConductor));
+        System.out.println(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("UH11 - CP05 - Aceptar viaje con Conductor sin vehiculo")
+    void aceptarViaje_conductorSinVehiculo_throwsException() {
+        Integer idViaje = 1;
+        Integer idConductor = 1;
+
+        Viaje viaje = new Viaje();
+        viaje.setId(idViaje);
+        viaje.setEstado(EstadoViaje.SOLICITADO);
+
+        Conductor conductor = new Conductor();
+        conductor.setId(idConductor);
+        conductor.setVehiculo(null); // Sin vehículo
+
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
+        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(new PasajeroViaje());
+        when(ubicacionRepository.findByViajeId(idViaje)).thenReturn(new Ubicacion());
+        when(ubicacionRepository.findByPasajeroViajeId(any(Integer.class))).thenReturn(new Ubicacion());
+
+        BusinessRuleException exception = assertThrows(BusinessRuleException.class, () -> viajeService.aceptarViaje(idViaje, idConductor));
+        System.out.println(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("UH11 - CP06 - Aceptar viaje con conductor sin asientos disponibles")
+    void aceptarViaje_conductorSinAsientosDisponibles_throwsException() {
+        Integer idViaje = 1;
+        Integer idConductor = 1;
+
+        Viaje viaje = new Viaje();
+        viaje.setId(idViaje);
+        viaje.setEstado(EstadoViaje.SOLICITADO);
+        viaje.setAsientosOcupados(4);
+
+        Vehiculo vehiculo = new Vehiculo();
+        vehiculo.setCantidadAsientos(2);
+
+        Conductor conductor = new Conductor();
+        conductor.setId(idConductor);
+        conductor.setVehiculo(vehiculo);
+
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
+        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(new PasajeroViaje());
+        when(ubicacionRepository.findByViajeId(idViaje)).thenReturn(new Ubicacion());
+        when(ubicacionRepository.findByPasajeroViajeId(any(Integer.class))).thenReturn(new Ubicacion());
+
+        BusinessRuleException exception = assertThrows(BusinessRuleException.class, () -> viajeService.aceptarViaje(idViaje, idConductor));
+        System.out.println(exception.getMessage());
     }
 
 }
