@@ -3,6 +3,7 @@ package com.interride.service;
 import com.interride.dto.request.ViajeSolicitadoRequest;
 import com.interride.dto.response.PasajeroViajesResponse;
 import com.interride.dto.response.ViajeAceptadoResponse;
+import com.interride.dto.response.DetalleViajeResponse;
 import com.interride.dto.response.ViajeSolicitadoResponse;
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
@@ -30,11 +31,14 @@ import java.util.List;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 public class ViajeServiceUnitTest {
@@ -593,6 +597,153 @@ public class ViajeServiceUnitTest {
 
         assertEquals(EstadoViaje.ACEPTADO, boletoInicial.getEstado());
         assertEquals("Tu viaje de " + origen.getProvincia() + " a " + destino.getProvincia() + " ha sido aceptado por el conductor " + conductor.getNombre() + ".", notificacion.getMensaje());
+    }
+
+
+    @Test
+    @DisplayName("UH22 - CP01 - Ver detalles de viaje terminado exitosamente")
+    void verDetallesViaje_success_returnsDetails() {
+        Integer viajeId = 1;
+        Integer pasajeroId = 1;
+        Ubicacion origen = Ubicacion.builder()
+                .latitud(BigDecimal.valueOf(-12.04637300))
+                .longitud(BigDecimal.valueOf(-77.04275400))
+                .direccion("Av. Arequipa 123")
+                .provincia("Lima")
+                .build();
+        Ubicacion destino = Ubicacion.builder()
+                .latitud(BigDecimal.valueOf(-10.87654300))
+                .longitud(BigDecimal.valueOf(-77.65432100))
+                .direccion("Jr. Lima 234")
+                .provincia("Haura")
+                .build();
+        Conductor conductor = Conductor.builder()
+                .id(1)
+                .nombre("Carlos Gomez")
+                .build();
+        Viaje viaje = Viaje.builder()
+                .id(viajeId)
+                .fechaHoraPartida(LocalDateTime.now())
+                .conductor(conductor)
+                .estado(EstadoViaje.COMPLETADO)
+                .build();
+        Pasajero pasajero = Pasajero.builder()
+                .id(pasajeroId)
+                .nombre("Juan Perez")
+                .build();
+        PasajeroViaje boleto = PasajeroViaje.builder()
+                .id(1)
+                .fechaHoraUnion(LocalDateTime.parse("2025-05-26T17:02:40.728967"))
+                .asientosOcupados(2)
+                .estado(EstadoViaje.COMPLETADO)
+                .pasajero(pasajero)
+                .viaje(viaje)
+                .fechaHoraLLegada(LocalDateTime.parse("2025-05-26T20:02:40.728967"))
+                .costo(50.0)
+                .abordo(false)
+                .build();
+        Calificacion calificacion = Calificacion.builder()
+                .id(1)
+                .viaje(viaje)
+                .pasajero(pasajero)
+                .estrellas(3)
+                .build();
+
+        List<Object[]> viajeData = new ArrayList<>();
+        Object[] data = new Object[]{
+                new Timestamp(boleto.getFechaHoraUnion().toInstant(java.time.ZoneOffset.UTC).toEpochMilli()),
+                origen.getDireccion(),
+                destino.getDireccion(),
+                conductor.getNombre(),
+                "Tarjeta",
+                boleto.getCosto(),
+                calificacion.getEstrellas(),
+                boleto.getEstado().toString(),
+        };
+        viajeData.add(data);
+
+        when(viajeRepository.findById(viajeId)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(viaje.getConductor().getId())).thenReturn(Optional.of(conductor));
+        when(viajeRepository.getDetalleViajeById(viajeId, pasajeroId))
+                .thenReturn(viajeData);
+        DetalleViajeResponse response = viajeService.obtenerDetalleViaje(viajeId,pasajeroId);
+
+        assertEquals(boleto.getEstado(), response.getEstado());
+        assertEquals(conductor.getNombre(), response.getConductorNombreCompleto());
+        assertEquals(boleto.getCosto(), response.getMontoPagado());
+        assertEquals(calificacion.getEstrellas(), response.getCalificacionEstrellas());
+        assertEquals(origen.getDireccion(), response.getOrigen());
+        assertEquals(destino.getDireccion(), response.getDestino());
+    }
+
+    @Test
+    @DisplayName("UH22 - CP01 - Ver detalles de viaje cancelado")
+    void verDetallesViaje_success_returnViajeCancelado(){
+        Integer viajeId = 1;
+        Integer pasajeroId = 1;
+
+        Ubicacion origen = Ubicacion.builder()
+                .latitud(BigDecimal.valueOf(-12.04637300))
+                .longitud(BigDecimal.valueOf(-77.04275400))
+                .direccion("Av. Arequipa 123")
+                .provincia("Lima")
+                .build();
+        Ubicacion destino = Ubicacion.builder()
+                .latitud(BigDecimal.valueOf(-10.87654300))
+                .longitud(BigDecimal.valueOf(-77.65432100))
+                .direccion("Jr. Lima 234")
+                .provincia("Haura")
+                .build();
+        Conductor conductor = Conductor.builder()
+                .id(1)
+                .nombre("Carlos Gomez")
+                .build();
+        Viaje viaje = Viaje.builder()
+                .id(viajeId)
+                .fechaHoraPartida(LocalDateTime.now())
+                .conductor(conductor)
+                .estado(EstadoViaje.CANCELADO)
+                .build();
+        Pasajero pasajero = Pasajero.builder()
+                .id(pasajeroId)
+                .nombre("Juan Perez")
+                .build();
+        PasajeroViaje boleto = PasajeroViaje.builder()
+                .id(1)
+                .fechaHoraUnion(LocalDateTime.parse("2025-05-26T17:02:40.728967"))
+                .asientosOcupados(2)
+                .estado(EstadoViaje.CANCELADO)
+                .pasajero(pasajero)
+                .viaje(viaje)
+                .costo(0.0)
+                .abordo(false)
+                .build();
+
+        List<Object[]> viajeData = new ArrayList<>();
+        Object[] data = new Object[]{
+                new Timestamp(boleto.getFechaHoraUnion().toInstant(java.time.ZoneOffset.UTC).toEpochMilli()),
+                origen.getDireccion(),
+                destino.getDireccion(),
+                conductor.getNombre(),
+                "", // Modo de pago no disponible
+                0.0, // Monto pagado no disponible
+                null, // Calificación no disponible
+                boleto.getEstado().toString(),
+        };
+        viajeData.add(data);
+
+        when(viajeRepository.findById(viajeId)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(viaje.getConductor().getId())).thenReturn(Optional.of(conductor));
+        when(viajeRepository.getDetalleViajeById(viajeId, pasajeroId))
+                .thenReturn(viajeData);
+
+        DetalleViajeResponse response = viajeService.obtenerDetalleViaje(viajeId, pasajeroId);
+        assertEquals(boleto.getEstado(), response.getEstado());
+        assertEquals(conductor.getNombre(), response.getConductorNombreCompleto());
+        assertEquals(0.0, response.getMontoPagado());
+        assertNull(response.getCalificacionEstrellas());
+        assertEquals(origen.getDireccion(), response.getOrigen());
+        assertEquals(destino.getDireccion(), response.getDestino());
     }
 
 }
