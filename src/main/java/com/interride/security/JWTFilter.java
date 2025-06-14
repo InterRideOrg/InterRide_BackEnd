@@ -31,7 +31,8 @@ public class JWTFilter extends GenericFilterBean {
         if (path.startsWith("/auth/") ||
                 path.startsWith("/mail/") ||
                 path.startsWith("/swagger-ui") ||
-                path.startsWith("/v3/api-docs")) {
+                path.startsWith("/v3/api-docs") ||
+            path.startsWith("/role/")) {
             chain.doFilter(request, response);
             return;
         }
