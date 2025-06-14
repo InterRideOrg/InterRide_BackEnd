@@ -85,6 +85,7 @@ class PasajeroServiceUnitTest {
         assertEquals(expected, actual);
         verify(pasajeroRepository).save(any(Pasajero.class));
         verify(emailService).sendRegistrationConfirmation(eq(request.getCorreo()), anyString(), anyString());
+
     }
 
     @Test
@@ -97,6 +98,7 @@ class PasajeroServiceUnitTest {
     }
 
     @Test
+
     @DisplayName("CP03 – Teléfono duplicado")
     void givenExistingPhone_whenRegister_thenThrowException() {
         when(pasajeroRepository.existsByCorreo(request.getCorreo())).thenReturn(false);
