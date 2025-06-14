@@ -2,7 +2,6 @@ package com.interride.controller;
 
 import com.interride.dto.request.LoginRequest;
 import com.interride.dto.response.AuthResponse;
-import com.interride.dto.response.PasajeroProfileResponse;
 import com.interride.model.entity.Pasajero;
 import com.interride.security.TokenProvider;
 import com.interride.service.PasajeroService;

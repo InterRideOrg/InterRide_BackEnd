@@ -18,8 +18,6 @@ public class ConductorMapper {
         return Conductor.builder()
                 .nombre(request.nombre())
                 .apellidos(request.apellidos())
-                .correo(request.correo())
-                .password(passwordEncoder.encode(request.password()))
                 .telefono(request.telefono())
                 .username(request.username())
                 .fechaHoraRegistro(LocalDateTime.now())
