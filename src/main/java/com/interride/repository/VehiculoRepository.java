@@ -19,5 +19,5 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Integer> {
             """, nativeQuery = true)
     boolean existsByConductorId(@Param("id_conductor") Integer conductorId);
 
-    boolean existsByPlaca(String placa);
+    boolean existsByPlacaAndIdNot(String placa, Integer id);
 }

@@ -3,7 +3,7 @@ package com.interride.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record UpdateVehiculoRequest(
+public record VehiculoRequest(
         @NotBlank(message = "Placa requerido")
         String placa,
 

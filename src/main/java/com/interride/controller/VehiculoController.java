@@ -2,9 +2,11 @@ package com.interride.controller;
 
 
 import com.interride.dto.request.RegistroDeVehiculoRequest;
-import com.interride.dto.request.UpdateVehiculoRequest;
+import com.interride.dto.request.VehiculoRequest;
+import com.interride.dto.response.VehiculoResponse;
 import com.interride.model.entity.Vehiculo;
 import com.interride.service.VehiculoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -18,10 +20,11 @@ public class VehiculoController {
     private final VehiculoService vehiculoService;
 
     @PutMapping("/actualizar/{conductorId}")
-    public ResponseEntity<Vehiculo> actualizarVehiculo(
+    public ResponseEntity<VehiculoResponse> actualizarVehiculo(
             @PathVariable Integer conductorId,
-            @RequestBody UpdateVehiculoRequest vehiculo) {
-        Vehiculo actualizado = vehiculoService.update(conductorId, vehiculo);
+            @RequestBody @Valid VehiculoRequest request) {
+
+        VehiculoResponse actualizado = vehiculoService.update(conductorId, request);
         return ResponseEntity.ok(actualizado);
     }
 

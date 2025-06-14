@@ -1,10 +1,11 @@
 package com.interride.service;
 
 import com.interride.dto.request.RegistroDeVehiculoRequest;
-import com.interride.dto.request.UpdateVehiculoRequest;
+import com.interride.dto.request.VehiculoRequest;
+import com.interride.dto.response.VehiculoResponse;
 import com.interride.model.entity.Vehiculo;
 
 public interface VehiculoService {
-    Vehiculo update(Integer conductorId, UpdateVehiculoRequest vehiculo);
+    VehiculoResponse update(Integer conductorId, VehiculoRequest vehiculo);
     Vehiculo registrar(Integer conductorId, RegistroDeVehiculoRequest registroDeVehiculoRequest);
 }
