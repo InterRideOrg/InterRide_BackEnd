@@ -31,7 +31,6 @@ public class ConductorMapper {
         return new ConductorPerfilPublicoResponse(
                 conductor.getNombre(),
                 conductor.getApellidos(),
-                conductor.getCorreo(),
                 conductor.getTelefono(),
                 conductor.getVehiculo().getPlaca()
         );
