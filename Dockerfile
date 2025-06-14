@@ -1,13 +1,12 @@
 
-FROM openjdk:21-jdk-slim
+FROM maven:3.9.6-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-ARG JAR_FILE=target/interride-api-0.0.1.jar
 
-
-COPY ${JAR_FILE} interride-api.jar
-
-# Expone el puerto 8080
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/interride-api-0.0.1.jar app.jar
 EXPOSE 8080
-
-# Comando para ejecutar el archivo JAR
-ENTRYPOINT ["java", "-jar", "interride-api.jar.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
