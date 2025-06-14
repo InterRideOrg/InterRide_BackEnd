@@ -1,46 +1,37 @@
 package com.interride.controller;
 
+import com.interride.dto.request.ActualizarUsuarioPerfilRequest;
+import com.interride.dto.response.UsuarioResponse;
+import com.interride.model.entity.Usuario;
 import com.interride.service.PasajeroService;
+import com.interride.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+
+//Usuario => Pasajero o Conductor
 
 @RestController
-@RequestMapping("/pasajero/profile")
+@RequestMapping("/usuario/profile")
 @RequiredArgsConstructor
 public class UserProfileController {
-    private final PasajeroService pasajeroService;
-/*    private final ConductorService conductorService;
 
+    private final UsuarioService usuarioService;
 
-    //Actualizar el perfil del pasajero
+    //Actualizar el perfil ya sea de pasajero o conductor
     @PutMapping("/{id}")
-    public ResponseEntity<UserProfileDTO> updatePasajeroProfile(@PathVariable Integer id, @RequestBody UserProfileDTO userProfileDTO) {
-        UserProfileDTO updatedPasajeroProfile = pasajeroService.updatePasajeroProfile(id, userProfileDTO);
-        return new ResponseEntity<>(updatedPasajeroProfile, HttpStatus.OK);
-    }
-    //Actualizar el perfil del conductor
-    @PutMapping("/{id}")
-    public ResponseEntity<UserProfileDTO> updateConductorProfile(@PathVariable Integer id, @RequestBody UserProfileDTO userProfileDTO) {
-        UserProfileDTO updatedConductorProfile = conductorService.updateConductorProfile(id, userProfileDTO);
-        return new ResponseEntity<>(updatedConductorProfile, HttpStatus.OK);
+    public ResponseEntity<UsuarioResponse> updateProfile(@PathVariable Integer id, @RequestBody ActualizarUsuarioPerfilRequest request) {
+        UsuarioResponse response = usuarioService.actualizarUsuario(id, request);
+        return ResponseEntity.ok(response);
     }
 
-    //Obtener el perfil del pasajero por su ID
+    //Obtener el perfil del usuario por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<UserProfileDTO> getPasajeroProfile(@PathVariable Integer id) {
-        UserProfileDTO pasajeroProfile = pasajeroService.getPasajeroProfile(id);
-        return new ResponseEntity<>(pasajeroProfile, HttpStatus.OK);
+    public ResponseEntity<UsuarioResponse> getProfile(@PathVariable Integer id) {
+        UsuarioResponse response = usuarioService.obtenerUsuarioPorId(id);
+        return ResponseEntity.ok(response);
     }
 
-
-    //Obtener el perfil del conductor por su ID
-    @GetMapping("/{id}")
-    public ResponseEntity<UserProfileDTO> getConductorProfile(@PathVariable Integer id) {
-        UserProfileDTO conductorProfile = conductorService.getConductorProfile(id);
-        return new ResponseEntity<>(conductorProfile, HttpStatus.OK);
-    }*/
 }

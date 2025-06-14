@@ -1,6 +1,6 @@
 package com.interride.mapper;
 
-import com.interride.dto.response.PasajeroProfileResponse;
+import com.interride.dto.response.PasajeroRegistroResponse;
 import com.interride.dto.request.PasajeroRegistrationRequest;
 import com.interride.model.entity.Pasajero;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class PasajeroMapper {
         return mapper.map(dto, Pasajero.class);
     }
 
-    public PasajeroProfileResponse toProfileDTO(Pasajero entity) {
-        return mapper.map(entity, PasajeroProfileResponse.class);
+    public PasajeroRegistroResponse toProfileDTO(Pasajero entity) {
+        return mapper.map(entity, PasajeroRegistroResponse.class);
     }
 }

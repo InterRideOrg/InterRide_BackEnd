@@ -1,11 +1,9 @@
 package com.interride.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
 
-public record ActualizarPasajeroPerfilRequest (
+public record ActualizarUsuarioPerfilRequest(
         @NotBlank(message = "El nombre no puede estar vacío")
         String nombres,
 
@@ -20,4 +18,4 @@ public record ActualizarPasajeroPerfilRequest (
 
         @NotBlank(message = "El nombre de usuario no puede estar vacío")
         String username
-) {}
+) { }

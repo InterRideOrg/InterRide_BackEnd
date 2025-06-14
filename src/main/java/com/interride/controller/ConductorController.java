@@ -1,6 +1,6 @@
 package com.interride.controller;
 
-import com.interride.dto.request.ActualizarConductorPerfilRequest;
+import com.interride.dto.request.ActualizarUsuarioPerfilRequest;
 import com.interride.dto.response.ConductorPerfilActualizadoResponse;
 import com.interride.service.ConductorService;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +25,6 @@ public class ConductorController {
     private final ConductorService conductorService;
     private final NotificacionService notificacionService;
 
-    @PutMapping("/{id}")
-    public ConductorPerfilActualizadoResponse actualizarPerfilPasajero(@PathVariable Integer id, @RequestBody ActualizarConductorPerfilRequest perfilActualizado) {
-        return conductorService.actualizarPerfilConductor(id, perfilActualizado);
-    }
     //Se utiliza para eliminar las notificaciones antiguas del pasajero al iniciar la aplicación
     @GetMapping("{id}/inicio")
     public ResponseEntity<String> inicioApp(@PathVariable int id) {
@@ -42,9 +38,4 @@ public class ConductorController {
         return ResponseEntity.ok(notificaciones);
     }
 
-    @GetMapping("/perfil-publico/{idViaje}")
-    public ResponseEntity<ConductorPerfilPublicoResponse> obtenerPerfilConductorAsignado(@PathVariable Integer idViaje) {
-        ConductorPerfilPublicoResponse response = conductorService.obtenerPerfilConductorAsignado(idViaje);
-        return ResponseEntity.ok(response);
-    }
 }
