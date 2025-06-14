@@ -14,17 +14,18 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/boletos")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
 public class PasajeroViajeController {
     private final PasajeroViajeService pasajeroViajeService;
 
     @PutMapping("/{id_boleto}/cancelar")
+    @PreAuthorize("hasAnyRole('PASAJERO')")
     public ResponseEntity<BoletoCanceladoResponse> cancelarBoleto(@PathVariable Integer id_boleto) {
         BoletoCanceladoResponse response = pasajeroViajeService.cancelarBoleto(id_boleto);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/union/{id_pasajero}/{id_viaje}")
+    @PreAuthorize("hasAnyRole('PASAJERO')")
     public ResponseEntity<BoletoUnionResponse> unirseAViaje(
             @PathVariable Integer id_pasajero,
             @PathVariable Integer id_viaje,
@@ -36,6 +37,7 @@ public class PasajeroViajeController {
     }
 
     @PutMapping("/{id_boleto}/finalizar")
+    @PreAuthorize("hasAnyRole('CONDUCTOR')")
     public ResponseEntity<BoletoCompletadoResponse> finalizarBoleto(@PathVariable Integer id_boleto) {
         BoletoCompletadoResponse response = pasajeroViajeService.finalizarBoleto(id_boleto);
         return ResponseEntity.ok(response);

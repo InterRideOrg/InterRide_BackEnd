@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/reclamo")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
+@PreAuthorize("hasAnyRole('CONDUCTOR', 'PASAJERO')")
 public class ReclamoController {
 
     private final ReclamoService reclamoService;

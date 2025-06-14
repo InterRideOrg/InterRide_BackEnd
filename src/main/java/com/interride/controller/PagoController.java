@@ -17,35 +17,39 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/pagos")
-@PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
 public class PagoController {
     private final PagoService pagoService;
 
     @GetMapping("/pasajero/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
     public ResponseEntity<List<PagoResponse>> getPagosByPasajeroId(@PathVariable Integer id){
         List<PagoResponse> pagosPorPasajero = pagoService.getPagosByPasajeroId(id);
         return ResponseEntity.ok(pagosPorPasajero);
     }
 
     @PostMapping("/tarjeta/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
     public ResponseEntity<PagoResponse> createPagoTarjeta(@PathVariable Integer id, @Valid @RequestBody CreatePagoRequest request){
         PagoResponse pago = pagoService.createPagoTarjeta(request, id);
         return ResponseEntity.ok(pago);
     }
 
     @PostMapping("/efectivo")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
     public ResponseEntity<PagoResponse> createPagoEfectivo(@Valid @RequestBody CreatePagoRequest request){
         PagoResponse pago = pagoService.createPagoEfectivo(request);
         return ResponseEntity.ok(pago);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
     public ResponseEntity<PagoResponse> completarPago(@PathVariable Integer id){
         PagoResponse pago = pagoService.completarPago(id);
         return ResponseEntity.ok(pago);
     }
 
     @GetMapping("/conductor/{id}/anual-report")
+    @PreAuthorize("hasAnyRole('CONDUCTOR')")
     public ResponseEntity<List<AnnualProfitReport>> getAnnualProfitReportByConductor(
             @PathVariable Integer id,
             @RequestParam Integer year) {
@@ -54,6 +58,7 @@ public class PagoController {
     }
 
     @GetMapping("/conductor/{id}/monthly-report")
+    @PreAuthorize("hasAnyRole('CONDUCTOR')")
     public ResponseEntity<List<MonthlyProfitReport>> getMonthlyProfitReportByConductor(
             @PathVariable Integer id,
             @RequestParam Integer year,

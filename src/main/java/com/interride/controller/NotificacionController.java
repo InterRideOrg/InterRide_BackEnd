@@ -16,12 +16,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/notificaciones")
-@PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
 public class NotificacionController {
 
     private final NotificacionService notificacionService;
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
     public ResponseEntity<NotificacionResponse> deleteNotificacion(@PathVariable Integer id){
         notificacionService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -29,6 +29,7 @@ public class NotificacionController {
 
 
     @GetMapping("/pasajero/{pasajeroId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
     public ResponseEntity<List<NotificacionSimpleResponse>> listarPorPasajero(
             @PathVariable Integer pasajeroId,
             @RequestParam(defaultValue = "desc") String orden // "asc" o "desc"
@@ -37,6 +38,7 @@ public class NotificacionController {
     }
 
     @GetMapping("/conductor/{conductorId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")
     public ResponseEntity<List<NotificacionSimpleResponse>> listarPorConductor(
             @PathVariable Integer conductorId,
             @RequestParam(defaultValue = "desc") String orden // "asc" o "desc"
