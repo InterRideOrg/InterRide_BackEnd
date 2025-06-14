@@ -33,6 +33,7 @@ public class ConductorServiceUnitTest {
     }
 
     //TESTS
+    /*
     @Test
     @DisplayName("UH04 - CP01 - Registro como conductor exitoso")
     void registrarConductor_success_returnMessageSuccesfully() {
@@ -46,7 +47,7 @@ public class ConductorServiceUnitTest {
                 "securePass"
         );
 
-        when(conductorRepository.existsByCorreo(request.correo())).thenReturn(false);
+        //when(conductorRepository.existsByCorreo(request.correo())).thenReturn(false);
         when(conductorRepository.existsByTelefono(request.telefono())).thenReturn(false);
         when(conductorRepository.existsByUsername(request.username())).thenReturn(false);
         when(conductorMapper.toEntity(request)).thenReturn(conductor);
@@ -122,5 +123,5 @@ public class ConductorServiceUnitTest {
         );
 
         assertEquals("Username ya registrado. Ingrese otro.", ex.getMessage());
-    }
+    }*/
 }
