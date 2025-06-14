@@ -5,6 +5,7 @@ import com.interride.dto.response.NotificacionPasajeroResponse;
 import com.interride.dto.response.PasajeroPerfilPublicoResponse;
 import com.interride.service.NotificacionService;
 import com.interride.service.PasajeroService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/pasajero")
+@PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
 public class PasajeroController {
 
     private final PasajeroService pasajeroService;

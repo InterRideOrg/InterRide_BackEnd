@@ -5,6 +5,7 @@ import com.interride.dto.response.ConductorPerfilActualizadoResponse;
 import com.interride.service.ConductorService;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.interride.dto.response.ConductorPerfilPublicoResponse;
 import com.interride.dto.response.NotificacionConductorResponse;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequestMapping("/conductor")
 @RestController
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")
 public class ConductorController {
     private final ConductorService conductorService;
     private final NotificacionService notificacionService;

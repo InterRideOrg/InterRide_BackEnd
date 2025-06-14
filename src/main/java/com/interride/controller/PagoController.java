@@ -9,6 +9,7 @@ import com.interride.service.PagoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/pagos")
+@PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
 public class PagoController {
     private final PagoService pagoService;
 

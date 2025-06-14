@@ -8,11 +8,13 @@ import com.interride.service.PasajeroViajeService;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/boletos")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
 public class PasajeroViajeController {
     private final PasajeroViajeService pasajeroViajeService;
 
