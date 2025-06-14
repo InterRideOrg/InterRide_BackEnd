@@ -5,6 +5,7 @@ import com.interride.dto.request.ActualizarPasajeroPerfilRequest;
 import com.interride.dto.response.PasajeroPerfilPublicoResponse;
 import com.interride.dto.response.PasajeroRegistroResponse;
 import com.interride.dto.request.PasajeroRegistrationRequest;
+import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.PasajeroMapper;
 import com.interride.model.entity.Pasajero;
 import jakarta.persistence.EntityNotFoundException;      

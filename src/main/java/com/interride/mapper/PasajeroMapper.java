@@ -1,5 +1,8 @@
 package com.interride.mapper;
 
+
+import com.interride.dto.response.PasajeroPerfilPublicoResponse;
+import com.interride.dto.response.PasajeroProfileResponse;
 import com.interride.dto.response.PasajeroRegistroResponse;
 import com.interride.dto.request.PasajeroRegistrationRequest;
 import com.interride.model.entity.Pasajero;
@@ -19,5 +22,15 @@ public class PasajeroMapper {
 
     public PasajeroRegistroResponse toProfileDTO(Pasajero entity) {
         return mapper.map(entity, PasajeroRegistroResponse.class);
+    }
+
+    public PasajeroPerfilPublicoResponse toPublicProfileDTO(Pasajero entity) {
+        return new PasajeroPerfilPublicoResponse(
+                entity.getNombre(),
+                entity.getApellidos(),
+                entity.getCorreo(),
+                entity.getTelefono(),
+                entity.getUsername()
+        );
     }
 }

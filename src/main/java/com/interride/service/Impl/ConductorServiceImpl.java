@@ -6,6 +6,7 @@ import com.interride.dto.response.ConductorPerfilActualizadoResponse;
 import com.interride.dto.response.ConductorPerfilPublicoResponse;
 import com.interride.dto.response.ConductorRegistroResponse;
 import com.interride.exception.BusinessRuleException;
+import com.interride.exception.DuplicateResourceException;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.ConductorMapper;
 import com.interride.model.entity.Conductor;
@@ -14,19 +15,17 @@ import com.interride.repository.ConductorRepository;
 import com.interride.repository.ViajeRepository;
 import com.interride.service.ConductorService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class ConductorServiceImpl implements ConductorService {
 
     private final ConductorRepository conductorRepository;
-    private final PasswordEncoder passwordEncoder;
     private final ViajeRepository viajeRepository;
+    private final ConductorMapper conductorMapper;
+
 
     @Transactional
     @Override
