@@ -21,7 +21,7 @@ public class LogoutController {
             @RequestHeader("Authorization") String bearer) {
 
         String token = bearer.replaceFirst("(?i)Bearer\\s+", "");
-        blacklist.add(token, tokenProvider.getExpirationDate(token));
+        //blacklist.add(token, tokenProvider.getExpirationDate(token));
 
         return ResponseEntity.ok(
                 Map.of("message", "Sesión cerrada correctamente"));
