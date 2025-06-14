@@ -1,7 +1,7 @@
 package com.interride.service;
 
 import com.interride.dto.request.PasajeroRegistrationRequest;
-import com.interride.dto.response.PasajeroProfileResponse;
+import com.interride.dto.response.PasajeroRegistroResponse;
 import com.interride.mapper.PasajeroMapper;
 import com.interride.model.entity.Pasajero;
 import com.interride.repository.PasajeroRepository;
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+
 class PasajeroServiceUnitTest {
 
     @Mock private PasajeroRepository pasajeroRepository;
@@ -85,6 +85,7 @@ class PasajeroServiceUnitTest {
         assertEquals(expected, actual);
         verify(pasajeroRepository).save(any(Pasajero.class));
         verify(emailService).sendRegistrationConfirmation(eq(request.getCorreo()), anyString(), anyString());
+
     }
 
     @Test
@@ -97,6 +98,7 @@ class PasajeroServiceUnitTest {
     }
 
     @Test
+
     @DisplayName("CP03 – Teléfono duplicado")
     void givenExistingPhone_whenRegister_thenThrowException() {
         when(pasajeroRepository.existsByCorreo(request.getCorreo())).thenReturn(false);
@@ -128,5 +130,6 @@ class PasajeroServiceUnitTest {
         assertTrue(ex.getMessage() != null && ex.getMessage().contains("SMTP"));
 
         verify(pasajeroRepository).save(any(Pasajero.class));
+
     }
 }

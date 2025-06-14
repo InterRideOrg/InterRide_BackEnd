@@ -1,6 +1,12 @@
 package com.interride.service.Impl;
 
 import com.interride.dto.request.RegistroDeVehiculoRequest;
+import com.interride.dto.request.VehiculoRequest;
+import com.interride.dto.response.VehiculoResponse;
+import com.interride.exception.DuplicateResourceException;
+import com.interride.exception.ResourceNotFoundException;
+import com.interride.mapper.VehiculoMapper;
+import com.interride.model.entity.Conductor;
 import com.interride.repository.ConductorRepository;
 import com.interride.repository.VehiculoRepository;
 import com.interride.model.entity.Vehiculo;
@@ -16,21 +22,36 @@ public class VehiculoServiceImpl implements VehiculoService {
 
     private final VehiculoRepository vehiculoRepository;
     private final ConductorRepository conductorRepository;
+    private final VehiculoMapper vehiculoMapper;
 
     @Transactional
     @Override
-    public Vehiculo update(Integer conductorId, Vehiculo vehiculoNuevo) {
+    public VehiculoResponse update(Integer conductorId, VehiculoRequest request) {
+        Conductor conductor = conductorRepository.findById(conductorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conductor no encontrado"));
+
+        // Busca vehículo asociado
         Vehiculo vehiculo = vehiculoRepository.findByConductorId(conductorId)
-                .orElseThrow(() -> new EntityNotFoundException("Vehículo no encontrado para el conductor"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vehículo no encontrado para el conductor"));
 
-        vehiculo.setPlaca(vehiculoNuevo.getPlaca());
-        vehiculo.setMarca(vehiculoNuevo.getMarca());
-        vehiculo.setModelo(vehiculoNuevo.getModelo());
-        vehiculo.setAnio(vehiculoNuevo.getAnio());
-        vehiculo.setCantidadAsientos(vehiculoNuevo.getCantidadAsientos());
+        // Verifica si la placa ya existe
+        if (vehiculoRepository.existsByPlacaAndIdNot(request.placa(), vehiculo.getId())) {
+            throw new DuplicateResourceException("Placa ya registrada por otro conductor. Ingrese otro.");
+        }
 
-        return vehiculoRepository.save(vehiculo);
+        vehiculo.setPlaca(request.placa());
+        vehiculo.setMarca(request.marca());
+        vehiculo.setModelo(request.modelo());
+        vehiculo.setAnio(request.anio());
+        vehiculo.setCantidadAsientos(request.cantidadAsientos());
+
+        // Guardar el vehículo actualizado
+        Vehiculo actualizado = vehiculoRepository.save(vehiculo);
+
+        // Retornar un DTO de respuesta (puedes mantener esto en el mapper)
+        return vehiculoMapper.toResponse(actualizado);
     }
+
 
     @Transactional
     @Override

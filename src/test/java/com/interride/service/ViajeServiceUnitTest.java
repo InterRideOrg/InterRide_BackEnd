@@ -817,4 +817,147 @@ public class ViajeServiceUnitTest {
         assertEquals("Toyota", response.getMarcaVehiculo());
     }
 
+    @Test
+    @DisplayName("HU29 - CP01 - Conductor inicia viaje con exito")
+    void iniciarViaje_success() {
+        Integer idViaje = 1;
+        Integer idConductor = 1;
+        Pasajero pasajero = Pasajero.builder()
+                .id(1)
+                .nombre("Ana Gómez")
+                .build();
+        Viaje viaje = Viaje.builder()
+                .id(idViaje)
+                .estado(EstadoViaje.ACEPTADO)
+                .asientosOcupados(2)
+                .fechaHoraPartida(LocalDateTime.now())
+                .build();
+        Conductor conductor = Conductor.builder()
+                .id(idConductor)
+                .nombre("Juan Pérez Gómez")
+                .apellidos("Gómez")
+                .build();
+        PasajeroViaje boleto = PasajeroViaje.builder()
+                .id(1)
+                .pasajero(pasajero)
+                .fechaHoraUnion(LocalDateTime.now())
+                .asientosOcupados(2)
+                .estado(EstadoViaje.ACEPTADO)
+                .pasajero(pasajero)
+                .viaje(viaje)
+                .fechaHoraLLegada(LocalDateTime.now().plusHours(3))
+                .costo(50.0)
+                .abordo(true)
+                .build();
+
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
+        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boleto);
+        when(pasajeroViajeRepository.save(any(PasajeroViaje.class))).thenReturn(boleto);
+        when(pasajeroViajeRepository.findPasajerosAceptadosByViajeId(idViaje)).thenReturn(List.of(boleto));
+        when(viajeRepository.save(any(Viaje.class))).thenReturn(viaje);
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
+
+        viajeService.empezarViaje(idViaje, idConductor);
+
+        assertEquals(EstadoViaje.EN_CURSO, viaje.getEstado());
+    }
+
+    @Test
+    @DisplayName("HU29 - CP02 - Conductor falla iniciar el viaje por pasajero no abordo")
+    void iniciarViaje_trowMissingPasajeroAbordo() {
+        Integer idViaje = 1;
+        Integer idConductor = 1;
+        Pasajero pasajero = Pasajero.builder()
+                .id(1)
+                .nombre("Ana Gómez")
+                .build();
+        Viaje viaje = Viaje.builder()
+                .id(idViaje)
+                .estado(EstadoViaje.ACEPTADO)
+                .asientosOcupados(2)
+                .fechaHoraPartida(LocalDateTime.now())
+                .build();
+        Conductor conductor = Conductor.builder()
+                .id(idConductor)
+                .nombre("Juan Pérez Gómez")
+                .apellidos("Gómez")
+                .build();
+        PasajeroViaje boleto = PasajeroViaje.builder()
+                .id(1)
+                .pasajero(pasajero)
+                .fechaHoraUnion(LocalDateTime.now())
+                .asientosOcupados(2)
+                .estado(EstadoViaje.ACEPTADO)
+                .pasajero(pasajero)
+                .viaje(viaje)
+                .fechaHoraLLegada(LocalDateTime.now().plusHours(3))
+                .costo(50.0)
+                .abordo(false)
+                .build();
+
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
+        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boleto);
+        when(pasajeroViajeRepository.save(any(PasajeroViaje.class))).thenReturn(boleto);
+        when(pasajeroViajeRepository.findPasajerosAceptadosByViajeId(idViaje)).thenReturn(List.of(boleto));
+        when(viajeRepository.save(any(Viaje.class))).thenReturn(viaje);
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
+
+        //BusinessRuleException
+        assertThrows(BusinessRuleException.class, () -> {
+            viajeService.empezarViaje(idViaje, idConductor);
+        });
+    }
+
+    @Test
+    @DisplayName("HU29 - CP03 - Conductor falla iniciar el viaje por hora de partida no valida")
+    void iniciarViaje_trowIncorrectHour() {
+        Integer idViaje = 1;
+        Integer idConductor = 1;
+        Pasajero pasajero = Pasajero.builder()
+                .id(1)
+                .nombre("Ana Gómez")
+                .build();
+        Viaje viaje = Viaje.builder()
+                .id(idViaje)
+                .estado(EstadoViaje.ACEPTADO)
+                .asientosOcupados(2)
+                .fechaHoraPartida(LocalDateTime.parse("2025-05-31T17:02:40.728967"))
+                .build();
+        Conductor conductor = Conductor.builder()
+                .id(idConductor)
+                .nombre("Juan Pérez Gómez")
+                .apellidos("Gómez")
+                .build();
+        PasajeroViaje boleto = PasajeroViaje.builder()
+                .id(1)
+                .pasajero(pasajero)
+                .fechaHoraUnion(LocalDateTime.now())
+                .asientosOcupados(2)
+                .estado(EstadoViaje.ACEPTADO)
+                .pasajero(pasajero)
+                .viaje(viaje)
+                .fechaHoraLLegada(LocalDateTime.now().plusHours(3))
+                .costo(50.0)
+                .abordo(false)
+                .build();
+
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
+        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boleto);
+        when(pasajeroViajeRepository.save(any(PasajeroViaje.class))).thenReturn(boleto);
+        when(pasajeroViajeRepository.findPasajerosAceptadosByViajeId(idViaje)).thenReturn(List.of(boleto));
+        when(viajeRepository.save(any(Viaje.class))).thenReturn(viaje);
+        when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
+        when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
+
+        //BusinessRuleException
+        assertThrows(BusinessRuleException.class, () -> {
+            viajeService.empezarViaje(idViaje, idConductor);
+        });
+    }
+
 }

@@ -28,12 +28,6 @@ public class Conductor {
     @Column(name = "apellidos", nullable = false, columnDefinition = "TEXT")
     private String apellidos;
 
-    @Column(name = "correo", nullable = false, columnDefinition = "TEXT")
-    private String correo;
-
-    @Column(name = "password", nullable = false, columnDefinition = "TEXT")
-    private String password;
-
     @Column(name = "telefono", nullable = false)
     private String telefono;
 
@@ -43,9 +37,16 @@ public class Conductor {
     @Column(name = "fecha_hora_registro", nullable = false)
     private LocalDateTime fechaHoraRegistro;
 
+    @Column(name = "fecha_hora_actualizacion")
+    private LocalDateTime fechaHoraActualizacion;
+
+    @OneToOne
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_conductor_usuario"))
+    private Usuario usuario;
 
     @JsonIgnore
     @OneToOne(mappedBy = "conductor", cascade = CascadeType.ALL)
     private Vehiculo vehiculo;
+
 
 }

@@ -1,8 +1,6 @@
 package com.interride.dto.response;
 
-import com.interride.model.enums.ERole;
-
-public record ConductorRegistroResponse(
+public record UsuarioResponse(
         Integer id,
         String nombre,
         String apellidos,
@@ -10,5 +8,7 @@ public record ConductorRegistroResponse(
         String telefono,
         String username,
         String fechaHoraRegistro,
-        ERole role
-) { }
+        String fecheHoraActualizacion,
+        String role
+) {
+}
