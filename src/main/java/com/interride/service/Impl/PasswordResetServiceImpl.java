@@ -32,8 +32,10 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
     @Override
     public void createPasswordResetToken(String email) {
-        Pasajero user = pasajeroRepo.findByCorreoIgnoreCase(email)
-                .orElseThrow(() -> new IllegalArgumentException("No existe la cuenta"));
+        //Pasajero user = pasajeroRepo.findByCorreoIgnoreCase(email)
+          //      .orElseThrow(() -> new IllegalArgumentException("No existe la cuenta"));
+
+        Pasajero user = new Pasajero();
 
         // Elimina tokens previos (si quieres)
         tokenRepo.deleteByPasajero(user);
@@ -48,7 +50,10 @@ public class PasswordResetServiceImpl implements PasswordResetService {
             String link = resetBaseUrl + "?token=" + token;
             var msg = mailSender.createMimeMessage();
             var helper = new MimeMessageHelper(msg, true, "UTF-8");
-            helper.setTo(user.getCorreo());
+            helper.setTo(
+                    "xd"
+                    //user.getCorreo()
+            );
             helper.setSubject("Restablece tu contraseña");
             helper.setText("""
                 Hola %s,
@@ -75,7 +80,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         }
 
         var user = prt.getPasajero();
-        user.setPassword(encoder.encode(rawPassword));
+        //user.setPassword(encoder.encode(rawPassword));
         pasajeroRepo.save(user);
 
         tokenRepo.delete(prt);

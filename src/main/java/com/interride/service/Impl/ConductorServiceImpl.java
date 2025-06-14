@@ -1,6 +1,6 @@
 package com.interride.service.Impl;
 
-import com.interride.dto.request.ActualizarConductorPerfilRequest;
+import com.interride.dto.request.ActualizarUsuarioPerfilRequest;
 import com.interride.dto.request.ConductorRegistroRequest;
 import com.interride.dto.response.ConductorPerfilActualizadoResponse;
 import com.interride.dto.response.ConductorPerfilPublicoResponse;
@@ -28,73 +28,7 @@ public class ConductorServiceImpl implements ConductorService {
     private final PasswordEncoder passwordEncoder;
     private final ViajeRepository viajeRepository;
 
-    @Override
-    public ConductorRegistroResponse registrarConductor(ConductorRegistroRequest request) {
-
-        if (conductorRepository.existsByCorreo(request.correo())) {
-            throw new RuntimeException("Correo ya registrado. Ingrese otro.");
-        }
-
-        if (conductorRepository.existsByTelefono(request.telefono())) {
-            throw new RuntimeException("Teléfono ya registrado. Ingrese otro.");
-        }
-
-        if (conductorRepository.existsByUsername(request.username())) {
-            throw new RuntimeException("Username ya registrado. Ingrese otro.");
-        }
-
-        Conductor conductor = new Conductor();
-        conductor.setNombre(request.nombre());
-        conductor.setApellidos(request.apellidos());
-        conductor.setCorreo(request.correo());
-        conductor.setTelefono(request.telefono());
-        conductor.setUsername(request.username());
-        conductor.setPassword(passwordEncoder.encode(request.password()));
-        conductor.setFechaHoraRegistro(LocalDateTime.now());
-
-        conductorRepository.save(conductor);
-
-
-        return new ConductorRegistroResponse("Registro exitoso. Se le ha enviado un correo de confirmación.");
-    }
-
-    @Override
     @Transactional
-    public ConductorPerfilActualizadoResponse actualizarPerfilConductor(Integer id, ActualizarConductorPerfilRequest perfilActualizado) {
-        Conductor conductor = conductorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conductor con ID " + id + " no encontrado."));
-
-        // Actualizar los campos del conductor
-        if (perfilActualizado.getNombres() != null && !perfilActualizado.getNombres().isEmpty()) {
-            conductor.setNombre(perfilActualizado.getNombres());
-        }
-        if (perfilActualizado.getApellidos() != null && !perfilActualizado.getApellidos().isEmpty()) {
-            conductor.setApellidos(perfilActualizado.getApellidos());
-        }
-        if (perfilActualizado.getTelefono() != null && !perfilActualizado.getTelefono().isEmpty()) {
-            if (conductorRepository.existsByTelefono(perfilActualizado.getTelefono())) {
-                throw new RuntimeException("Teléfono ya registrado. Ingrese otro.");
-            }
-            conductor.setTelefono(perfilActualizado.getTelefono());
-        }
-        if (perfilActualizado.getCorreo() != null && !perfilActualizado.getCorreo().isEmpty()) {
-            if (conductorRepository.existsByCorreo(perfilActualizado.getCorreo())) {
-                throw new RuntimeException("Correo ya registrado. Ingrese otro.");
-            }
-            conductor.setCorreo(perfilActualizado.getCorreo());
-        }
-
-        //save
-        Conductor updatedConductor = conductorRepository.save(conductor);
-
-        return new ConductorPerfilActualizadoResponse(
-                updatedConductor.getNombre(),
-                updatedConductor.getApellidos(),
-                updatedConductor.getCorreo(),
-                updatedConductor.getTelefono(),
-                updatedConductor.getUsername()
-        );
-    }
     @Override
     public ConductorPerfilPublicoResponse obtenerPerfilConductorAsignado(Integer idViaje) {
         Viaje viaje = viajeRepository.findById(idViaje)

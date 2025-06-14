@@ -30,15 +30,6 @@ public class PasajeroController {
         return ResponseEntity.ok("Inicio exitoso de la aplicación para el pasajero con ID: " + id);
     }
 
-    @GetMapping("/{id}")
-    public PasajeroPerfilPublicoResponse obtenerPerfilPasajero(@PathVariable Integer id) {
-        return pasajeroService.obtenerPerfilPasajero(id);
-    }
-
-    @PutMapping("/{id}")
-    public PasajeroPerfilPublicoResponse actualizarPerfilPasajero(@PathVariable Integer id, @RequestBody ActualizarPasajeroPerfilRequest perfilActualizado) {
-        return pasajeroService.actualizarPerfilPasajero(id, perfilActualizado);
-    }
 
     @GetMapping("/{id}/notificaciones")
     public ResponseEntity<List<NotificacionPasajeroResponse>> obtenerNotificacionesPasajero(@PathVariable Integer id) {

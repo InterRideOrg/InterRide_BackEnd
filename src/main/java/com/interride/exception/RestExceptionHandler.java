@@ -10,11 +10,7 @@ import org.springframework.http.ProblemDetail;
 
 import java.util.Map;
 
-/**
- * Maneja de forma elegante los errores de autenticación / login.
- *  - 404 → cuenta inexistente
- *  - 401 → contraseña incorrecta
- */
+
 @RestControllerAdvice
 public class RestExceptionHandler {
 
@@ -58,4 +54,17 @@ public class RestExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(InvalidInputException.class)
+    public ProblemDetail handleInvalidInputException(InvalidInputException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Entrada inválida");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ProblemDetail handleRoleNotFoundException(RoleNotFoundException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Rol no encontrado");
+        return problemDetail;
+    }
 }
