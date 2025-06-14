@@ -11,6 +11,6 @@ public record PagoResponse(
         LocalDateTime fechaHoraPago,
         Double monto,
         Integer pasajeroId,
-        Integer conductoId,
+        Integer conductorId,
         Integer viajeId
 ) { }

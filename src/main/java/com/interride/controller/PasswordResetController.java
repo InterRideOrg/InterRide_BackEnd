@@ -19,8 +19,8 @@ public class PasswordResetController {
     private final PasswordResetService passwordResetService;
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgot(@Valid @RequestBody ForgotPasswordRequest dto) throws MessagingException {
-        passwordResetService.createPasswordResetToken(dto.getCorreo());
+    public ResponseEntity<?> forgot(@Valid @RequestBody ForgotPasswordRequest dto) throws Exception {
+        passwordResetService.createAndSendPasswordResetToken(dto.getCorreo());
         return ResponseEntity.ok(Map.of("message", "Revisa tu correo"));
     }
 

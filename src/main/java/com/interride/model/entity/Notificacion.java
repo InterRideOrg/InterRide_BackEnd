@@ -36,4 +36,21 @@ public class Notificacion {
     @JoinColumn(name = "conductor_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_notificacion_conductor"))
     private Conductor conductor;
 
+    public static Notificacion paraConductor(Integer conductorId, String mensaje) {
+        return Notificacion.builder()
+                .conductor(Conductor.builder().id(conductorId).build())
+                .mensaje(mensaje)
+                .fechaHoraEnvio(LocalDateTime.now())
+                .leido(false)
+                .build();
+    }
+
+    public static Notificacion paraPasajero(Integer pasajeroId, String mensaje) {
+        return Notificacion.builder()
+                .pasajero(Pasajero.builder().id(pasajeroId).build())
+                .mensaje(mensaje)
+                .fechaHoraEnvio(LocalDateTime.now())
+                .leido(false)
+                .build();
+    }
 }

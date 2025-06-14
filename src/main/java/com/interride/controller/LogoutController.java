@@ -4,6 +4,7 @@ import com.interride.security.TokenProvider;
 import com.interride.service.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('CONDUCTOR', 'PASAJERO')")
 public class LogoutController {
 
     private final TokenProvider tokenProvider;          // para parsear el JWT
@@ -21,7 +23,7 @@ public class LogoutController {
             @RequestHeader("Authorization") String bearer) {
 
         String token = bearer.replaceFirst("(?i)Bearer\\s+", "");
-        blacklist.add(token, tokenProvider.getExpirationDate(token));
+        //blacklist.add(token, tokenProvider.getExpirationDate(token));
 
         return ResponseEntity.ok(
                 Map.of("message", "Sesión cerrada correctamente"));

@@ -1,8 +1,15 @@
 package com.interride.controller;
 
+import com.interride.dto.request.ActualizarUsuarioPerfilRequest;
+import com.interride.dto.response.ConductorPerfilActualizadoResponse;
+import com.interride.service.ConductorService;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import com.interride.dto.response.ConductorPerfilPublicoResponse;
 import com.interride.dto.response.NotificacionConductorResponse;
 import com.interride.service.NotificacionService;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
 @RequestMapping("/conductor")
+@RestController
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")
 public class ConductorController {
+    private final ConductorService conductorService;
     private final NotificacionService notificacionService;
 
     //Se utiliza para eliminar las notificaciones antiguas del pasajero al iniciar la aplicación
@@ -30,4 +39,5 @@ public class ConductorController {
         List<NotificacionConductorResponse> notificaciones = notificacionService.obtenerNotificacionesConductor(id);
         return ResponseEntity.ok(notificaciones);
     }
+
 }

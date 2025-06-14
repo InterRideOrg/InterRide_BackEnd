@@ -1,15 +1,19 @@
 package com.interride.service.Impl;
 
+import com.interride.dto.request.ViajeSolicitadoRequest;
 import com.interride.dto.response.*;
 
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
+import com.interride.mapper.PasajeroViajeMapper;
+import com.interride.mapper.UbicacionMapper;
 import com.interride.mapper.ViajeMapper;
 import com.interride.model.entity.*;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.*;
 import com.interride.service.ViajeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +32,12 @@ public class ViajeServiceImpl implements ViajeService {
     private final ConductorRepository conductorRepository;
     private final PasajeroViajeRepository pasajeroViajeRepository;
     private final UbicacionRepository ubicacionRepository;
+    private final PasajeroRepository pasajeroRepository;
+    private final CalificacionRepository calificacionRepository;
 
     private final ViajeMapper viajeMapper;
+    private final UbicacionMapper ubicacionMapper;
+    private final PasajeroViajeMapper pasajeroViajeMapper;
 
     @Override
     public List<PasajeroViajesResponse> getViajesByPasajeroId(Integer pasajeroId) {
@@ -142,6 +150,10 @@ public class ViajeServiceImpl implements ViajeService {
         // Verificar si el viaje existe
         Viaje viaje = viajeRepository.findById(idViaje)
                 .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
+        if(viaje.getConductor() == null){
+            throw new BusinessRuleException("El viaje con ID " + idViaje + " no tiene un conductor asignado.");
+        }
+
         Conductor conductor = conductorRepository.findById(viaje.getConductor().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + viaje.getConductor().getId() + " no existe."));
 
@@ -253,6 +265,14 @@ public class ViajeServiceImpl implements ViajeService {
         viaje.setAsientosDisponibles(conductor.getVehiculo().getCantidadAsientos() - viaje.getAsientosOcupados());
         viaje.setConductor(conductor);
 
+        //Enviar notificacion al usuario del viaje aceptado
+        Notificacion notificacionPasajero = Notificacion.paraPasajero(
+                boletoInicial.getPasajero().getId(),
+                "Tu viaje de " + origen.getProvincia() + " a " + destino.getProvincia() + " ha sido aceptado por el conductor " + conductor.getNombre() + "."
+        );
+
+        notificacionRepository.save(notificacionPasajero);
+
         Viaje viajeAceptado = viajeRepository.save(viaje);
 
         return viajeMapper.toViajeAceptadoResponse(viajeAceptado, conductor, origen, destino);
@@ -313,5 +333,67 @@ public class ViajeServiceImpl implements ViajeService {
         // Crear la respuesta
         return true;
     }
+
+    @Override
+    @Transactional
+    public ViajeSolicitadoResponse crearViajeSolicitado(Integer pasajeroId, ViajeSolicitadoRequest request) {
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
+
+        Viaje viaje = viajeMapper.toEntity(request);
+        Pair<Ubicacion, Ubicacion> origenANDdestino = ubicacionMapper.OrigenDestinotoEntity(request);
+        Ubicacion origen = origenANDdestino.getFirst();
+        Ubicacion destino = origenANDdestino.getSecond();
+        PasajeroViaje boleto = pasajeroViajeMapper.toEntity(request);
+
+        if(boleto.getAsientosOcupados() <= 0){
+            throw new BusinessRuleException("El número de asientos ocupados debe ser mayor a 0.");
+        }
+
+        //Creacion del viaje
+        Viaje viajeSolicitado = viajeRepository.save(viaje);
+
+        //Ajustes del boleto
+        boleto.setPasajero(pasajero);
+        boleto.setViaje(viajeSolicitado);
+        boleto.setCosto(25.0); //Falta implementar logica para el costo real
+        boleto.setFechaHoraLLegada(LocalDateTime.now().plusDays(3));//Falta implementar logica para la fecha de llegada real
+
+        //Guardar el boleto
+        PasajeroViaje boletoCreado = pasajeroViajeRepository.save(boleto);
+
+        //Ajustes en las ubicaciones
+        //El origen solo pertence a un viaje
+        //El destino pertence a un boleto
+        origen.setViaje(viajeSolicitado);
+        destino.setPasajeroViaje(boletoCreado);
+
+        //Guardar en ubicaciones
+
+        Ubicacion origenCreado = ubicacionRepository.save(origen);
+        Ubicacion destinoCreado = ubicacionRepository.save(destino);
+
+
+        return viajeMapper.toViajeSolicitadoResponse(viajeSolicitado, boletoCreado, origenCreado, destinoCreado);
+    }
+
+
+    @Override
+    public ViajeCompletadoConductorResponse verDetalleViajeCompletadoPorConductor(Integer viajeId) {
+        Viaje viaje = viajeRepository.findById(viajeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con ID: " + viajeId));
+
+        List<PasajeroViaje> pasajerosViaje = pasajeroViajeRepository.findPasajerosCompletadosByViajeId(viajeId);
+        if (pasajerosViaje.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron pasajeros completados para este viaje.");
+        }
+
+        Ubicacion ubicacion = ubicacionRepository.findByViajeId(viajeId);
+        List<Calificacion> calificaciones = calificacionRepository.findByViajeId(viajeId);
+
+        return ViajeMapper.toDetalleViajeConductorResponse(viaje, ubicacion, pasajerosViaje, calificaciones);
+    }
+
+
 }
 

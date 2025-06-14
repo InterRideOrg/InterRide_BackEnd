@@ -11,5 +11,5 @@ import org.springframework.data.repository.query.Param;
 
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, String> {
     Optional<PasswordResetToken> findByToken(String token);
-    void deleteByPasajero(Pasajero pasajero);
+
 }

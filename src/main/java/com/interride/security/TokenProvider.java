@@ -1,113 +1,90 @@
 package com.interride.security;
 
+import com.interride.exception.RoleNotFoundException;
+import com.interride.model.entity.Usuario;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.security.Key;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
+
+@RequiredArgsConstructor
 @Component
 public class TokenProvider {
 
-    /*------------------------------*/
-    /*  Valores sacados del .yml    */
-    /*------------------------------*/
-    @Value("${interride.jwt.secret}")
-    private String jwtSecret;          // en Base64 o texto plano
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
-    @Value("${interride.jwt.exp-ms}")
-    private long jwtExpirationMs;      // ej. 86400000 (24 h)
+    @Value("${jwt.validity-in-seconds}")
+    private long jwtValidityInSeconds;
 
-    private SecretKey secretKey;
+    private Key key;
+    private JwtParser jwtParser;
 
     @PostConstruct
-    private void init() {
-        // Si tu secreto NO está Base64-encoded usa getBytes()
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        secretKey = Keys.hmacShaKeyFor(keyBytes);
+    public void init() {
+        // Generar la clave para firmar el JWT a partir del secreto configurado
+        key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+
+        // Inicializar el parser JWT con la clave generada para firmar y validar tokens
+        jwtParser = Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build();
     }
 
-    /*-----------------------------------------------------*/
-    /*  *** MÉTODOS QUE ESPERAN OTRAS CLASES ***           */
-    /*-----------------------------------------------------*/
 
-    /** Crea un JWT y lo devuelve en String. */
     public String createAccessToken(Authentication authentication) {
-        return createToken(authentication);
-    }
+        String correo = authentication.getName();
 
-    /** Tiempo (en milisegundos) que durará un token nuevo. */
-    public long getExpiration() {
-        return jwtExpirationMs;
-    }
-
-    /** Verifica firma + expiración. Devuelve true/false. */
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException ex) {
-            return false;
-        }
-    }
-
-    /** Extrae el uid (Integer) que metimos en el claim "uid". */
-    public Integer getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.get("uid", Integer.class);
-    }
-
-    /*-----------------------------------------------------*/
-    /*  Lógica de generación interna (HS256)               */
-    /*-----------------------------------------------------*/
-    private String createToken(Authentication authentication) {
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-
-        Date now  = new Date();
-        Date exp  = new Date(now.getTime() + jwtExpirationMs);
+        String role = authentication
+                .getAuthorities()
+                .stream()
+                .findFirst()
+                .orElseThrow(RoleNotFoundException::new)
+                .getAuthority();
 
         return Jwts.builder()
-                .setSubject(principal.getUsername())
-                .claim("uid", principal.getId())
-                .setIssuedAt(now)
-                .setExpiration(exp)
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .setSubject(correo)
+                .claim("role", role)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(new Date(System.currentTimeMillis() + jwtValidityInSeconds * 1000))
                 .compact();
     }
 
-    /**
-     * Parsea el JWT y devuelve su fecha de expiración como Instant.
-     */
-    public Instant getExpirationDate(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        Date exp = claims.getExpiration();
-        return exp.toInstant();
+    public Authentication getAuthentication(String token) {
+        Claims claims = jwtParser.parseClaimsJws(token).getBody();
+
+        String role = claims.get("role").toString();
+
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
+
+        User principal = new User(claims.getSubject(), "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
-    // Si prefieres Date:
-    public Date getExpirationAsDate(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
+    public boolean validateToken(String token) {
+        try {
+            jwtParser.parseClaimsJws(token);
+            return true;  // El token es válido
+        } catch (JwtException e) {
+            return false;  // El token no es válido
+        }
     }
 }

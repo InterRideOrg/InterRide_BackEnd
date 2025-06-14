@@ -2,6 +2,7 @@ package com.interride.mapper;
 
 import com.interride.dto.response.NotificacionConductorResponse;
 import com.interride.dto.response.NotificacionPasajeroResponse;
+import com.interride.dto.response.NotificacionSimpleResponse;
 import com.interride.model.entity.Notificacion;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,17 @@ public class NotificacionMapper {
                 notificacion.getFechaHoraEnvio().toString(),
                 notificacion.getLeido(),
                 notificacion.getConductor().getId()
+        );
+    }
+
+    public NotificacionSimpleResponse toNotificacionSimpleResponse(Notificacion notificacion) {
+        if (notificacion == null) {
+            return null;
+        }
+        return new NotificacionSimpleResponse(
+                notificacion.getMensaje(),
+                notificacion.getFechaHoraEnvio().toString(),
+                notificacion.getLeido()
         );
     }
 }
