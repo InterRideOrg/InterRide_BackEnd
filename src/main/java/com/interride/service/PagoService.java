@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface PagoService {
     List<PagoResponse> getPagosByPasajeroId(Integer pasajeroId);
-    List<PagoResponse> getPagosByConductorId(Integer conductorId);
-    List<PagoResponse> getPagosByViajeId(Integer viajeId);
+    //List<PagoResponse> getPagosByConductorId(Integer conductorId);
+    //List<PagoResponse> getPagosByViajeId(Integer viajeId);
     PagoResponse createPagoEfectivo(CreatePagoRequest pago);
     PagoResponse createPagoTarjeta(CreatePagoRequest request, Integer tarjetaId);
     PagoResponse completarPago(Integer id);
