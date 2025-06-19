@@ -161,12 +161,15 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public UsuarioResponse actualizarUsuario(Integer id, ActualizarUsuarioPerfilRequest request) {
         boolean existsByCorreo = usuarioRepository.existsByCorreo(request.correo());
-        boolean existsByUsername = pasajeroRepository.existsByUsername(request.username());
-        boolean existsByTelefono = pasajeroRepository.existsByTelefono(request.telefono());
+        boolean existsByPasajeroUsername = pasajeroRepository.existsByUsername(request.username());
+        boolean existsByPasajeroTelefono = pasajeroRepository.existsByTelefono(request.telefono());
+        boolean existsByConductorUsername = conductorRepository.existsByUsername(request.username());
+        boolean existsByConductorTelefono = conductorRepository.existsByTelefono(request.telefono());
+
 
 
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
 
         String username = (usuario.getConductor() != null) ? usuario.getConductor().getUsername() : usuario.getPasajero().getUsername();
         String telefono = (usuario.getConductor() != null) ? usuario.getConductor().getTelefono() : usuario.getPasajero().getTelefono();
@@ -177,13 +180,25 @@ public class UsuarioServiceImpl implements UsuarioService {
             );
         }
 
-        if(existsByUsername && !username.equals(request.username())) {
+        if(existsByPasajeroUsername && !username.equals(request.username())) {
             throw new DuplicateResourceException(
                     "Ya existe un usuario con el nombre de usuario: " + request.username()
             );
         }
 
-        if(existsByTelefono && !telefono.equals(request.telefono())) {
+        if(existsByPasajeroTelefono && !telefono.equals(request.telefono())) {
+            throw new DuplicateResourceException(
+                    "Ya existe un usuario con el telefono: " + request.telefono()
+            );
+        }
+
+        if(existsByConductorUsername && !username.equals(request.username())) {
+            throw new DuplicateResourceException(
+                    "Ya existe un usuario con el nombre de usuario: " + request.username()
+            );
+        }
+
+        if(existsByConductorTelefono && !telefono.equals(request.telefono())) {
             throw new DuplicateResourceException(
                     "Ya existe un usuario con el telefono: " + request.telefono()
             );
@@ -230,10 +245,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         String token = tokenProvider.createAccessToken(authentication);
 
-        AuthResponse authResponse = usuarioMapper.toAuthResponse(usuario, token);
-
-        return authResponse;
+        return usuarioMapper.toAuthResponse(usuario, token);
     }
-
-
 }
