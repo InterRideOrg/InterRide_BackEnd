@@ -387,17 +387,23 @@ public class PagoServiceUnitTest {
         Notificacion notificacionConductor = new Notificacion();
         Notificacion notificacionPasajero = new Notificacion();
 
+        PagoResponse expectedResponse = new PagoResponse(pagoId, EstadoPago.COMPLETADO, pago.getFechaHoraPago(), pago.getMonto(), pasajero.getId(), 1, 1);
+
         when(pagoRepository.findById(pagoId)).thenReturn(Optional.of(pago));
-        when(pasajeroRepository.findById(pasajero.getId())).thenReturn(Optional.of(pasajero));
+        when(pasajeroRepository.findById(1)).thenReturn(Optional.of(pasajero));
         when(notificacionRepository.save(notificacionConductor)).thenReturn(notificacionConductor);
         when(notificacionRepository.save(notificacionPasajero)).thenReturn(notificacionPasajero);
+        when(pagoRepository.save(pago)).thenReturn(pago);
+        when(pagoMapper.toResponse(pago)).thenReturn(expectedResponse);
 
-        PagoResponse resultado = new PagoResponse(pagoId, EstadoPago.COMPLETADO, pago.getFechaHoraPago(), pago.getMonto(), pasajero.getId(), 1, 1);
+        PagoResponse resultado = pagoService.completarPago(1);
 
-        assertEquals(EstadoPago.COMPLETADO, resultado.estado());
-        assertEquals(23.0, resultado.monto());
-        assertEquals(pasajero.getId(), resultado.pasajeroId());
-        assertEquals(pagoId, resultado.id());
+
+
+        assertEquals(expectedResponse.estado(), resultado.estado());
+        assertEquals(expectedResponse.monto(), resultado.monto());
+        assertEquals(expectedResponse.pasajeroId(), resultado.pasajeroId());
+        assertEquals(expectedResponse.id(), resultado.id());
     }
 
     @Test
