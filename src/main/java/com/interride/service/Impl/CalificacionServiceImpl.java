@@ -20,8 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
-import javax.swing.plaf.PanelUI;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,10 +33,12 @@ public class CalificacionServiceImpl implements CalificacionService {
     private final ViajeRepository viajeRepository;
     private final PasajeroRepository pasajeroRepository;
 
+    /*
     private Calificacion findById(Integer id) {
         return calificacionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Calificacion no encontrada con id:" + id));
     }
+    */
 
     private Viaje findViajeById(Integer id) {
         return viajeRepository.findById(id)
@@ -64,13 +64,14 @@ public class CalificacionServiceImpl implements CalificacionService {
         }
     }
 
+    /*
     @Transactional(readOnly = true)
     @Override
     public List<CalificacionResponse> findByConductorId(Integer conductorId) {
         List<Calificacion> calificacionsPorConductor = calificacionRepository.findByConductorId(conductorId);
         return calificacionsPorConductor.stream().map(calificacionMapper::toResponse).toList();
     }
-
+    */
 
     // Funcionalidades finales
 
