@@ -38,4 +38,12 @@ public class PasajeroController {
         List<NotificacionPasajeroResponse> notificaciones = notificacionService.obtenerNotificacionesPasajero(id);
         return ResponseEntity.ok(notificaciones);
     }
+
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO','CONDUCTOR')")
+    @GetMapping("/{id}")
+    public PasajeroPerfilPublicoResponse obtenerPerfilPasajero(@PathVariable Integer id) {
+        return pasajeroService.obtenerPerfilPasajero(id);
+    }
+
 }
