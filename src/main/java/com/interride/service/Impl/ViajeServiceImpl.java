@@ -385,7 +385,7 @@ public class ViajeServiceImpl implements ViajeService {
 
         List<PasajeroViaje> pasajerosViaje = pasajeroViajeRepository.findPasajerosCompletadosByViajeId(viajeId);
         if (pasajerosViaje.isEmpty()) {
-            throw new ResourceNotFoundException("No se encontraron pasajeros completados para este viaje.");
+            throw new ResourceNotFoundException("No se encontraron pasajeros para este viaje.");
         }
 
         Ubicacion ubicacion = ubicacionRepository.findByViajeId(viajeId);
