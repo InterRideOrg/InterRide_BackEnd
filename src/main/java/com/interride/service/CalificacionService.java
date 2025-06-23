@@ -11,7 +11,7 @@ import java.util.List;
 public interface CalificacionService {
     List<CalificacionResponse> getAll();
     List<CalificacionResponse> findByViajeId(Integer viajeId);
-    List<CalificacionResponse> findByConductorId(Integer conductorId);
+    //List<CalificacionResponse> findByConductorId(Integer conductorId);
 
     CalificacionResponse create(CreateCalificacionRequest request);
     CalificacionResponse update(Integer id, UpdateCalificacionRequest request);
