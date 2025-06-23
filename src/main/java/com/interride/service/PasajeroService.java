@@ -7,5 +7,6 @@ import com.interride.dto.response.PasajeroRegistroResponse;
 import com.interride.model.entity.Pasajero;
 
 public interface PasajeroService {
+    PasajeroPerfilPublicoResponse obtenerPerfilPasajero(Integer idPasajero);
     Pasajero getById(Integer id);   // retorna la entidad (findById o getReferenceById)
 }

@@ -19,9 +19,6 @@ public class PasajeroMapper {
         return mapper.map(dto, Pasajero.class);
     }
 
-    public PasajeroRegistroResponse toProfileDTO(Pasajero entity) {
-        return mapper.map(entity, PasajeroRegistroResponse.class);
-    }
 
     public PasajeroPerfilPublicoResponse toPublicProfileDTO(Pasajero entity) {
         return new PasajeroPerfilPublicoResponse(

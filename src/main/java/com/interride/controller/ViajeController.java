@@ -107,8 +107,8 @@ public class ViajeController {
 
 
     @GetMapping("/viajeCompletado/detalle/{viajeId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
-    public ResponseEntity<ViajeCompletadoConductorResponse> obtenerDetalleViaje(@PathVariable Integer viajeId) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")
+    public ResponseEntity<ViajeCompletadoConductorResponse> obtenerDetalleViajeParaConductor(@PathVariable Integer viajeId) {
         ViajeCompletadoConductorResponse detalle = viajeService.verDetalleViajeCompletadoPorConductor(viajeId);
         return ResponseEntity.ok(detalle);
     }
