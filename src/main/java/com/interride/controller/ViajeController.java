@@ -25,8 +25,8 @@ public class ViajeController {
 
     @GetMapping("/{id_pasajero}/history")
     @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
-    public ResponseEntity<List<PasajeroViajesResponse>> getViajesByPasajeroId(@PathVariable Integer id_pasajero) {
-        List<PasajeroViajesResponse> response = viajeService.getViajesByPasajeroId(id_pasajero);
+    public ResponseEntity<List<PasajeroViajesResponse>> getViajesCompletadosByPasajeroId(@PathVariable Integer id_pasajero) {
+        List<PasajeroViajesResponse> response = viajeService.getViajesCompletadosByPasajeroId(id_pasajero);
         return ResponseEntity.ok(response);
     }
 

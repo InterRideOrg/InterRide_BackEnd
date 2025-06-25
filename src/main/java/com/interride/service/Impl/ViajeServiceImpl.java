@@ -40,6 +40,7 @@ public class ViajeServiceImpl implements ViajeService {
     private final PasajeroViajeMapper pasajeroViajeMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<PasajeroViajesResponse> getViajesByPasajeroId(Integer pasajeroId) {
         List<Object[]> resultados = viajeRepository.getViajesByPasajeroId(pasajeroId);
         // Verificar si se encontraron resultados
@@ -58,7 +59,28 @@ public class ViajeServiceImpl implements ViajeService {
         )).toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<PasajeroViajesResponse> getViajesCompletadosByPasajeroId(Integer pasajeroId){
+        List<Object[]> resultados = viajeRepository.getViajesCompletadosByPasajeroId(pasajeroId);
+        // Verificar si se encontraron resultados
+        if (resultados.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron viajes completados para el pasajero con id: " + pasajeroId);
+        }
+        return resultados.stream().map(obj -> new PasajeroViajesResponse(
+                (Integer) obj[0],
+                ((Timestamp) obj[1]).toLocalDateTime(), // Convertir
+                EstadoViaje.valueOf((String) obj[2]),    // Convertir string a enum
+                (String) obj[3],
+                (String) obj[4],
+                ((Timestamp) obj[5]).toLocalDateTime(), // Convertir
+                ((Timestamp) obj[6]).toLocalDateTime(), // Convertir
+                ((Number) obj[7]).doubleValue()
+        )).toList();
+    }
 
+    @Override
+    @Transactional(readOnly = true)
     public DetalleViajeResponse obtenerDetalleViajeNoCancelado(Integer idViaje, Integer idPasajero) {
         List<Object[]> obj = viajeRepository.getDetalleViajeById(idViaje, idPasajero);
 
@@ -80,6 +102,8 @@ public class ViajeServiceImpl implements ViajeService {
         return response;
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public DetalleViajeResponse obtenerDetalleViajeCancelado(Integer idViaje) {
         List<Object[]> obj = viajeRepository.getDetalleViajeCancelado(idViaje);
 
@@ -100,6 +124,8 @@ public class ViajeServiceImpl implements ViajeService {
         return response;
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public DetalleViajeResponse obtenerDetalleViaje(Integer idViaje, Integer idPasajero) {
         DetalleViajeResponse detalleViajeResponse;
 
@@ -114,6 +140,8 @@ public class ViajeServiceImpl implements ViajeService {
         return detalleViajeResponse;
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public ViajeEnCursoResponse obtenerDetalleViajeEnCurso(Integer idPasajero) {
         List<Object[]> obj = viajeRepository.getViajeEnCursoById(idPasajero);
 

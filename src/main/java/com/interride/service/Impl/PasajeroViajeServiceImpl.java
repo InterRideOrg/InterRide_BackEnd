@@ -1,19 +1,14 @@
 package com.interride.service.Impl;
 
 import com.interride.dto.request.UbicacionRequest;
-import com.interride.dto.response.BoletoCanceladoResponse;
-import com.interride.dto.response.BoletoCompletadoResponse;
-import com.interride.dto.response.BoletoUnionResponse;
+import com.interride.dto.response.*;
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.PasajeroViajeMapper;
 import com.interride.mapper.UbicacionMapper;
 import com.interride.model.entity.*;
 import com.interride.model.enums.EstadoViaje;
-import com.interride.repository.NotificacionRepository;
-import com.interride.repository.PasajeroViajeRepository;
-import com.interride.repository.UbicacionRepository;
-import com.interride.repository.ViajeRepository;
+import com.interride.repository.*;
 import com.interride.service.PasajeroViajeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +24,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
     private final ViajeRepository viajeRepository;
     private final UbicacionRepository ubicacionRepository;
     private final NotificacionRepository notificacionRepository;
+    private final PasajeroRepository pasajeroRepository;
 
     private final UbicacionMapper ubicacionMapper;
     private final PasajeroViajeMapper pasajeroViajeMapper;
@@ -186,10 +182,57 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
 
 
 
-        return pasajeroViajeMapper.toBoletoResponse(
+        return pasajeroViajeMapper.toBoletoCompletadoResponse(
                 boleto,
                 "Viaje de " + boleto.getPasajero().getUsername() + " finalizado. Monto recibido: S/" + formatoCosto
         );
+    }
+
+    @Transactional
+    @Override
+    public BoletoAbordoResponse abordarViaje(Integer pasajeroId, Integer viajeId) {
+        PasajeroViaje boleto = pasajeroViajeRepository.findByPasajeroIdAndViajeId(pasajeroId, viajeId);
+        if(boleto == null) {
+            throw new ResourceNotFoundException("Boleto no encontrado para el pasajero con id: " + pasajeroId + " y viaje con id: " + viajeId);
+        }
+
+        if (!boleto.getEstado().equals(EstadoViaje.ACEPTADO)) {
+            throw new BusinessRuleException("El boleto no está en un estado válido para abordar.");
+        }
+
+        boleto.setEstado(EstadoViaje.EN_CURSO);
+        boleto.setAbordo(true);
+
+        PasajeroViaje boletoActualizado = pasajeroViajeRepository.save(boleto);
+
+        return new BoletoAbordoResponse(
+                boletoActualizado.getId(),
+                boletoActualizado.getAsientosOcupados(),
+                boletoActualizado.getAbordo()
+        );
+
+    }
+
+    @Override
+    @Transactional
+    public BoletoResponse getBoletoByPasajeroIdAndViajeId(Integer pasajeroId, Integer viajeId) {
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId).
+                orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
+
+        Viaje viaje = viajeRepository.findById(viajeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con id: " + viajeId));
+
+        PasajeroViaje boleto = pasajeroViajeRepository.findByPasajeroIdAndViajeId(pasajero.getId(), viaje.getId());
+
+        if(boleto == null) {
+            throw new ResourceNotFoundException("Boleto no encontrado para el pasajero con id: " + pasajeroId + " y viaje con id: " + viajeId);
+        }
+
+
+        Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boleto.getId());
+
+        return pasajeroViajeMapper.toBoletoResponse(boleto, origen, destino);
     }
 
 
@@ -198,4 +241,6 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
     Integer cantidadBoletoEnCursoPorViaje(Integer viajeId) {
         return viajeRepository.cantidadBoletosEnCursoPorViaje(viajeId);
     }
+
+
 }

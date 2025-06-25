@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface ViajeService {
     List<PasajeroViajesResponse> getViajesByPasajeroId(Integer pasajeroId);
+    List<PasajeroViajesResponse> getViajesCompletadosByPasajeroId(Integer pasajeroId);
 
     ViajeSolicitadoResponse crearViajeSolicitado(Integer pasajeroId, ViajeSolicitadoRequest request);
 

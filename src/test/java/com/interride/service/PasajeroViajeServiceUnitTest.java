@@ -210,7 +210,7 @@ public class PasajeroViajeServiceUnitTest {
 
         when(pasajeroViajeRepository.findById(10)).thenReturn(Optional.of(boleto));
         when(viajeRepository.cantidadBoletosEnCursoPorViaje(1)).thenReturn(0);
-        when(pasajeroViajeMapper.toBoletoResponse(any(), anyString()))
+        when(pasajeroViajeMapper.toBoletoCompletadoResponse(any(), anyString()))
                 .thenReturn(new BoletoCompletadoResponse(
                         boleto.getId(),
                         boleto.getFechaHoraLLegada().toString(),

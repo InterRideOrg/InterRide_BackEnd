@@ -1,9 +1,7 @@
 package com.interride.controller;
 
 import com.interride.dto.request.UbicacionRequest;
-import com.interride.dto.response.BoletoCanceladoResponse;
-import com.interride.dto.response.BoletoCompletadoResponse;
-import com.interride.dto.response.BoletoUnionResponse;
+import com.interride.dto.response.*;
 import com.interride.service.PasajeroViajeService;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
@@ -24,6 +22,15 @@ public class PasajeroViajeController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{id_pasajero}/{id_viaje}")
+    @PreAuthorize("hasAnyRole('PASAJERO')")
+    public ResponseEntity<BoletoResponse> getBoletoByPasajeroIdAndViajeId(
+            @PathVariable Integer id_pasajero,
+            @PathVariable Integer id_viaje) {
+        BoletoResponse response = pasajeroViajeService.getBoletoByPasajeroIdAndViajeId(id_pasajero, id_viaje);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/union/{id_pasajero}/{id_viaje}")
     @PreAuthorize("hasAnyRole('PASAJERO')")
     public ResponseEntity<BoletoUnionResponse> unirseAViaje(
@@ -40,6 +47,15 @@ public class PasajeroViajeController {
     @PreAuthorize("hasAnyRole('CONDUCTOR')")
     public ResponseEntity<BoletoCompletadoResponse> finalizarBoleto(@PathVariable Integer id_boleto) {
         BoletoCompletadoResponse response = pasajeroViajeService.finalizarBoleto(id_boleto);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id_pasajero}/{id_viaje}/abordar")
+    @PreAuthorize("hasAnyRole('PASAJERO')")
+    public ResponseEntity<BoletoAbordoResponse> abordarViaje(
+            @PathVariable Integer id_pasajero,
+            @PathVariable Integer id_viaje) {
+        BoletoAbordoResponse response = pasajeroViajeService.abordarViaje(id_pasajero, id_viaje);
         return ResponseEntity.ok(response);
     }
 
