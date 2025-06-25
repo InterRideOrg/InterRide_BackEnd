@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -214,7 +215,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public BoletoResponse getBoletoByPasajeroIdAndViajeId(Integer pasajeroId, Integer viajeId) {
         Pasajero pasajero = pasajeroRepository.findById(pasajeroId).
                 orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
@@ -224,15 +225,37 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
 
         PasajeroViaje boleto = pasajeroViajeRepository.findByPasajeroIdAndViajeId(pasajero.getId(), viaje.getId());
 
-        if(boleto == null) {
-            throw new ResourceNotFoundException("Boleto no encontrado para el pasajero con id: " + pasajeroId + " y viaje con id: " + viajeId);
-        }
-
-
         Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
         Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boleto.getId());
 
         return pasajeroViajeMapper.toBoletoResponse(boleto, origen, destino);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BoletoResponse> getBoletosByPasajeroIdAndState(Integer pasajeroId, EstadoViaje state){
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
+
+        List<PasajeroViaje> boletos = pasajeroViajeRepository.findByPasajeroIdAndEstado(pasajero.getId(), state);
+
+        List<Ubicacion> origenes = new ArrayList<>();
+        List<Ubicacion> destinos = new ArrayList<>();
+
+        for (PasajeroViaje boleto : boletos) {
+            Viaje viaje = viajeRepository.findById(boleto.getViaje().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con id: " + boleto.getViaje().getId()));
+            origenes.add(ubicacionRepository.findByViajeId(viaje.getId()));
+            destinos.add(ubicacionRepository.findByPasajeroViajeId(boleto.getId()));
+        }
+
+        List<BoletoResponse> boletosResponse = new ArrayList<>();
+
+        for (int i = 0; i < boletos.size(); i++) {
+            boletosResponse.add(pasajeroViajeMapper.toBoletoResponse(boletos.get(i), origenes.get(i), destinos.get(i)));
+        }
+
+        return boletosResponse;
     }
 
 

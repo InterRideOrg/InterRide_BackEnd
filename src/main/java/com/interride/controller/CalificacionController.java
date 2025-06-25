@@ -63,4 +63,13 @@ public class CalificacionController {
         calificacionService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/{pasajeroId}/{viajeId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
+    public ResponseEntity<CalificacionResponse> getCalificacionByPasajeroIdAndViajeId(
+            @PathVariable Integer pasajeroId,
+            @PathVariable Integer viajeId) {
+        CalificacionResponse calificacion = calificacionService.getByPasajeroIdAndViajeId(pasajeroId, viajeId);
+        return ResponseEntity.ok(calificacion);
+    }
 }

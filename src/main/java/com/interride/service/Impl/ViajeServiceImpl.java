@@ -246,7 +246,10 @@ public class ViajeServiceImpl implements ViajeService {
     @Override
     @Transactional(readOnly = true)
     public List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor) {
-        return viajeRepository.findViajesCompletadosByConductorId(idConductor);
+        Conductor conductor = conductorRepository.findById(idConductor)
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
+
+        return viajeRepository.findViajesCompletadosByConductorId(conductor.getId());
     }
 
     @Override

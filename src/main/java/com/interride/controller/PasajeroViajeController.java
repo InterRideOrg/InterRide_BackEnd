@@ -2,12 +2,15 @@ package com.interride.controller;
 
 import com.interride.dto.request.UbicacionRequest;
 import com.interride.dto.response.*;
+import com.interride.model.enums.EstadoViaje;
 import com.interride.service.PasajeroViajeService;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/boletos")
@@ -30,6 +33,16 @@ public class PasajeroViajeController {
         BoletoResponse response = pasajeroViajeService.getBoletoByPasajeroIdAndViajeId(id_pasajero, id_viaje);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/{id_pasajero}")
+    @PreAuthorize("hasAnyRole('PASAJERO')")
+    public ResponseEntity<List<BoletoResponse>> getBoletosByPasajeroIdAndState(
+            @PathVariable Integer id_pasajero,
+            @RequestParam EstadoViaje state) {
+        List<BoletoResponse> response = pasajeroViajeService.getBoletosByPasajeroIdAndState(id_pasajero, state);
+        return ResponseEntity.ok(response);
+    }
+
 
     @PostMapping("/union/{id_pasajero}/{id_viaje}")
     @PreAuthorize("hasAnyRole('PASAJERO')")

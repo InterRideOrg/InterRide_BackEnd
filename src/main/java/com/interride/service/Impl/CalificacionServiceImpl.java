@@ -91,6 +91,20 @@ public class CalificacionServiceImpl implements CalificacionService {
 
     @Transactional(readOnly = true)
     @Override
+    public CalificacionResponse getByPasajeroIdAndViajeId(Integer pasajeroId, Integer viajeId){
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
+
+        Viaje viaje = viajeRepository.findById(viajeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con id: " + viajeId));
+
+        Calificacion calificacion = calificacionRepository.findByPasajeroIdAndViajeId(pasajero.getId(), viaje.getId());
+
+        return calificacionMapper.toResponse(calificacion);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public CalificacionPromedioConductorResponse findAverageRatingAndCommentsByConductorId(Integer conductorId) {
         Double promedioCalificacion = calificacionRepository.findAverageRatingByConductorId(conductorId);
         List<CalificacionResponse> calificaciones = calificacionRepository.findByConductorId(conductorId)

@@ -79,8 +79,8 @@ public class PasajeroViajeMapper {
                 boleto.getEstado().toString(),
                 boleto.getAbordo(),
                 origen.getProvincia(),
-                origen.getDireccion(),
                 destino.getProvincia(),
+                origen.getDireccion(),
                 destino.getDireccion()
         );
     }
