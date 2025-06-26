@@ -228,7 +228,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
         Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boleto.getId());
 
-        return pasajeroViajeMapper.toBoletoResponse(boleto, origen, destino);
+        return pasajeroViajeMapper.toBoletoResponse(boleto, origen, destino, viaje);
     }
 
     @Override
@@ -237,14 +237,17 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
 
+
+
         List<PasajeroViaje> boletos = pasajeroViajeRepository.findByPasajeroIdAndEstado(pasajero.getId(), state);
+
+        Viaje viaje = viajeRepository.findById(boletos.getFirst().getViaje().getId()).
+                orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con id: " + boletos.getFirst().getViaje().getId()));
 
         List<Ubicacion> origenes = new ArrayList<>();
         List<Ubicacion> destinos = new ArrayList<>();
 
         for (PasajeroViaje boleto : boletos) {
-            Viaje viaje = viajeRepository.findById(boleto.getViaje().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con id: " + boleto.getViaje().getId()));
             origenes.add(ubicacionRepository.findByViajeId(viaje.getId()));
             destinos.add(ubicacionRepository.findByPasajeroViajeId(boleto.getId()));
         }
@@ -252,7 +255,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         List<BoletoResponse> boletosResponse = new ArrayList<>();
 
         for (int i = 0; i < boletos.size(); i++) {
-            boletosResponse.add(pasajeroViajeMapper.toBoletoResponse(boletos.get(i), origenes.get(i), destinos.get(i)));
+            boletosResponse.add(pasajeroViajeMapper.toBoletoResponse(boletos.get(i), origenes.get(i), destinos.get(i), viaje));
         }
 
         return boletosResponse;

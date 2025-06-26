@@ -72,7 +72,7 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
         FROM viaje v
         JOIN pasajero_viaje pv ON pv.viaje_id = v.id
         JOIN ubicacion u1 ON u1.viaje_id = v.id
-        JOIN ubicacion u2 ON u2.id = pv.ubicacion_id
+        JOIN ubicacion u2 ON u2.pasajero_viaje_id = pv.id
         LEFT JOIN conductor c ON v.conductor_id = c.id
         LEFT JOIN calificacion cal ON cal.viaje_id = v.id AND cal.pasajero_id = pv.pasajero_id
         WHERE v.id = :idViaje AND pv.pasajero_id = :idPasajero

@@ -247,4 +247,30 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         return usuarioMapper.toAuthResponse(usuario, token);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public UsuarioResponse obtenerPorConductorId(Integer conductorId){
+        Conductor conductor = conductorRepository.findById(conductorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conductor no encontrado con id: " + conductorId));
+
+        Integer usuarioId = conductor.getUsuario().getId();
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + usuarioId));
+
+        return usuarioMapper.toResponse(usuario, ERole.CONDUCTOR);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public UsuarioResponse obtenerPorPasajeroId(Integer pasajeroId){
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
+
+        Integer usuarioId = pasajero.getUsuario().getId();
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + usuarioId));
+
+        return usuarioMapper.toResponse(usuario, ERole.PASAJERO);
+    }
 }

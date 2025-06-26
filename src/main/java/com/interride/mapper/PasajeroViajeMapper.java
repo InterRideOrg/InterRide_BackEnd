@@ -64,7 +64,7 @@ public class PasajeroViajeMapper {
         );
     }
 
-    public BoletoResponse toBoletoResponse(PasajeroViaje boleto, Ubicacion origen, Ubicacion destino) {
+    public BoletoResponse toBoletoResponse(PasajeroViaje boleto, Ubicacion origen, Ubicacion destino, Viaje viaje) {
         if(boleto == null) {
             return null;
         }
@@ -72,6 +72,7 @@ public class PasajeroViajeMapper {
                 boleto.getId(),
                 boleto.getViaje().getId(),
                 boleto.getPasajero().getId(),
+                viaje.getFechaHoraPartida().toString(),
                 boleto.getFechaHoraLLegada().toString(),
                 boleto.getFechaHoraUnion().toString(),
                 boleto.getAsientosOcupados(),

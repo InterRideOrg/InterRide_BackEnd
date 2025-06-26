@@ -4,6 +4,7 @@ public record BoletoResponse(
         Integer boletoId,
         Integer viajeId,
         Integer pasajeroId,
+        String fechaHoraPartida,
         String fechaHoraLlegada,
         String fechaHoraUnion,
         Integer asientosOcupados,

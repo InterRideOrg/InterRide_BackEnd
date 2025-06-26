@@ -36,4 +36,18 @@ public class UserProfileController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/pasajero/{id_pasajero}")
+    @PreAuthorize("hasAnyRole('PASAJERO', 'CONDUCTOR')")
+    public ResponseEntity<UsuarioResponse> getPasajeroProfile(@PathVariable Integer id_pasajero) {
+        UsuarioResponse response = usuarioService.obtenerPorPasajeroId(id_pasajero);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/conductor/{id_conductor}")
+    @PreAuthorize("hasAnyRole('CONDUCTOR', 'PASAJERO')")
+    public ResponseEntity<UsuarioResponse> getConductorProfile(@PathVariable Integer id_conductor) {
+        UsuarioResponse response = usuarioService.obtenerPorConductorId(id_conductor);
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -32,7 +32,7 @@ public class ViajeController {
 
     @GetMapping("/{id_pasajero}/{id_viaje}/details")
     @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
-    public ResponseEntity<DetalleViajeResponse> obtenerDetalleViaje(@PathVariable Integer id_viaje, @PathVariable Integer id_pasajero) {
+    public ResponseEntity<DetalleViajeResponse> obtenerDetalleViaje(@PathVariable Integer id_pasajero, @PathVariable Integer id_viaje) {
         return ResponseEntity.ok(viajeService.obtenerDetalleViaje(id_viaje, id_pasajero));
     }
     @GetMapping("/{id_pasajero}/current")

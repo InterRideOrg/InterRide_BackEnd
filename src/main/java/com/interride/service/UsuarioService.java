@@ -14,6 +14,9 @@ public interface UsuarioService {
     UsuarioResponse registrarConductor(ConductorRegistroRequest request);
     UsuarioResponse obtenerUsuarioPorId(Integer id);
     UsuarioResponse actualizarUsuario(Integer id, ActualizarUsuarioPerfilRequest request);
+    UsuarioResponse obtenerPorConductorId(Integer conductorId);
+    UsuarioResponse obtenerPorPasajeroId(Integer pasajeroId);
+
 
     AuthResponse login(LoginRequest request);
 
