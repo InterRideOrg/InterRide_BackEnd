@@ -236,6 +236,19 @@ public class ViajeServiceImpl implements ViajeService {
 
     @Override
     @Transactional(readOnly = true)
+    public ViajeDisponibleResponse obtenerViajesDisponiblesByViajeId(Integer viajeId) {
+        Viaje viaje = viajeRepository.findById(viajeId)
+                .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + viajeId + " no existe."));
+
+        if(viaje.getEstado() != EstadoViaje.ACEPTADO) {
+            throw new BusinessRuleException("El viaje con ID " + viajeId + " no está en estado ACEPTADO y no puede ser consultado.");
+        }
+
+        return viajeRepository.findViajesDisponiblesByViajeId(viaje.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor) {
         Conductor conductor = conductorRepository.findById(idConductor)
                 .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));

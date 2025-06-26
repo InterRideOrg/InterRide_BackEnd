@@ -23,6 +23,7 @@ public interface ViajeService {
     ViajeCanceladoResponse cancelarViaje(Integer idViaje);
 
     List<ViajeDisponibleResponse> obtenerViajesDisponibles();
+    ViajeDisponibleResponse obtenerViajesDisponiblesByViajeId(Integer idViaje);
 
     List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor);
 
