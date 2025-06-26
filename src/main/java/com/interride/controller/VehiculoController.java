@@ -30,11 +30,11 @@ public class VehiculoController {
         return ResponseEntity.ok(actualizado);
     }
 
-    @PutMapping("/registrar/{conductorId}")
-    public ResponseEntity<Vehiculo> registrarVehiculo(
-            @PathVariable Integer conductorId,
+    @PutMapping("/registrar/{usuarioId}")
+    public ResponseEntity<VehiculoResponse> registrarVehiculo(
+            @PathVariable Integer usuarioId,
             @RequestBody RegistroDeVehiculoRequest registroDeVehiculoRequest) {
-        Vehiculo registrado = vehiculoService.registrar(conductorId, registroDeVehiculoRequest);
+        VehiculoResponse registrado = vehiculoService.registrar(usuarioId, registroDeVehiculoRequest);
         return ResponseEntity.ok(registrado);
     }
 }
