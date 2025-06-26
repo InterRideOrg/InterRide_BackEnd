@@ -168,15 +168,8 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
             "JOIN PasajeroViaje pv ON pv.viaje.id = v.id " +
             "JOIN Ubicacion ud ON ud.pasajeroViaje.id = pv.id " + // Destino
             "WHERE v.estado = com.interride.model.enums.EstadoViaje.ACEPTADO " +
-            "AND v.asientosDisponibles > 0 " +
-            "AND uo.provincia = :provinciaOrigen " +
-            "AND ud.provincia = :provinciaDestino " +
-            "AND DATE(v.fechaHoraPartida) = :fechaPartida")
-    List<ViajeDisponibleResponse> findViajesDisponibles(
-            @Param("provinciaOrigen") String provinciaOrigen,
-            @Param("provinciaDestino") String provinciaDestino,
-            @Param("fechaPartida") LocalDate fechaPartida
-    );
+            "AND v.asientosDisponibles > 0 ")
+    List<ViajeDisponibleResponse> findViajesDisponibles();
 
     @Query("SELECT NEW com.interride.dto.response.ViajeCompletadoResponse(" +
             "v.id, uo.provincia, ud.provincia, uo.direccion, v.fechaHoraPartida, " +

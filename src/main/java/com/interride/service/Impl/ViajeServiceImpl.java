@@ -230,17 +230,8 @@ public class ViajeServiceImpl implements ViajeService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ViajeDisponibleResponse> obtenerViajesDisponibles(String provinciaOrigen, String provinciaDestino, LocalDate fechaViaje){
-        /* Sera descomentado en la fase de produccion
-        if(fechaViaje.isBefore(LocalDate.now())){
-            throw  new RuntimeException("La fecha del viaje tiene que ser posterior o igual al de hoy");
-        }
-        */
-        return viajeRepository.findViajesDisponibles(
-                provinciaOrigen,
-                provinciaDestino,
-                fechaViaje
-        );
+    public List<ViajeDisponibleResponse> obtenerViajesDisponibles() {
+        return viajeRepository.findViajesDisponibles();
     }
 
     @Override

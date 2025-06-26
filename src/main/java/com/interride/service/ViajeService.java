@@ -22,7 +22,7 @@ public interface ViajeService {
     ViajeEnCursoResponse obtenerDetalleViajeEnCurso(Integer idPasajero);
     ViajeCanceladoResponse cancelarViaje(Integer idViaje);
 
-    List<ViajeDisponibleResponse> obtenerViajesDisponibles(String provinciaOrigen, String provinciaDestino, LocalDate fechaViaje);
+    List<ViajeDisponibleResponse> obtenerViajesDisponibles();
 
     List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor);
 

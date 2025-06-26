@@ -53,18 +53,8 @@ public class ViajeController {
     //Viajes que el pasajero busca para unirse
     @GetMapping("/viajesDisponibles")
     @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
-    public ResponseEntity<List<ViajeDisponibleResponse>> obtenerViajesDisponibles(
-        @RequestParam String provinciaOrigen,
-        @RequestParam String provinciaDestino,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaViaje
-
-    ){
-        List<ViajeDisponibleResponse> response  = viajeService.obtenerViajesDisponibles(
-                provinciaOrigen,
-                provinciaDestino,
-                fechaViaje
-        );
-
+    public ResponseEntity<List<ViajeDisponibleResponse>> obtenerViajesDisponibles(){
+        List<ViajeDisponibleResponse> response  = viajeService.obtenerViajesDisponibles();
         return ResponseEntity.ok(response);
     }
 
