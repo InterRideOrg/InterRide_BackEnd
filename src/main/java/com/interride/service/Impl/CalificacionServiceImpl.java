@@ -124,6 +124,10 @@ public class CalificacionServiceImpl implements CalificacionService {
     @Transactional
     @Override
     public CalificacionResponse create(CreateCalificacionRequest request) {
+        //log
+        if (request.estrellas() < 1 || request.estrellas() > 5) {
+            throw new BusinessRuleException("El número de estrellas debe estar entre 1 y 5");
+        }
         Calificacion calificacion = calificacionMapper.toEntity(request);
 
         calificacion.setViaje(findViajeById(calificacion.getViaje().getId()));

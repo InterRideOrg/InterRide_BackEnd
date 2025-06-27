@@ -273,4 +273,17 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         return usuarioMapper.toResponse(usuario, ERole.PASAJERO);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Integer obtenerPasajeroIdPorUsuarioId(Integer userId) {
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
+
+        if (usuario.getPasajero() == null) {
+            throw new ResourceNotFoundException("El usuario no tiene un pasajero asociado");
+        }
+
+        return usuario.getPasajero().getId();
+    }
 }
