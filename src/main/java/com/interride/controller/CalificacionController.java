@@ -34,14 +34,14 @@ public class CalificacionController {
         List<CalificacionResponse> calificacionesPorViaje = calificacionService.findByViajeId(id);
         return new ResponseEntity<>(calificacionesPorViaje, HttpStatus.OK);
     }
-
+/*
     @GetMapping("/conductor/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
     public ResponseEntity<CalificacionPromedioConductorResponse> getCalificacionPromedioYComentariosByConductorId(@PathVariable Integer id){
         CalificacionPromedioConductorResponse calificaciones = calificacionService.findAverageRatingAndCommentsByConductorId(id);
         return ResponseEntity.ok(calificaciones);
     }
-
+*/
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
     public ResponseEntity<CalificacionResponse> createCalificacion(@Valid @RequestBody CreateCalificacionRequest calificacion){

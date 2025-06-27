@@ -16,7 +16,7 @@ public interface UsuarioService {
     UsuarioResponse actualizarUsuario(Integer id, ActualizarUsuarioPerfilRequest request);
     UsuarioResponse obtenerPorConductorId(Integer conductorId);
     UsuarioResponse obtenerPorPasajeroId(Integer pasajeroId);
-
+    Integer obtenerPasajeroIdPorUsuarioId(Integer userId);
 
     AuthResponse login(LoginRequest request);
 

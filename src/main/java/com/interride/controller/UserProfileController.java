@@ -50,4 +50,11 @@ public class UserProfileController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/PassengerId/{id_user}")
+    @PreAuthorize("hasAnyRole('CONDUCTOR', 'PASAJERO', 'ADMIN')")
+    public ResponseEntity<Integer> getPassengerIdByUserId(@PathVariable Integer id_user) {
+        Integer passengerId = usuarioService.obtenerPasajeroIdPorUsuarioId(id_user);
+        return new ResponseEntity<>(passengerId, HttpStatus.OK);
+    }
+
 }
