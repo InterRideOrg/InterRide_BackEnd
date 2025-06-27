@@ -414,6 +414,7 @@ public class ViajeServiceImpl implements ViajeService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public ViajeCompletadoConductorResponse verDetalleViajeCompletadoPorConductor(Integer viajeId) {
         Viaje viaje = viajeRepository.findById(viajeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con ID: " + viajeId));
@@ -428,7 +429,6 @@ public class ViajeServiceImpl implements ViajeService {
 
         return ViajeMapper.toDetalleViajeConductorResponse(viaje, ubicacion, pasajerosViaje, calificaciones);
     }
-
 
 }
 

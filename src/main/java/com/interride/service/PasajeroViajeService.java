@@ -17,4 +17,6 @@ public interface PasajeroViajeService {
     BoletoAbordoResponse abordarViaje(Integer pasajeroId, Integer viajeId);
     BoletoResponse getBoletoByPasajeroIdAndViajeId(Integer pasajeroId, Integer viajeId);
     List<BoletoResponse> getBoletosByPasajeroIdAndState(Integer pasajeroId, EstadoViaje state);
+
+    List<BoletoResponse> getBoletosByViajeId(Integer viajeId);
 }

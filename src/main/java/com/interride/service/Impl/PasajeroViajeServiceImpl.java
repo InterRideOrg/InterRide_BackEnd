@@ -261,12 +261,38 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         return boletosResponse;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<BoletoResponse> getBoletosByViajeId(Integer viajeId){
+        Viaje viaje = viajeRepository.findById(viajeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con id: " + viajeId));
+
+        List<PasajeroViaje> boletos = pasajeroViajeRepository.findByViajeId(viaje.getId());
+
+        List<Ubicacion> origenes = new ArrayList<>();
+        List<Ubicacion> destinos = new ArrayList<>();
+
+        for (PasajeroViaje boleto : boletos) {
+            origenes.add(ubicacionRepository.findByViajeId(viaje.getId()));
+            destinos.add(ubicacionRepository.findByPasajeroViajeId(boleto.getId()));
+        }
+
+        List<BoletoResponse> boletosResponse = new ArrayList<>();
+
+        for (int i = 0; i < boletos.size(); i++) {
+            boletosResponse.add(pasajeroViajeMapper.toBoletoResponse(boletos.get(i), origenes.get(i), destinos.get(i), viaje));
+        }
+
+        return boletosResponse;
+    }
+
 
     //Funciones extra
 
     Integer cantidadBoletoEnCursoPorViaje(Integer viajeId) {
         return viajeRepository.cantidadBoletosEnCursoPorViaje(viajeId);
     }
+
 
 
 }

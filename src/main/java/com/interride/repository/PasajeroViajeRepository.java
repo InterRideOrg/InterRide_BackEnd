@@ -25,4 +25,8 @@ public interface PasajeroViajeRepository extends JpaRepository<PasajeroViaje, In
 
     @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.pasajero.id = :pasajeroId AND pv.estado = :estado")
     List<PasajeroViaje> findByPasajeroIdAndEstado(Integer pasajeroId, EstadoViaje estado);
+
+
+    @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId")
+    List<PasajeroViaje> findByViajeId(Integer viajeId);
 }
