@@ -1,6 +1,7 @@
 package com.interride.service.Impl;
 
 
+import com.interride.dto.response.PasajeroPerfilPrivadoResponse;
 import com.interride.dto.response.PasajeroPerfilPublicoResponse;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.PasajeroMapper;
@@ -32,6 +33,15 @@ public class PasajeroServiceImpl implements PasajeroService {
                 .orElseThrow(() -> new ResourceNotFoundException("Pasajero con ID " + idPasajero + " no encontrado."));
 
         return pasajeroMapper.toPublicProfileDTO(pasajero);
+    }
+
+    @Transactional
+    @Override
+    public PasajeroPerfilPrivadoResponse obtenerPerfilPrivadoPasajero(Integer idPasajero) {
+        Pasajero pasajero = pasajeroRepository.findById(idPasajero)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero con ID " + idPasajero + " no encontrado."));
+
+        return pasajeroMapper.toPrivateProfileDTO(pasajero);
     }
 
 
