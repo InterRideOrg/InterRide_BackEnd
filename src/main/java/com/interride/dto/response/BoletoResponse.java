@@ -3,6 +3,7 @@ package com.interride.dto.response;
 public record BoletoResponse(
         Integer boletoId,
         Integer viajeId,
+        Integer conductorId,
         Integer pasajeroId,
         String fechaHoraPartida,
         String fechaHoraLlegada,
