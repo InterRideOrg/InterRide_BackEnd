@@ -72,7 +72,7 @@ public class PasajeroViajeController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{viajeId}/details")
+    @GetMapping("/viaje/{viajeId}")
     @PreAuthorize("hasAnyRole('CONDUCTOR', 'PASAJERO', 'ADMIN')")
     public ResponseEntity<List<BoletoResponse>> getBoletosByViajeId(@PathVariable Integer viajeId) {
         List<BoletoResponse> boletos = pasajeroViajeService.getBoletosByViajeId(viajeId);
