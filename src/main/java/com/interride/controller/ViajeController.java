@@ -35,6 +35,7 @@ public class ViajeController {
     public ResponseEntity<DetalleViajeResponse> obtenerDetalleViaje(@PathVariable Integer id_pasajero, @PathVariable Integer id_viaje) {
         return ResponseEntity.ok(viajeService.obtenerDetalleViaje(id_viaje, id_pasajero));
     }
+
     @GetMapping("/{id_pasajero}/current")
     @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
     public ResponseEntity<ViajeEnCursoResponse> obtenerDetallesViajeEnCurso(@PathVariable Integer id_pasajero) {
@@ -127,10 +128,10 @@ public class ViajeController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/viajesAceptados/{id_conductor}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")
-    public ResponseEntity<List<ViajeAceptadoResponse>> obtenerViajesAceptados(@PathVariable Integer id_conductor) {
-        List<ViajeAceptadoResponse> response = viajeService.obtenerViajesAceptadosPorConductor(id_conductor);
+    @GetMapping("/viajeAceptado/{id_pasajero}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
+    public ResponseEntity<ViajeEnCursoResponse> getViajeAceptadoDePasajero(@PathVariable Integer id_pasajero) {
+        ViajeEnCursoResponse response = viajeService.getViajeAceptadoByPasajeroId(id_pasajero);
         return ResponseEntity.ok(response);
     }
 }

@@ -472,6 +472,38 @@ public class ViajeServiceImpl implements ViajeService {
 
     @Override
     @Transactional(readOnly = true)
+    public ViajeEnCursoResponse getViajeAceptadoByPasajeroId(Integer pasajeroId) {
+        List<Object[]> obj = viajeRepository.getViajeAceptadoByPasajeroId(pasajeroId);
+
+        if (obj.isEmpty()) {
+            throw new ResourceNotFoundException("No hay viajes aceptados para el pasajero con id: " + pasajeroId);
+        }
+
+        Object[] viaje = obj.getFirst();
+
+        ViajeEnCursoResponse response = new ViajeEnCursoResponse();
+        response.setId((Integer) viaje[0]);
+        response.setNombreConductor((String) viaje[1]);
+        response.setApellidoConductor((String) viaje[2]);
+        response.setModeloVehiculo((String) viaje[3]);
+        response.setPlacaVehiculo((String) viaje[4]);
+        response.setMarcaVehiculo((String) viaje[5]);
+        response.setCantidadAsientos((Integer) viaje[6]);
+        response.setAsientosOcupados((Integer) viaje[7]);
+        response.setOrigenLongitud(((Number) viaje[8]).doubleValue());
+        response.setOrigenLatitud(((Number) viaje[9]).doubleValue());
+        response.setOrigenProvincia((String) viaje[10]);
+        response.setDestinoLongitud(((Number) viaje[11]).doubleValue());
+        response.setDestinoLatitud(((Number) viaje[12]).doubleValue());
+        response.setDestinoProvincia((String) viaje[13]);
+        response.setEstadoViaje(EstadoViaje.valueOf((String) viaje[14]));
+        response.setFecha_hora_partida(((Timestamp) viaje[15]).toLocalDateTime());
+
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ViajeAceptadoResponse> obtenerViajesAceptadosPorConductor(Integer idConductor){
         Conductor conductor = conductorRepository.findById(idConductor)
                 .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
@@ -500,5 +532,6 @@ public class ViajeServiceImpl implements ViajeService {
 
         return viajeAceptadoResponses;
     }
+
 }
 
