@@ -104,6 +104,8 @@ public class PagoServiceImpl implements PagoService {
 
         if(tarjeta != null && tarjeta.getSaldo() < pagoActual.getMonto()) {
             throw new BusinessRuleException("Saldo insuficiente en la tarjeta");
+        } else {
+            tarjeta.setSaldo(tarjeta.getSaldo() - pagoActual.getMonto());
         }
 
         if(pagoActual.getEstado() != EstadoPago.PENDIENTE) {
