@@ -27,6 +27,13 @@ public class PagoController {
         return ResponseEntity.ok(pagosPorPasajero);
     }
 
+    @GetMapping("/pendientes/pasajero/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
+    public ResponseEntity<List<PagoResponse>> getPagosPendientesByPasajeroId(@PathVariable Integer id){
+        List<PagoResponse> pagosPendientes = pagoService.getPagosPendientesByPasajeroId(id);
+        return ResponseEntity.ok(pagosPendientes);
+    }
+
     @PostMapping("/tarjeta/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
     public ResponseEntity<PagoResponse> createPagoTarjeta(@PathVariable Integer id, @Valid @RequestBody CreatePagoRequest request){

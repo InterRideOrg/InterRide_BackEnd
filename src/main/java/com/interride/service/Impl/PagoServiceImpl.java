@@ -158,4 +158,15 @@ public class PagoServiceImpl implements PagoService {
                         ((Number) result[1]).doubleValue() // total
                 )).toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PagoResponse> getPagosPendientesByPasajeroId(Integer pasajeroId){
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero con id " + pasajeroId + " no encontrado"));
+
+        List<Pago> pagosPendientes = pagoRepository.findByPagoPendientePasajeroId(pasajero.getId());
+
+        return pagosPendientes.stream().map(pagoMapper::toResponse).toList();
+    }
 }
