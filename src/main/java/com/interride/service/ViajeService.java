@@ -41,5 +41,7 @@ public interface ViajeService {
 
     List<ViajeAceptadoResponse> obtenerViajesAceptadosPorConductor(Integer idConductor);
 
+    ViajeAceptadoResponse getViajeAceptadoById(Integer viajeId);
+
 }
 

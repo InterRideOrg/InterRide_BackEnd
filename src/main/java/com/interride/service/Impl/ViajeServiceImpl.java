@@ -539,5 +539,25 @@ public class ViajeServiceImpl implements ViajeService {
         return viajeAceptadoResponses;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ViajeAceptadoResponse getViajeAceptadoById(Integer viajeId){
+        Viaje viaje = viajeRepository.findById(viajeId)
+                .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + viajeId + " no existe."));
+
+        Conductor conductor = conductorRepository.findById(viaje.getConductor().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + viaje.getConductor().getId() + " no existe."));
+
+        if(viaje.getEstado() != EstadoViaje.ACEPTADO) {
+            throw new BusinessRuleException("El viaje con ID " + viajeId + " no está en estado ACEPTADO.");
+        }
+
+        Ubicacion origen= ubicacionRepository.findByViajeId(viaje.getId());
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId()).getId());
+
+
+
+        return viajeMapper.toViajeAceptadoResponse(viaje, conductor, origen, destino);
+    }
 }
 
