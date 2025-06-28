@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -467,6 +468,37 @@ public class ViajeServiceImpl implements ViajeService {
         Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boleto.getId());
 
         return viajeMapper.toViajeSolicitadoResponse(viaje, boleto, origen, destino);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ViajeAceptadoResponse> obtenerViajesAceptadosPorConductor(Integer idConductor){
+        Conductor conductor = conductorRepository.findById(idConductor)
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
+
+        List<Viaje> viajesAceptados = viajeRepository.findByConductorIdAndEstado(conductor.getId(), EstadoViaje.ACEPTADO);
+        List<Ubicacion> origenes = new ArrayList<>();
+        List<Ubicacion> destinos = new ArrayList<>();
+
+        for (Viaje viaje : viajesAceptados) {
+            Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
+            Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId()).getId());
+            origenes.add(origen);
+            destinos.add(destino);
+        }
+
+        List<ViajeAceptadoResponse> viajeAceptadoResponses = new ArrayList<>();
+
+        for (int i = 0; i < viajesAceptados.size(); i++) {
+            Viaje viaje = viajesAceptados.get(i);
+            Ubicacion origen = origenes.get(i);
+            Ubicacion destino = destinos.get(i);
+            viajeAceptadoResponses.add(viajeMapper.toViajeAceptadoResponse(viaje, conductor, origen, destino));
+        }
+
+
+
+        return viajeAceptadoResponses;
     }
 }
 

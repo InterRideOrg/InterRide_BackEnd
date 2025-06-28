@@ -37,5 +37,7 @@ public interface ViajeService {
 
     ViajeSolicitadoResponse obtenerDetalleViajeSolicitado(Integer idViaje);
 
+    List<ViajeAceptadoResponse> obtenerViajesAceptadosPorConductor(Integer idConductor);
+
 }
 

@@ -219,5 +219,11 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     @Query("SELECT v FROM Viaje v WHERE v.estado = :estado")
     List<Viaje> findByEstado(@Param("estado") EstadoViaje estado);
 
+
+    @Query("SELECT v FROM Viaje v WHERE v.conductor.id = :conductorId AND v.estado = :estado")
+    List<Viaje> findByConductorIdAndEstado(
+            @Param("conductorId") Integer conductorId,
+            @Param("estado") EstadoViaje estado
+    );
 }
 
