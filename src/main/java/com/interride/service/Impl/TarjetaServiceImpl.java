@@ -41,6 +41,7 @@ public class TarjetaServiceImpl implements TarjetaService {
 
 
         Tarjeta tarjeta = tarjetaMapper.toEntityPasajero(request);
+        tarjeta.setSaldo(70.0); // Asignar un saldo inicial de 100.0
 
         tarjeta.setPasajero(pasajero);
 
