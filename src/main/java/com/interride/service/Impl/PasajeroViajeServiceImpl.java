@@ -237,9 +237,13 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
 
-
+        List<BoletoResponse> boletosResponse = new ArrayList<>();
 
         List<PasajeroViaje> boletos = pasajeroViajeRepository.findByPasajeroIdAndEstado(pasajero.getId(), state);
+
+        if (boletos.isEmpty()) {
+           return boletosResponse; // Retorna una lista vacía si no hay boletos
+        }
 
         Viaje viaje = viajeRepository.findById(boletos.getFirst().getViaje().getId()).
                 orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con id: " + boletos.getFirst().getViaje().getId()));
@@ -252,7 +256,6 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
             destinos.add(ubicacionRepository.findByPasajeroViajeId(boleto.getId()));
         }
 
-        List<BoletoResponse> boletosResponse = new ArrayList<>();
 
         for (int i = 0; i < boletos.size(); i++) {
             boletosResponse.add(pasajeroViajeMapper.toBoletoResponse(boletos.get(i), origenes.get(i), destinos.get(i), viaje));

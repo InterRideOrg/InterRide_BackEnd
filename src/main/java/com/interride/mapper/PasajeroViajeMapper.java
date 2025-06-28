@@ -72,7 +72,10 @@ public class PasajeroViajeMapper {
                 boleto.getId(),
                 boleto.getViaje().getId(),
                 boleto.getPasajero().getId(),
-                viaje.getConductor().getId(),
+                (viaje.getConductor() != null ?
+                        viaje.getConductor().getId() :
+                        null
+                ),
                 viaje.getFechaHoraPartida().toString(),
                 boleto.getFechaHoraLLegada().toString(),
                 boleto.getFechaHoraUnion().toString(),
