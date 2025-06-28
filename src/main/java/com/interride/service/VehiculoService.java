@@ -8,4 +8,5 @@ import com.interride.model.entity.Vehiculo;
 public interface VehiculoService {
     VehiculoResponse update(Integer conductorId, VehiculoRequest vehiculo);
     VehiculoResponse registrar(Integer usuarioId, RegistroDeVehiculoRequest registroDeVehiculoRequest);
+    VehiculoResponse obtenerVehiculoPorConductorId(Integer conductorId);
 }

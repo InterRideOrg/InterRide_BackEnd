@@ -37,4 +37,11 @@ public class VehiculoController {
         VehiculoResponse registrado = vehiculoService.registrar(usuarioId, registroDeVehiculoRequest);
         return ResponseEntity.ok(registrado);
     }
+    @GetMapping("/{conductorId}")
+    @PreAuthorize("hasAnyRole('CONDUCTOR', 'ADMIN', 'PASAJERO')")
+    public ResponseEntity<VehiculoResponse> obtenerVehiculoPorConductorId(@PathVariable Integer conductorId) {
+        VehiculoResponse vehiculoResponse = vehiculoService.obtenerVehiculoPorConductorId(conductorId);
+        return ResponseEntity.ok(vehiculoResponse);
+    }
+
 }
