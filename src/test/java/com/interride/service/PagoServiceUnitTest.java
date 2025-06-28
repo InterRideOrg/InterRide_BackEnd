@@ -396,7 +396,7 @@ public class PagoServiceUnitTest {
         when(pagoRepository.save(pago)).thenReturn(pago);
         when(pagoMapper.toResponse(pago)).thenReturn(expectedResponse);
 
-        PagoResponse resultado = pagoService.completarPago(1);
+        PagoResponse resultado = pagoService.completarPago(1, 1);
 
 
 
@@ -413,7 +413,7 @@ public class PagoServiceUnitTest {
 
         when(pagoRepository.findById(pagoId)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> pagoService.completarPago(pagoId));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> pagoService.completarPago(pagoId, 1));
         System.out.println(exception.getMessage());
     }
 
@@ -433,7 +433,7 @@ public class PagoServiceUnitTest {
         when(pagoRepository.findById(pagoId)).thenReturn(Optional.of(pago));
         when(pasajeroRepository.findById(pago.getPasajero().getId())).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> pagoService.completarPago(pagoId));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> pagoService.completarPago(pagoId, 1));
         System.out.println(exception.getMessage());
     }
 
@@ -453,7 +453,7 @@ public class PagoServiceUnitTest {
         when(pagoRepository.findById(pagoId)).thenReturn(Optional.of(pago));
         when(pasajeroRepository.findById(pago.getPasajero().getId())).thenReturn(Optional.of(pasajero));
 
-        BusinessRuleException exception = assertThrows(BusinessRuleException.class, () -> pagoService.completarPago(pagoId));
+        BusinessRuleException exception = assertThrows(BusinessRuleException.class, () -> pagoService.completarPago(pagoId, 1));
         System.out.println(exception.getMessage());
     }
 

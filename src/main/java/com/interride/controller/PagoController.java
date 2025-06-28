@@ -41,10 +41,10 @@ public class PagoController {
         return ResponseEntity.ok(pago);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/{tarjetaId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
-    public ResponseEntity<PagoResponse> completarPago(@PathVariable Integer id){
-        PagoResponse pago = pagoService.completarPago(id);
+    public ResponseEntity<PagoResponse> completarPago(@PathVariable Integer id, @PathVariable Integer tarjetaId){
+        PagoResponse pago = pagoService.completarPago(id, tarjetaId);
         return ResponseEntity.ok(pago);
     }
 

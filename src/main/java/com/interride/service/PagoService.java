@@ -14,7 +14,7 @@ public interface PagoService {
     //List<PagoResponse> getPagosByViajeId(Integer viajeId);
     PagoResponse createPagoEfectivo(CreatePagoRequest pago);
     PagoResponse createPagoTarjeta(CreatePagoRequest request, Integer tarjetaId);
-    PagoResponse completarPago(Integer id);
+    PagoResponse completarPago(Integer id, Integer tarjetaId);
 
     List<AnnualProfitReport> getAnnualProfitReportByConductor(Integer year, Integer conductorId);
     List<MonthlyProfitReport> getMonthlyProfitReportByConductor(Integer year, Integer month, Integer conductorId);

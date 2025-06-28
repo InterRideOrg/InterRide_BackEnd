@@ -85,11 +85,18 @@ public class PagoServiceImpl implements PagoService {
 
     @Transactional
     @Override
-    public PagoResponse completarPago(Integer id) {
+    public PagoResponse completarPago(Integer id, Integer tarjetaId) {
         Pago pagoActual = pagoRepository.findById(id)
                         .orElseThrow(()->new ResourceNotFoundException("Pago con id " + id + " no encontrado" ));
         Pasajero pasajero = pasajeroRepository.findById(pagoActual.getPasajero().getId())
                         .orElseThrow(()->new ResourceNotFoundException("Pasajero con id " + pagoActual.getPasajero().getId() + " no encontrado" ));
+
+        Tarjeta tarjeta = tarjetaRepository.findById(tarjetaId)
+                .orElse(null);
+
+        if(tarjeta != null && tarjeta.getSaldo() < pagoActual.getMonto()) {
+            throw new BusinessRuleException("Saldo insuficiente en la tarjeta");
+        }
 
         if(pagoActual.getEstado() != EstadoPago.PENDIENTE) {
             throw new BusinessRuleException("El pago con id " + id + " no se encuentra en estado PENDIENTE");
