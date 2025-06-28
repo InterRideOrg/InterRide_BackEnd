@@ -9,6 +9,8 @@ import com.interride.dto.response.PagoResponse;
 import java.util.List;
 
 public interface PagoService {
+    PagoResponse getPagoById(Integer id);
+
     List<PagoResponse> getPagosByPasajeroId(Integer pasajeroId);
     //List<PagoResponse> getPagosByConductorId(Integer conductorId);
     //List<PagoResponse> getPagosByViajeId(Integer viajeId);
