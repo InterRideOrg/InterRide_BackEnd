@@ -17,6 +17,7 @@ public interface UsuarioService {
     UsuarioResponse obtenerPorConductorId(Integer conductorId);
     UsuarioResponse obtenerPorPasajeroId(Integer pasajeroId);
     Integer obtenerPasajeroIdPorUsuarioId(Integer userId);
+    Integer obtenerConductorIdPorUsuarioId(Integer userId);
 
     AuthResponse login(LoginRequest request);
 

@@ -111,6 +111,14 @@ public class ViajeController {
         return ResponseEntity.ok(detalle);
     }
 
+    // obtener detalle de viaje solicitado por id
+    @GetMapping("/viajeSolicitado/{id_viaje}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
+    public ResponseEntity<ViajeSolicitadoResponse> obtenerDetalleViajeSolicitado(@PathVariable Integer id_viaje) {
+        ViajeSolicitadoResponse response = viajeService.obtenerDetalleViajeSolicitado(id_viaje);
+        return ResponseEntity.ok(response);
+    }
+
     // Lista los viajes que el estan solicitados y que el conductor puede aceptar
     @GetMapping("/viajesSolicitados")
     @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")

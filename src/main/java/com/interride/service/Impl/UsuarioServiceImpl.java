@@ -286,4 +286,17 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         return usuario.getPasajero().getId();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Integer obtenerConductorIdPorUsuarioId(Integer userId) {
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
+
+        if (usuario.getConductor() == null) {
+            throw new ResourceNotFoundException("El usuario no tiene un conductor asociado");
+        }
+
+        return usuario.getConductor().getId();
+    }
 }

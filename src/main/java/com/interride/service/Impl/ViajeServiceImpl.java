@@ -448,5 +448,25 @@ public class ViajeServiceImpl implements ViajeService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ViajeSolicitadoResponse obtenerDetalleViajeSolicitado(Integer idViaje) {
+        Viaje viaje = viajeRepository.findById(idViaje)
+                .orElseThrow(() -> new ResourceNotFoundException("El viaje solicitado con ID " + idViaje + " no existe."));
+
+        if (viaje.getEstado() != EstadoViaje.SOLICITADO) {
+            throw new BusinessRuleException("El viaje con ID " + idViaje + " no está en estado SOLICITADO.");
+        }
+
+        PasajeroViaje boleto = pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje);
+        if (boleto == null) {
+            throw new ResourceNotFoundException("No se encontró un boleto inicial para el viaje con ID " + idViaje + ".");
+        }
+
+        Ubicacion origen = ubicacionRepository.findByViajeId(idViaje);
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boleto.getId());
+
+        return viajeMapper.toViajeSolicitadoResponse(viaje, boleto, origen, destino);
+    }
 }
 
