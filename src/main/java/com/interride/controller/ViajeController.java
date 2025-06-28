@@ -134,5 +134,13 @@ public class ViajeController {
         ViajeEnCursoResponse response = viajeService.getViajeAceptadoByPasajeroId(id_pasajero);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/viajesAceptados/{id_conductor}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")
+    public ResponseEntity<List<ViajeAceptadoResponse>> getViajeAceptadoDeConductor(@PathVariable Integer id_conductor) {
+        List<ViajeAceptadoResponse> response = viajeService.obtenerViajesAceptadosPorConductor(id_conductor);
+        return ResponseEntity.ok(response);
+    }
+
 }
 

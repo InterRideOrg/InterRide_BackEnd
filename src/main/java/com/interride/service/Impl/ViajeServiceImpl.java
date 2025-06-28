@@ -512,6 +512,12 @@ public class ViajeServiceImpl implements ViajeService {
         List<Ubicacion> origenes = new ArrayList<>();
         List<Ubicacion> destinos = new ArrayList<>();
 
+        List<ViajeAceptadoResponse> viajeAceptadoResponses = new ArrayList<>();
+
+        if (viajesAceptados.isEmpty()) {
+            return viajeAceptadoResponses; // Retorna una lista vacía si no hay viajes aceptados
+        }
+
         for (Viaje viaje : viajesAceptados) {
             Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
             Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId()).getId());
@@ -519,7 +525,7 @@ public class ViajeServiceImpl implements ViajeService {
             destinos.add(destino);
         }
 
-        List<ViajeAceptadoResponse> viajeAceptadoResponses = new ArrayList<>();
+
 
         for (int i = 0; i < viajesAceptados.size(); i++) {
             Viaje viaje = viajesAceptados.get(i);
