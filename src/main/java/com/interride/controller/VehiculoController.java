@@ -30,7 +30,7 @@ public class VehiculoController {
         return ResponseEntity.ok(actualizado);
     }
 
-    @PutMapping("/registrar/{usuarioId}")
+    @PostMapping("/registrar/{usuarioId}")
     public ResponseEntity<VehiculoResponse> registrarVehiculo(
             @PathVariable Integer usuarioId,
             @RequestBody RegistroDeVehiculoRequest registroDeVehiculoRequest) {
