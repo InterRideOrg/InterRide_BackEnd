@@ -35,5 +35,7 @@ public interface ViajeService {
 
     ViajeCompletadoConductorResponse verDetalleViajeCompletadoPorConductor(Integer idViaje);
 
+    ViajeSolicitadoResponse obtenerDetalleViajeSolicitado(Integer idViaje);
+
 }
 
