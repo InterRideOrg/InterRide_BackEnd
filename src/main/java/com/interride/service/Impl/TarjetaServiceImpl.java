@@ -2,6 +2,7 @@ package com.interride.service.Impl;
 
 import com.interride.dto.request.TarjetaRequest;
 import com.interride.dto.response.TarjetaPasajeroResponse;
+import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.TarjetaMapper;
 import com.interride.model.entity.Pasajero;
@@ -28,6 +29,16 @@ public class TarjetaServiceImpl implements TarjetaService {
     public TarjetaPasajeroResponse createTarjetaPasajero(Integer idPasajero, TarjetaRequest request) {
         Pasajero pasajero = pasajeroRepository.findById(idPasajero)
                 .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado."));
+
+        List<Tarjeta> tarjetasExistentes = tarjetaRepository.findByPasajeroId(pasajero.getId());
+
+        if (tarjetasExistentes.stream()
+                .map(Tarjeta::getNumeroTarjeta)
+                .toList()
+                .contains(request.numeroTarjeta())) {
+            throw new BusinessRuleException("Esta tarjeta ya esta registrada.");
+        }
+
 
         Tarjeta tarjeta = tarjetaMapper.toEntityPasajero(request);
 

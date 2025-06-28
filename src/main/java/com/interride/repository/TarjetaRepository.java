@@ -12,4 +12,6 @@ public interface TarjetaRepository extends JpaRepository<Tarjeta, Integer> {
 
     @Query("SELECT t FROM Tarjeta t WHERE t.pasajero.id = :pasajeroId")
     List<Tarjeta> findByPasajeroId(@Param("pasajeroId") Integer pasajeroId);
+
+    Boolean existsTarjetaByNumeroTarjeta(String numeroTarjeta);
 }
