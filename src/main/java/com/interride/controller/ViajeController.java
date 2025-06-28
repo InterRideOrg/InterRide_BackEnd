@@ -97,6 +97,7 @@ public class ViajeController {
         }
     }
 
+
     @PostMapping("/solicitar/{id_pasajero}")
     @PreAuthorize("hasAnyRole('PASAJERO')")
     public ResponseEntity<ViajeSolicitadoResponse> solicitarViaje(@PathVariable("id_pasajero") Integer id, @Valid @RequestBody ViajeSolicitadoRequest request) {

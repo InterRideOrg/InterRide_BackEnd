@@ -9,6 +9,7 @@ import com.interride.mapper.PasajeroViajeMapper;
 import com.interride.mapper.UbicacionMapper;
 import com.interride.mapper.ViajeMapper;
 import com.interride.model.entity.*;
+import com.interride.model.enums.EstadoPago;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.*;
 import com.interride.service.ViajeService;
@@ -35,6 +36,7 @@ public class ViajeServiceImpl implements ViajeService {
     private final UbicacionRepository ubicacionRepository;
     private final PasajeroRepository pasajeroRepository;
     private final CalificacionRepository calificacionRepository;
+    private final PagoRepository pagoRepository;
 
     private final ViajeMapper viajeMapper;
     private final UbicacionMapper ubicacionMapper;
@@ -358,12 +360,23 @@ public class ViajeServiceImpl implements ViajeService {
                 "El viaje con ID " + idViaje + " ha comenzado.",
                 conductor.getId()
         );
-        // Enviar notificación a los pasajeros
+        // Enviar notificación a los pasajeros y generar pagos pandientes
         for (PasajeroViaje boleto : boletos) {
             notificacionRepository.enviarNotificacionPasajero(
                     "El viaje con ID " + idViaje + " ha comenzado.",
                     boleto.getPasajero().getId()
             );
+
+            Pago pago = Pago.builder()
+                    .estado(EstadoPago.PENDIENTE)
+                    .monto(25.0)
+                    .pasajero(boleto.getPasajero())
+                    .conductor(conductor)
+                    .viaje(viaje)
+                    .fechaHoraPago(LocalDateTime.now())
+                    .build();
+
+            pagoRepository.save(pago);
         }
 
         // Crear la respuesta
