@@ -31,6 +31,8 @@ public interface ViajeService {
 
     boolean empezarViaje(Integer idViaje, Integer idConductor);
 
+    List<ViajeSolicitadoResponse> obtenerViajesSolicitados();
+
     ViajeCompletadoConductorResponse verDetalleViajeCompletadoPorConductor(Integer idViaje);
 
 }

@@ -3,6 +3,7 @@ package com.interride.repository;
 import com.interride.dto.response.ViajeCompletadoResponse;
 import com.interride.model.entity.Pasajero;
 import com.interride.model.entity.Viaje;
+import com.interride.model.enums.EstadoViaje;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -130,7 +131,7 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     JOIN conductor c ON c.id = v.conductor_id
     JOIN vehiculo veh ON veh.conductor_id = c.id
     JOIN ubicacion ubi_origen ON ubi_origen.viaje_id = v.id
-    JOIN ubicacion ubi_destino ON ubi_destino.id = pv.ubicacion_id
+    JOIN ubicacion ubi_destino ON ubi_destino.pasajero_viaje_id = pv.id
     WHERE pv.pasajero_id = :idPasajero
       AND v.estado = 'EN_CURSO';
     """, nativeQuery = true)
@@ -213,5 +214,10 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
             "WHERE pv.viaje.id = :idViaje " +
             "AND pv.estado = com.interride.model.enums.EstadoViaje.EN_CURSO")
     Integer cantidadBoletosEnCursoPorViaje(@Param("idViaje") Integer idViaje);
+
+    //Obtener viajes con estado X retornando List<Viaje>
+    @Query("SELECT v FROM Viaje v WHERE v.estado = :estado")
+    List<Viaje> findByEstado(@Param("estado") EstadoViaje estado);
+
 }
 

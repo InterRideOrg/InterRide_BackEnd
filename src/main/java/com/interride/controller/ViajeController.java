@@ -111,5 +111,12 @@ public class ViajeController {
         return ResponseEntity.ok(detalle);
     }
 
+    // Lista los viajes que el estan solicitados y que el conductor puede aceptar
+    @GetMapping("/viajesSolicitados")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")
+    public ResponseEntity<List<ViajeSolicitadoResponse>> obtenerViajesSolicitados() {
+        List<ViajeSolicitadoResponse> response = viajeService.obtenerViajesSolicitados();
+        return ResponseEntity.ok(response);
+    }
 }
 
