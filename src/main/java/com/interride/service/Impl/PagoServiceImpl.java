@@ -52,6 +52,14 @@ public class PagoServiceImpl implements PagoService {
 
     @Transactional(readOnly = true)
     @Override
+    public PagoResponse getPagoById(Integer id) {
+        Pago pago = pagoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pago con id " + id + " no encontrado"));
+        return pagoMapper.toResponse(pago);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<PagoResponse> getPagosByPasajeroId(Integer pasajeroId) {
         Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pasajero con id " + pasajeroId + " no encontrado"));
