@@ -83,8 +83,7 @@ public class UsuarioServiceUnitTest {
                 "Jane",
                 "Doe",
                 "987654321123",
-                "nuevo@gmail.com",
-                "jane_doe");
+                "nuevo@gmail.com");
     }
 
     //TESTS
@@ -370,9 +369,9 @@ public class UsuarioServiceUnitTest {
 
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
         when(usuarioRepository.existsByCorreo(requestActualizarUsuario.correo())).thenReturn(false);
-        when(pasajeroRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
+        //when(pasajeroRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
         when(pasajeroRepository.existsByTelefono(requestActualizarUsuario.telefono())).thenReturn(false);
-        when(conductorRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
+        //when(conductorRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
         when(conductorRepository.existsByTelefono(requestActualizarUsuario.telefono())).thenReturn(false);
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
         when(usuarioMapper.toResponse(any(Usuario.class), any(ERole.class))).thenReturn(expectedResponse);
@@ -422,9 +421,9 @@ public class UsuarioServiceUnitTest {
 
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
         when(usuarioRepository.existsByCorreo(requestActualizarUsuario.correo())).thenReturn(false);
-        when(pasajeroRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
+        //when(pasajeroRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
         when(pasajeroRepository.existsByTelefono(requestActualizarUsuario.telefono())).thenReturn(false);
-        when(conductorRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
+        //when(conductorRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
         when(conductorRepository.existsByTelefono(requestActualizarUsuario.telefono())).thenReturn(false);
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
         when(usuarioMapper.toResponse(any(Usuario.class), any(ERole.class))).thenReturn(expectedResponse);
@@ -496,7 +495,7 @@ public class UsuarioServiceUnitTest {
         usuario.setPasajero(pasajero);
 
         when(usuarioRepository.existsByCorreo(requestActualizarUsuario.correo())).thenReturn(false);
-        when(pasajeroRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(true);
+        //when(pasajeroRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(true);
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
 
         DuplicateResourceException exception = assertThrows(
@@ -529,7 +528,7 @@ public class UsuarioServiceUnitTest {
         usuario.setPasajero(pasajero);
 
         when(usuarioRepository.existsByCorreo(requestActualizarUsuario.correo())).thenReturn(false);
-        when(pasajeroRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
+        //when(pasajeroRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
         when(pasajeroRepository.existsByTelefono(requestActualizarUsuario.telefono())).thenReturn(true);
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
 
@@ -563,7 +562,7 @@ public class UsuarioServiceUnitTest {
         usuario.setConductor(conductor);
 
         when(usuarioRepository.existsByCorreo(requestActualizarUsuario.correo())).thenReturn(false);
-        when(conductorRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(true);
+        //when(conductorRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(true);
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
 
         DuplicateResourceException exception = assertThrows(
@@ -596,7 +595,7 @@ public class UsuarioServiceUnitTest {
         usuario.setConductor(conductor);
 
         when(usuarioRepository.existsByCorreo(requestActualizarUsuario.correo())).thenReturn(false);
-        when(conductorRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
+        //when(conductorRepository.existsByUsername(requestActualizarUsuario.username())).thenReturn(false);
         when(conductorRepository.existsByTelefono(requestActualizarUsuario.telefono())).thenReturn(true);
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
 

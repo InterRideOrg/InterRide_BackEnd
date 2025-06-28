@@ -161,9 +161,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public UsuarioResponse actualizarUsuario(Integer id, ActualizarUsuarioPerfilRequest request) {
         boolean existsByCorreo = usuarioRepository.existsByCorreo(request.correo());
-        boolean existsByPasajeroUsername = pasajeroRepository.existsByUsername(request.username());
+//        boolean existsByPasajeroUsername = pasajeroRepository.existsByUsername(request.username());
         boolean existsByPasajeroTelefono = pasajeroRepository.existsByTelefono(request.telefono());
-        boolean existsByConductorUsername = conductorRepository.existsByUsername(request.username());
+//        boolean existsByConductorUsername = conductorRepository.existsByUsername(request.username());
         boolean existsByConductorTelefono = conductorRepository.existsByTelefono(request.telefono());
 
 
@@ -180,11 +180,11 @@ public class UsuarioServiceImpl implements UsuarioService {
             );
         }
 
-        if(existsByPasajeroUsername && !username.equals(request.username())) {
-            throw new DuplicateResourceException(
-                    "Ya existe un usuario con el nombre de usuario: " + request.username()
-            );
-        }
+//        if(existsByPasajeroUsername && !username.equals(request.username())) {
+//            throw new DuplicateResourceException(
+//                    "Ya existe un usuario con el nombre de usuario: " + request.username()
+//            );
+//        }
 
         if(existsByPasajeroTelefono && !telefono.equals(request.telefono())) {
             throw new DuplicateResourceException(
@@ -192,11 +192,11 @@ public class UsuarioServiceImpl implements UsuarioService {
             );
         }
 
-        if(existsByConductorUsername && !username.equals(request.username())) {
-            throw new DuplicateResourceException(
-                    "Ya existe un usuario con el nombre de usuario: " + request.username()
-            );
-        }
+//        if(existsByConductorUsername && !username.equals(request.username())) {
+//            throw new DuplicateResourceException(
+//                    "Ya existe un usuario con el nombre de usuario: " + request.username()
+//            );
+//        }
 
         if(existsByConductorTelefono && !telefono.equals(request.telefono())) {
             throw new DuplicateResourceException(
@@ -212,7 +212,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             conductor.setNombre(request.nombres());
             conductor.setApellidos(request.apellidos());
             conductor.setTelefono(request.telefono());
-            conductor.setUsername(request.username());
+//            conductor.setUsername(request.username());
             conductor.setFechaHoraActualizacion(LocalDateTime.now());
             usuario.setConductor(conductor);
         } else if (usuario.getPasajero() != null) {
@@ -220,7 +220,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             pasajero.setNombre(request.nombres());
             pasajero.setApellidos(request.apellidos());
             pasajero.setTelefono(request.telefono());
-            pasajero.setUsername(request.username());
+//            pasajero.setUsername(request.username());
             pasajero.setFechaHoraActualizacion(LocalDateTime.now());
             usuario.setPasajero(pasajero);
         }
