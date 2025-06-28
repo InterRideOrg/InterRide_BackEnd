@@ -37,4 +37,7 @@ public class VehiculoController {
         VehiculoResponse registrado = vehiculoService.registrar(usuarioId, registroDeVehiculoRequest);
         return ResponseEntity.ok(registrado);
     }
+
+
+
 }
