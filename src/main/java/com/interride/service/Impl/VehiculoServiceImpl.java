@@ -90,4 +90,12 @@ public class VehiculoServiceImpl implements VehiculoService {
         return vehiculoMapper.toResponse(vehiculo);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public VehiculoResponse obtenerVehiculoPorConductorId(Integer conductorId) {
+        Vehiculo vehiculo = vehiculoRepository.findByConductorId(conductorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehículo no encontrado para el conductor con ID: " + conductorId));
+        return vehiculoMapper.toResponse(vehiculo);
+    }
+
 }
