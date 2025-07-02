@@ -367,6 +367,7 @@ public class ViajeServiceImpl implements ViajeService {
                     boleto.getPasajero().getId()
             );
 
+            /* Ahora el pago se crea cuando el pasajero aborda el viaje
             Pago pago = Pago.builder()
                     .estado(EstadoPago.PENDIENTE)
                     .monto(25.0)
@@ -377,6 +378,8 @@ public class ViajeServiceImpl implements ViajeService {
                     .build();
 
             pagoRepository.save(pago);
+
+             */
         }
 
         // Crear la respuesta

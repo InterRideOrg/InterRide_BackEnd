@@ -99,13 +99,30 @@ public class PagoServiceImpl implements PagoService {
         Pasajero pasajero = pasajeroRepository.findById(pagoActual.getPasajero().getId())
                         .orElseThrow(()->new ResourceNotFoundException("Pasajero con id " + pagoActual.getPasajero().getId() + " no encontrado" ));
 
+        Conductor conductor = conductorRepository.findById(pagoActual.getConductor().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Conductor con id " + pagoActual.getConductor().getId() + " no encontrado"));
+
         Tarjeta tarjeta = tarjetaRepository.findById(tarjetaId)
                 .orElse(null);
 
-        if(tarjeta != null && tarjeta.getSaldo() < pagoActual.getMonto()) {
-            throw new BusinessRuleException("Saldo insuficiente en la tarjeta");
-        } else {
-            tarjeta.setSaldo(tarjeta.getSaldo() - pagoActual.getMonto());
+
+        if(tarjeta != null) {
+            if (tarjeta.getSaldo() < pagoActual.getMonto()){
+                throw new BusinessRuleException("Saldo insuficiente en la tarjeta con id " + tarjetaId);
+            }else {
+                Tarjeta tarjetaConductor = tarjetaRepository.findByConductorId(conductor.getId());
+                if (tarjetaConductor == null) {
+                    throw new ResourceNotFoundException("El conductor " + conductor.getNombre() + " no tiene una tarjeta registrada. Por favor, pague con efectivo.");
+                }
+
+                // Transferir el monto del pago a la tarjeta del conductor
+                tarjetaConductor.setSaldo(tarjetaConductor.getSaldo() + pagoActual.getMonto());
+                tarjetaRepository.save(tarjetaConductor);
+
+                // Restar el monto del pago de la tarjeta del pasajero
+                tarjeta.setSaldo(tarjeta.getSaldo() - pagoActual.getMonto());
+                tarjetaRepository.save(tarjeta);
+            }
         }
 
         if(pagoActual.getEstado() != EstadoPago.PENDIENTE) {
