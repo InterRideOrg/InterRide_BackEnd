@@ -1,6 +1,7 @@
 package com.interride.controller;
 
 import com.interride.dto.request.TarjetaRequest;
+import com.interride.dto.response.TarjetaConductorResponse;
 import com.interride.dto.response.TarjetaPasajeroResponse;
 import com.interride.service.TarjetaService;
 import jakarta.validation.Valid;
@@ -34,9 +35,23 @@ public class TarjetaController {
 
     @DeleteMapping("/{idTarjeta}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO', 'CONDUCTOR')")
-    public ResponseEntity<Void> deleteTarjetaPasajero(@PathVariable Integer idTarjeta) {
-        tarjetaService.deleteTarjetaPasajero(idTarjeta);
+    public ResponseEntity<Void> delete(@PathVariable Integer idTarjeta) {
+        tarjetaService.delete(idTarjeta);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/conductor/{idConductor}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")
+    public ResponseEntity<TarjetaConductorResponse> createTarjetaConductor(@PathVariable Integer idConductor, @RequestBody @Valid TarjetaRequest request) {
+        TarjetaConductorResponse response = tarjetaService.createTarjetaConductor(idConductor, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/conductor/{idConductor}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")
+    public ResponseEntity<TarjetaConductorResponse> getTarjetaConductorById(@PathVariable Integer idConductor) {
+        TarjetaConductorResponse response = tarjetaService.getTarjetaConductorById(idConductor);
+        return ResponseEntity.ok(response);
     }
 
 }

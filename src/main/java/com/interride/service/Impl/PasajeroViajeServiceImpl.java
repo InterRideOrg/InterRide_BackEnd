@@ -7,6 +7,7 @@ import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.PasajeroViajeMapper;
 import com.interride.mapper.UbicacionMapper;
 import com.interride.model.entity.*;
+import com.interride.model.enums.EstadoPago;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.*;
 import com.interride.service.PasajeroViajeService;
@@ -26,6 +27,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
     private final UbicacionRepository ubicacionRepository;
     private final NotificacionRepository notificacionRepository;
     private final PasajeroRepository pasajeroRepository;
+    private final PagoRepository pagoRepository;
 
     private final UbicacionMapper ubicacionMapper;
     private final PasajeroViajeMapper pasajeroViajeMapper;
@@ -193,13 +195,48 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
     @Override
     public BoletoAbordoResponse abordarViaje(Integer pasajeroId, Integer viajeId) {
         PasajeroViaje boleto = pasajeroViajeRepository.findByPasajeroIdAndViajeId(pasajeroId, viajeId);
+        Viaje viaje = viajeRepository.findById(viajeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con id: " + viajeId));
+
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boleto.getId());
+
         if(boleto == null) {
             throw new ResourceNotFoundException("Boleto no encontrado para el pasajero con id: " + pasajeroId + " y viaje con id: " + viajeId);
+        }
+
+        if(viaje.getConductor() == null) {
+            throw new ResourceNotFoundException("El viaje no tiene un conductor asignado.");
         }
 
         if (!boleto.getEstado().equals(EstadoViaje.ACEPTADO)) {
             throw new BusinessRuleException("El boleto no está en un estado válido para abordar.");
         }
+
+        if (Boolean.TRUE.equals(boleto.getAbordo()) ) {
+            throw new BusinessRuleException("El pasajero ya está a bordo del viaje.");
+        }
+
+        Conductor conductor = viaje.getConductor();
+
+        //Crear el pago
+        Pago pago = Pago.builder()
+                .estado(EstadoPago.PENDIENTE)
+                .monto(25.0)
+                .pasajero(boleto.getPasajero())
+                .conductor(conductor)
+                .viaje(viaje)
+                .fechaHoraPago(LocalDateTime.now())
+                .build();
+
+        //Notificacion al pasajero de que debe pagar
+        Notificacion notificacionPago = Notificacion.paraPasajero(
+                boleto.getPasajero().getId(),
+                "Se ha generado un pago pendiente de S/25.00 por el viaje hacia " + destino.getProvincia() + "."
+        );
+
+        pagoRepository.save(pago);
+        notificacionRepository.save(notificacionPago);
+
 
         boleto.setEstado(EstadoViaje.EN_CURSO);
         boleto.setAbordo(true);
