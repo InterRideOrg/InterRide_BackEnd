@@ -396,6 +396,10 @@ public class ViajeServiceImpl implements ViajeService {
         Pair<Ubicacion, Ubicacion> origenANDdestino = ubicacionMapper.OrigenDestinotoEntity(request);
         Ubicacion origen = origenANDdestino.getFirst();
         Ubicacion destino = origenANDdestino.getSecond();
+        // Eliminar los valores numericos al final de las provincias
+        origen.setProvincia(origen.getProvincia().replaceAll("\\s*\\d+$", ""));
+        destino.setProvincia(destino.getProvincia().replaceAll("\\s*\\d+$", ""));
+
         PasajeroViaje boleto = pasajeroViajeMapper.toEntity(request);
 
         if(boleto.getAsientosOcupados() <= 0){

@@ -1,6 +1,9 @@
 package com.interride.dto.request;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
@@ -11,8 +14,9 @@ public class RegistroDeVehiculoRequest {
     private String marca;
     @NotBlank(message = "El modelo es obligatorio")
     private String modelo;
-    @NotBlank(message = "El año es obligatorio")
+    @NotNull(message = "El año es obligatorio")
     private Integer anio;
-    @NotBlank(message = "La cantidad de asientos es obligatoria")
+    @Max(message = "La cantidad de asientos no puede ser mayor a 8", value = 8)
+    @Positive(message = "La cantidad de asientos debe ser un número positivo")
     private Integer cantidadAsientos;
 }
