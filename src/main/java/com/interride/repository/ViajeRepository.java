@@ -133,7 +133,7 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     JOIN ubicacion ubi_origen ON ubi_origen.viaje_id = v.id
     JOIN ubicacion ubi_destino ON ubi_destino.pasajero_viaje_id = pv.id
     WHERE pv.pasajero_id = :idPasajero
-      AND v.estado = 'EN_CURSO';
+      AND pv.estado = 'EN_CURSO';
     """, nativeQuery = true)
     List<Object[]> getViajeEnCursoById(@Param("idPasajero") Integer idPasajero);
 
