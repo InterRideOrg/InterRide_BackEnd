@@ -196,4 +196,17 @@ public class PagoServiceImpl implements PagoService {
 
         return pagosPendientes.stream().map(pagoMapper::toResponse).toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PagoResponse> getPagosCompletadosByPasajeroId (Integer pasajeroId) {
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero con id " + pasajeroId + " no encontrado"));
+
+        List<Pago> pagosCompletados = pagoRepository.findByPagoCompletadoPasajeroId(pasajero.getId());
+        return pagosCompletados.stream()
+                .filter(pago -> pago.getEstado() == EstadoPago.COMPLETADO)
+                .map(pagoMapper::toResponse)
+                .toList();
+    }
 }

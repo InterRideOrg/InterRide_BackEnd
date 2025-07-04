@@ -18,6 +18,9 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
     @Query(value="SELECT p FROM Pago p WHERE p.pasajero.id = :id AND p.estado = com.interride.model.enums.EstadoPago.PENDIENTE")
     List<Pago> findByPagoPendientePasajeroId(@Param("id") Integer id);
 
+    @Query(value="SELECT p FROM Pago p WHERE p.pasajero.id = :id AND p.estado = com.interride.model.enums.EstadoPago.COMPLETADO")
+    List<Pago> findByPagoCompletadoPasajeroId(@Param("id") Integer id);
+
     //Duelve los pagos realizados en un año determinado divididos por mes
     @Query(value = "SELECT EXTRACT(MONTH FROM p.fecha_hora_pago) AS mes, SUM(p.monto) AS total " +
             "FROM Pago p " +

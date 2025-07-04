@@ -16,6 +16,7 @@ public interface PagoService {
     //List<PagoResponse> getPagosByViajeId(Integer viajeId);
 
     List<PagoResponse> getPagosPendientesByPasajeroId(Integer pasajeroId);
+    List<PagoResponse> getPagosCompletadosByPasajeroId(Integer pasajeroId);
     PagoResponse createPagoEfectivo(CreatePagoRequest pago);
     PagoResponse createPagoTarjeta(CreatePagoRequest request, Integer tarjetaId);
     PagoResponse completarPago(Integer id, Integer tarjetaId);
