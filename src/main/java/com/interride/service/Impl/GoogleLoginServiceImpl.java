@@ -8,6 +8,7 @@ import com.interride.exception.ResourceNotFoundException;
 import com.interride.model.entity.Usuario;
 import com.interride.security.TokenProvider;
 import com.interride.security.google.GoogleTokenVerifierUtil;
+import com.interride.service.GoogleLoginService;
 import com.interride.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class GoogleLoginServiceImpl {
+public class GoogleLoginServiceImpl implements GoogleLoginService {
 
     private final UsuarioService usuarioService;
     private final TokenProvider tokenProvider;
