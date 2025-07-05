@@ -137,6 +137,35 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
     """, nativeQuery = true)
     List<Object[]> getViajeEnCursoById(@Param("idPasajero") Integer idPasajero);
 
+
+    @Query(value = """
+    SELECT
+        v.id AS viaje_id,
+        c.nombres AS conductor_nombre,
+        c.apellidos AS conductor_apellido,
+        veh.modelo AS vehiculo_modelo,
+        veh.placa AS vehiculo_placa,
+        veh.marca AS vehiculo_marca,
+        veh.cantidad_asientos,
+        v.asientos_ocupados,
+        ubi_origen.longitud AS origen_longitud,
+        ubi_origen.latitud AS origen_latitud,
+        ubi_origen.provincia AS origen_provincia,
+        ubi_destino.longitud AS destino_longitud,
+        ubi_destino.latitud AS destino_latitud,
+        ubi_destino.provincia AS destino_provincia,
+        v.estado,
+        v.fecha_hora_partida
+    FROM viaje v
+    JOIN conductor c ON c.id = v.conductor_id
+    JOIN vehiculo veh ON veh.conductor_id = c.id
+    JOIN ubicacion ubi_origen ON ubi_origen.viaje_id = v.id
+    JOIN ubicacion ubi_destino ON ubi_destino.viaje_id = v.id
+    WHERE v.conductor_id = :idConductor
+      AND v.estado = 'EN_CURSO';
+    """, nativeQuery = true)
+    List<Object[] > getViajeEnCursoByConductorId(@Param("idConductor") Integer idConductor);
+
     @Query(value = """
     SELECT
         v.id AS viaje_id,
