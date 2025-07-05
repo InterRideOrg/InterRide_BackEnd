@@ -7,6 +7,9 @@ import com.interride.dto.request.PasajeroRegistrationRequest;
 
 import com.interride.dto.response.AuthResponse;
 import com.interride.dto.response.UsuarioResponse;
+import com.interride.model.entity.Usuario;
+
+import java.util.Optional;
 
 public interface UsuarioService {
 
@@ -18,7 +21,7 @@ public interface UsuarioService {
     UsuarioResponse obtenerPorPasajeroId(Integer pasajeroId);
     Integer obtenerPasajeroIdPorUsuarioId(Integer userId);
     Integer obtenerConductorIdPorUsuarioId(Integer userId);
-
+    Optional<Usuario> findByCorreo(String correo);
     AuthResponse login(LoginRequest request);
 
 
