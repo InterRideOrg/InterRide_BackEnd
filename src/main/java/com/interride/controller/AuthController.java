@@ -38,7 +38,7 @@ public class AuthController {
     private final ModelMapper modelMapper;
     private final ConductorService conductorService;
     private final UsuarioService usuarioService;
-    private final GoogleLoginServiceImpl googleLoginService;
+    private final GoogleLoginService googleLoginService;
 
 
     @PostMapping("/register/pasajero")
