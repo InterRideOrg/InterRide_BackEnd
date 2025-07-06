@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -299,4 +300,11 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         return usuario.getConductor().getId();
     }
+
+
+
+    public Optional<Usuario> findByCorreo(String correo) {
+        return usuarioRepository.findByCorreo(correo);
+    }
+
 }

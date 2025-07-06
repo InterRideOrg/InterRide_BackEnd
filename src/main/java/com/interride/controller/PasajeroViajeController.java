@@ -26,7 +26,7 @@ public class PasajeroViajeController {
     }
 
     @GetMapping("/{id_pasajero}/{id_viaje}")
-    @PreAuthorize("hasAnyRole('PASAJERO')")
+    @PreAuthorize("hasAnyRole('PASAJERO', 'CONDUCTOR')")
     public ResponseEntity<BoletoResponse> getBoletoByPasajeroIdAndViajeId(
             @PathVariable Integer id_pasajero,
             @PathVariable Integer id_viaje) {

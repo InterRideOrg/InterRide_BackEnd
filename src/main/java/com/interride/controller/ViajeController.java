@@ -43,6 +43,13 @@ public class ViajeController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/conductor/{id_conductor}/current")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
+    public ResponseEntity<ViajeEnCursoResponse> obtenerDetallesViajeEnCursoConductor(@PathVariable Integer id_conductor) {
+        ViajeEnCursoResponse response = viajeService.obtenerDetalleViajeEnCursoByConductorId(id_conductor);
+        return ResponseEntity.ok(response);
+    }
+
     // Conductor cancela viaje
     @PutMapping("/{id_viaje}/cancelar")
     @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR')")
