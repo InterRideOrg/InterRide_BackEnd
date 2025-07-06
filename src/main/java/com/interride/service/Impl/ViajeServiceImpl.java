@@ -19,12 +19,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.math.RoundingMode;
+import java.math.BigDecimal;
 
 @RequiredArgsConstructor
 @Service
@@ -412,7 +414,14 @@ public class ViajeServiceImpl implements ViajeService {
         //Ajustes del boleto
         boleto.setPasajero(pasajero);
         boleto.setViaje(viajeSolicitado);
-        boleto.setCosto(25.0); //Falta implementar logica para el costo real
+
+
+        //boleto.setCosto(25.0); //Falta implementar logica para el costo real
+
+        BigDecimal distancia = new BigDecimal(Math.sqrt(origen.getLatitud().pow(2).add(origen.getLongitud().pow(2)).doubleValue()))
+                .setScale(2, RoundingMode.HALF_UP);
+        boleto.setCosto(distancia.multiply(new BigDecimal("0.5")).doubleValue());
+
         boleto.setFechaHoraLLegada(LocalDateTime.now().plusDays(3));//Falta implementar logica para la fecha de llegada real
 
         //Guardar el boleto
