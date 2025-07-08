@@ -324,6 +324,18 @@ public class ViajeServiceImpl implements ViajeService {
         Viaje viaje = viajeRepository.findById(idViaje)
                 .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
 
+        // Verificar si el conductor existe
+        Conductor conductor = conductorRepository.findById(idConductor)
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
+
+        // Verificar que el conductor no tiene otro viaje en curso
+        List<Viaje> viajesEnCurso = viajeRepository.findByConductorIdAndState(conductor.getId(), EstadoViaje.EN_CURSO);
+
+        if (!viajesEnCurso.isEmpty()) {
+            throw new BusinessRuleException("Ya tiene un viaje en curso.");
+        }
+
+
         // Verificar si es la hora de inicio del viaje con margen de 30 minutos
         LocalDateTime horaInicioViaje = viaje.getFechaHoraPartida();
         LocalDateTime horaActual = LocalDateTime.now();
@@ -331,9 +343,7 @@ public class ViajeServiceImpl implements ViajeService {
             throw new BusinessRuleException("El viaje con ID " + idViaje + " no puede comenzar ahora. La hora de inicio es: " + horaInicioViaje);
         }
 
-        // Verificar si el conductor existe
-        Conductor conductor = conductorRepository.findById(idConductor)
-                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
+
 
         // Verificar si el viaje está en estado ACEPTADO
         if (!viaje.getEstado().equals(EstadoViaje.ACEPTADO)) {
