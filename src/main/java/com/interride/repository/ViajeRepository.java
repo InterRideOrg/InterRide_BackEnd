@@ -243,16 +243,17 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
 
 
     @Query("SELECT NEW com.interride.dto.response.ViajeCompletadoResponse(" +
-            "v.id, uo.provincia, ud.provincia, uo.direccion, v.fechaHoraPartida, " +
-            "SUM(pv.costo), AVG(c.estrellas)) " +
+            "v.id, uo.provincia, " +
+            "MIN(ud.provincia), uo.direccion, v.fechaHoraPartida, " +
+            "SUM(pv.costo), COALESCE(AVG(c.estrellas), 0.0)) " +
             "FROM Viaje v " +
             "JOIN Ubicacion uo ON uo.viaje.id = v.id " + // Origen
             "JOIN PasajeroViaje pv ON pv.viaje.id = v.id " +
-            "JOIN Ubicacion ud ON ud.pasajeroViaje.id = pv.id " + // Destino
-            "JOIN Calificacion c ON c.id = v.id " +
+            "LEFT JOIN Ubicacion ud ON ud.pasajeroViaje.id = pv.id " + // Destino (puede ser null)
+            "LEFT JOIN Calificacion c ON c.viaje.id = v.id " +
             "WHERE v.estado = com.interride.model.enums.EstadoViaje.COMPLETADO " +
             "AND v.conductor.id = :idConductor " +
-            "GROUP BY v.id , uo.provincia, ud.provincia, uo.direccion, v.fechaHoraPartida " +
+            "GROUP BY v.id, uo.provincia, uo.direccion, v.fechaHoraPartida " +
             "ORDER BY v.fechaHoraPartida DESC")
     List<ViajeCompletadoResponse> findViajesCompletadosByConductorId(
             @Param("idConductor") Integer idConductor
@@ -279,6 +280,12 @@ public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
 
     @Query("SELECT v FROM Viaje v WHERE v.conductor.id = :conductorId AND v.estado = :estado")
     List<Viaje> findByConductorIdAndEstado(
+            @Param("conductorId") Integer conductorId,
+            @Param("estado") EstadoViaje estado
+    );
+
+    @Query("SELECT v FROM Viaje v WHERE v.conductor.id = :conductorId AND v.estado = :estado")
+    List<Viaje> findByConductorIdAndState(
             @Param("conductorId") Integer conductorId,
             @Param("estado") EstadoViaje estado
     );
