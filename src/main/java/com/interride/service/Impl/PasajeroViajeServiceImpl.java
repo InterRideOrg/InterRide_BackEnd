@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,9 +123,13 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         viaje.setAsientosOcupados(viaje.getAsientosOcupados() + boleto.getAsientosOcupados());
 
         boleto.setFechaHoraUnion(LocalDateTime.now());
-        boleto.setCosto(25.0); //Falta logica para calcular el costo real
+
         boleto.setFechaHoraLLegada(LocalDateTime.now().plusDays(2)); //Falta logica para calcular la fecha de llegada real
         boleto.setEstado(EstadoViaje.ACEPTADO);
+
+        BigDecimal distancia = new BigDecimal(Math.sqrt(ubicacionRequest.latitud().pow(2).add(ubicacionRequest.longitud().pow(2)).doubleValue()))
+                .setScale(2, RoundingMode.HALF_UP);
+        boleto.setCosto(distancia.multiply(new BigDecimal("0.5")).doubleValue());
 
         PasajeroViaje boletoUnionCreado = pasajeroViajeRepository.save(boleto);
 
@@ -131,6 +137,8 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
 
         Ubicacion ubicacionDestinoGuardada = ubicacionRepository.save(ubicacionDestino);
         Ubicacion ubicacionOrigen = ubicacionRepository.findByViajeId(viaje.getId());
+
+
 
         return  new BoletoUnionResponse(
                 boletoUnionCreado.getId(),
