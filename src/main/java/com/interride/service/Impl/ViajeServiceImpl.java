@@ -432,7 +432,7 @@ public class ViajeServiceImpl implements ViajeService {
                 .setScale(2, RoundingMode.HALF_UP);
         boleto.setCosto(distancia.multiply(new BigDecimal("0.5")).doubleValue());
 
-        boleto.setFechaHoraLLegada(LocalDateTime.now().plusDays(3));//Falta implementar logica para la fecha de llegada real
+        boleto.setFechaHoraLLegada(viaje.getFechaHoraPartida().plusHours(4));//Falta implementar logica para la fecha de llegada real
 
         //Guardar el boleto
         PasajeroViaje boletoCreado = pasajeroViajeRepository.save(boleto);

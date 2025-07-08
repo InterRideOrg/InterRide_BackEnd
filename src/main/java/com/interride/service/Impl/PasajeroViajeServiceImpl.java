@@ -124,7 +124,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
 
         boleto.setFechaHoraUnion(LocalDateTime.now());
 
-        boleto.setFechaHoraLLegada(LocalDateTime.now().plusDays(2)); //Falta logica para calcular la fecha de llegada real
+        boleto.setFechaHoraLLegada(viaje.getFechaHoraPartida().plusHours(4)); //Falta logica para calcular la fecha de llegada real
         boleto.setEstado(EstadoViaje.ACEPTADO);
 
         BigDecimal distancia = new BigDecimal(Math.sqrt(ubicacionRequest.latitud().pow(2).add(ubicacionRequest.longitud().pow(2)).doubleValue()))
