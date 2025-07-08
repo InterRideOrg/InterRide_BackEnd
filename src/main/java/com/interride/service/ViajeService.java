@@ -28,7 +28,7 @@ public interface ViajeService {
 
     List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor);
 
-    ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor);
+    ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor) throws Exception;
 
     boolean empezarViaje(Integer idViaje, Integer idConductor);
 

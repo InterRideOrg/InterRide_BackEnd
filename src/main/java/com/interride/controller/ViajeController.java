@@ -86,7 +86,7 @@ public class ViajeController {
     public ResponseEntity<ViajeAceptadoResponse> aceptarViaje(
             @PathVariable("id_viaje") Integer idViaje,
             @PathVariable("id_conductor") Integer idConductor
-    ) {
+    ) throws Exception {
         ViajeAceptadoResponse response = viajeService.aceptarViaje(idViaje, idConductor);
         return ResponseEntity.ok(response);
     }

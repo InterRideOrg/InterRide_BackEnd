@@ -5,6 +5,8 @@ import com.interride.dto.response.*;
 
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
+import com.interride.integration.notification.email.dto.Mail;
+import com.interride.integration.notification.email.service.EmailService;
 import com.interride.mapper.PasajeroViajeMapper;
 import com.interride.mapper.UbicacionMapper;
 import com.interride.mapper.ViajeMapper;
@@ -13,6 +15,7 @@ import com.interride.model.enums.EstadoPago;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.*;
 import com.interride.service.ViajeService;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -24,9 +27,11 @@ import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.math.RoundingMode;
 import java.math.BigDecimal;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -39,10 +44,13 @@ public class ViajeServiceImpl implements ViajeService {
     private final PasajeroRepository pasajeroRepository;
     private final CalificacionRepository calificacionRepository;
     private final PagoRepository pagoRepository;
+    private final EmailService emailService;
 
     private final ViajeMapper viajeMapper;
     private final UbicacionMapper ubicacionMapper;
     private final PasajeroViajeMapper pasajeroViajeMapper;
+
+    private String mailFrom = "interrideorg@gmail.com";
 
     @Override
     @Transactional(readOnly = true)
@@ -263,7 +271,7 @@ public class ViajeServiceImpl implements ViajeService {
 
     @Override
     @Transactional
-    public ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor) {
+    public ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor) throws Exception {
         // Verificar si el viaje existe
         Viaje viaje = viajeRepository.findById(idViaje)
                 .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
@@ -275,7 +283,10 @@ public class ViajeServiceImpl implements ViajeService {
         // Obtener el ID de la ubicación de destino del viaje
         PasajeroViaje boletoInicial = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
 
+        Pasajero pasajero = pasajeroRepository.findById(boletoInicial.getPasajero().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("El pasajero con ID " + boletoInicial.getPasajero().getId() + " no existe."));
 
+        Usuario usuarioPasajero = pasajero.getUsuario();
 
         Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
 
@@ -310,6 +321,26 @@ public class ViajeServiceImpl implements ViajeService {
                 boletoInicial.getPasajero().getId(),
                 "Tu viaje de " + origen.getProvincia() + " a " + destino.getProvincia() + " ha sido aceptado por el conductor " + conductor.getNombre() + "."
         );
+        // Enviar correo al pasajero
+        String tripUrl = "http://localhost:5173/";
+        Map<String, Object> model = new HashMap<>();
+        model.put("user", usuarioPasajero.getCorreo());
+        model.put("conductor", conductor.getNombre() + " " + conductor.getApellidos());
+        model.put("origen", origen.getProvincia());
+        model.put("destino", destino.getProvincia());
+        model.put("tripUrl", tripUrl);
+
+
+
+
+        Mail mail = emailService.createEmail(
+                usuarioPasajero.getCorreo(),
+                "Viaje Aceptado",
+                model,
+                mailFrom
+        );
+
+        emailService.sendEmail(mail, "email/accepted-trip-template.html");
 
         notificacionRepository.save(notificacionPasajero);
 
