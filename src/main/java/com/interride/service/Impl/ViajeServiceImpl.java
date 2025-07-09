@@ -372,9 +372,9 @@ public class ViajeServiceImpl implements ViajeService {
         // Verificar si es la hora de inicio del viaje con margen de 30 minutos
         LocalDateTime horaInicioViaje = viaje.getFechaHoraPartida();
         LocalDateTime horaActual = LocalDateTime.now();
-        if (horaActual.isBefore(horaInicioViaje.minusMinutes(30)) || horaActual.isAfter(horaInicioViaje.plusMinutes(30))) {
+        /*if (horaActual.isBefore(horaInicioViaje.minusMinutes(30)) || horaActual.isAfter(horaInicioViaje.plusMinutes(30))) {
             throw new BusinessRuleException("El viaje con ID " + idViaje + " no puede comenzar ahora. La hora de inicio es: " + horaInicioViaje);
-        }
+        }*/
 
 
 

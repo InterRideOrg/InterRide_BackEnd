@@ -229,7 +229,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         //Crear el pago
         Pago pago = Pago.builder()
                 .estado(EstadoPago.PENDIENTE)
-                .monto(25.0)
+                .monto(boleto.getCosto())
                 .pasajero(boleto.getPasajero())
                 .conductor(conductor)
                 .viaje(viaje)
