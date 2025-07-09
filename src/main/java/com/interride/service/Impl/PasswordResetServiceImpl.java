@@ -49,7 +49,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         tokenRepository.save(passwordResetToken);
 
         Map<String, Object> model = new HashMap <>();
-        String resetUrl = "http://localhost:5173/forgot/" + passwordResetToken.getToken();
+        String resetUrl = "https://interride.netlify.app/forgot/" + passwordResetToken.getToken();
         model.put("user", usuario.getCorreo());
         model.put("resetUrl", resetUrl);
 

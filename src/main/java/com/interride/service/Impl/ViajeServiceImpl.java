@@ -322,7 +322,7 @@ public class ViajeServiceImpl implements ViajeService {
                 "Tu viaje de " + origen.getProvincia() + " a " + destino.getProvincia() + " ha sido aceptado por el conductor " + conductor.getNombre() + "."
         );
         // Enviar correo al pasajero
-        String tripUrl = "http://localhost:5173/";
+        String tripUrl = "https://interride.netlify.app";
         Map<String, Object> model = new HashMap<>();
         model.put("user", usuarioPasajero.getCorreo());
         model.put("conductor", conductor.getNombre() + " " + conductor.getApellidos());
