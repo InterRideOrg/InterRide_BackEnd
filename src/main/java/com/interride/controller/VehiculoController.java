@@ -30,18 +30,11 @@ public class VehiculoController {
         return ResponseEntity.ok(actualizado);
     }
 
-    @PostMapping("/registrar/{usuarioId}")
-    public ResponseEntity<VehiculoResponse> registrarVehiculo(
-            @PathVariable Integer usuarioId,
-            @RequestBody @Valid RegistroDeVehiculoRequest registroDeVehiculoRequest) {
-        VehiculoResponse registrado = vehiculoService.registrar(usuarioId, registroDeVehiculoRequest);
+    @PutMapping("/registrar/{conductorId}")
+    public ResponseEntity<Vehiculo> registrarVehiculo(
+            @PathVariable Integer conductorId,
+            @RequestBody RegistroDeVehiculoRequest registroDeVehiculoRequest) {
+        Vehiculo registrado = vehiculoService.registrar(conductorId, registroDeVehiculoRequest);
         return ResponseEntity.ok(registrado);
     }
-    @GetMapping("/{conductorId}")
-    @PreAuthorize("hasAnyRole('CONDUCTOR', 'ADMIN', 'PASAJERO')")
-    public ResponseEntity<VehiculoResponse> obtenerVehiculoPorConductorId(@PathVariable Integer conductorId) {
-        VehiculoResponse vehiculoResponse = vehiculoService.obtenerVehiculoPorConductorId(conductorId);
-        return ResponseEntity.ok(vehiculoResponse);
-    }
-
 }

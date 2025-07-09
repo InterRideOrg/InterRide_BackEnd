@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface ViajeService {
     List<PasajeroViajesResponse> getViajesByPasajeroId(Integer pasajeroId);
-    List<PasajeroViajesResponse> getViajesCompletadosByPasajeroId(Integer pasajeroId);
 
     ViajeSolicitadoResponse crearViajeSolicitado(Integer pasajeroId, ViajeSolicitadoRequest request);
 
@@ -20,29 +19,17 @@ public interface ViajeService {
 
     DetalleViajeResponse obtenerDetalleViaje(Integer idViaje, Integer idPasajero);
     ViajeEnCursoResponse obtenerDetalleViajeEnCurso(Integer idPasajero);
-    ViajeEnCursoResponse obtenerDetalleViajeEnCursoByConductorId(Integer idConductor);
     ViajeCanceladoResponse cancelarViaje(Integer idViaje);
 
-    List<ViajeDisponibleResponse> obtenerViajesDisponibles();
-    ViajeDisponibleResponse obtenerViajesDisponiblesByViajeId(Integer idViaje);
+    List<ViajeDisponibleResponse> obtenerViajesDisponibles(String provinciaOrigen, String provinciaDestino, LocalDate fechaViaje);
 
     List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor);
 
-    ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor) throws Exception;
+    ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor);
 
     boolean empezarViaje(Integer idViaje, Integer idConductor);
 
-    List<ViajeSolicitadoResponse> obtenerViajesSolicitados();
-
     ViajeCompletadoConductorResponse verDetalleViajeCompletadoPorConductor(Integer idViaje);
-
-    ViajeSolicitadoResponse obtenerDetalleViajeSolicitado(Integer idViaje);
-
-    ViajeEnCursoResponse getViajeAceptadoByPasajeroId(Integer pasajeroId);
-
-    List<ViajeAceptadoResponse> obtenerViajesAceptadosPorConductor(Integer idConductor);
-
-    ViajeAceptadoResponse getViajeAceptadoById(Integer viajeId);
 
 }
 

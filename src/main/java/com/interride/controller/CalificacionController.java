@@ -34,14 +34,14 @@ public class CalificacionController {
         List<CalificacionResponse> calificacionesPorViaje = calificacionService.findByViajeId(id);
         return new ResponseEntity<>(calificacionesPorViaje, HttpStatus.OK);
     }
-/*
+
     @GetMapping("/conductor/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
     public ResponseEntity<CalificacionPromedioConductorResponse> getCalificacionPromedioYComentariosByConductorId(@PathVariable Integer id){
         CalificacionPromedioConductorResponse calificaciones = calificacionService.findAverageRatingAndCommentsByConductorId(id);
         return ResponseEntity.ok(calificaciones);
     }
-*/
+
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
     public ResponseEntity<CalificacionResponse> createCalificacion(@Valid @RequestBody CreateCalificacionRequest calificacion){
@@ -62,14 +62,5 @@ public class CalificacionController {
     public ResponseEntity<CalificacionResponse> deleteCalificacion(@PathVariable Integer id){
         calificacionService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @GetMapping("/{pasajeroId}/{viajeId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR', 'PASAJERO')")
-    public ResponseEntity<CalificacionResponse> getCalificacionByPasajeroIdAndViajeId(
-            @PathVariable Integer pasajeroId,
-            @PathVariable Integer viajeId) {
-        CalificacionResponse calificacion = calificacionService.getByPasajeroIdAndViajeId(pasajeroId, viajeId);
-        return ResponseEntity.ok(calificacion);
     }
 }

@@ -2,7 +2,6 @@ package com.interride.controller;
 
 import com.interride.dto.request.ActualizarPasajeroPerfilRequest;
 import com.interride.dto.response.NotificacionPasajeroResponse;
-import com.interride.dto.response.PasajeroPerfilPrivadoResponse;
 import com.interride.dto.response.PasajeroPerfilPublicoResponse;
 import com.interride.service.NotificacionService;
 import com.interride.service.PasajeroService;
@@ -39,18 +38,4 @@ public class PasajeroController {
         List<NotificacionPasajeroResponse> notificaciones = notificacionService.obtenerNotificacionesPasajero(id);
         return ResponseEntity.ok(notificaciones);
     }
-
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO','CONDUCTOR')")
-    @GetMapping("/{id}")
-    public PasajeroPerfilPublicoResponse obtenerPerfilPublicoPasajero(@PathVariable Integer id) {
-        return pasajeroService.obtenerPerfilPasajero(id);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
-    @GetMapping("/priv/{id}")
-    public PasajeroPerfilPrivadoResponse obtenerPerfilPrivadoPasajero(@PathVariable Integer id) {
-        return pasajeroService.obtenerPerfilPrivadoPasajero(id);
-    }
-
 }

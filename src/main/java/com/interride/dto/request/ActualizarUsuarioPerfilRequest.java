@@ -14,8 +14,8 @@ public record ActualizarUsuarioPerfilRequest(
         String telefono,
 
         @NotBlank(message = "El correo electrónico no puede estar vacío")
-        String correo
+        String correo,
 
-//        @NotBlank(message = "El nombre de usuario no puede estar vacío")
-//        String username
+        @NotBlank(message = "El nombre de usuario no puede estar vacío")
+        String username
 ) { }

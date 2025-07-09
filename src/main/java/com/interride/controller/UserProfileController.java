@@ -36,31 +36,4 @@ public class UserProfileController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/pasajero/{id_pasajero}")
-    @PreAuthorize("hasAnyRole('PASAJERO', 'CONDUCTOR')")
-    public ResponseEntity<UsuarioResponse> getPasajeroProfile(@PathVariable Integer id_pasajero) {
-        UsuarioResponse response = usuarioService.obtenerPorPasajeroId(id_pasajero);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/conductor/{id_conductor}")
-    @PreAuthorize("hasAnyRole('CONDUCTOR', 'PASAJERO')")
-    public ResponseEntity<UsuarioResponse> getConductorProfile(@PathVariable Integer id_conductor) {
-        UsuarioResponse response = usuarioService.obtenerPorConductorId(id_conductor);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/PassengerId/{id_user}")
-    @PreAuthorize("hasAnyRole('CONDUCTOR', 'PASAJERO', 'ADMIN')")
-    public ResponseEntity<Integer> getPassengerIdByUserId(@PathVariable Integer id_user) {
-        Integer passengerId = usuarioService.obtenerPasajeroIdPorUsuarioId(id_user);
-        return new ResponseEntity<>(passengerId, HttpStatus.OK);
-    }
-
-    @GetMapping("/DriverId/{id_user}")
-    @PreAuthorize("hasAnyRole('CONDUCTOR', 'PASAJERO', 'ADMIN')")
-    public ResponseEntity<Integer> getConductorIdByUserId(@PathVariable Integer id_user) {
-        Integer passengerId = usuarioService.obtenerConductorIdPorUsuarioId(id_user);
-        return new ResponseEntity<>(passengerId, HttpStatus.OK);
-    }
 }

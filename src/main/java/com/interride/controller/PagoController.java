@@ -27,27 +27,6 @@ public class PagoController {
         return ResponseEntity.ok(pagosPorPasajero);
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO', 'CONDUCTOR')")
-    public ResponseEntity<PagoResponse> getPagoById(@PathVariable Integer id){
-        PagoResponse pago = pagoService.getPagoById(id);
-        return ResponseEntity.ok(pago);
-    }
-
-    @GetMapping("/pendientes/pasajero/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
-    public ResponseEntity<List<PagoResponse>> getPagosPendientesByPasajeroId(@PathVariable Integer id){
-        List<PagoResponse> pagosPendientes = pagoService.getPagosPendientesByPasajeroId(id);
-        return ResponseEntity.ok(pagosPendientes);
-    }
-
-    @GetMapping("/completados/pasajero/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
-    public ResponseEntity<List<PagoResponse>> getPagosCompletadosByPasajeroId(@PathVariable Integer id){
-        List<PagoResponse> pagosPendientes = pagoService.getPagosCompletadosByPasajeroId(id);
-        return ResponseEntity.ok(pagosPendientes);
-    }
-
     @PostMapping("/tarjeta/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
     public ResponseEntity<PagoResponse> createPagoTarjeta(@PathVariable Integer id, @Valid @RequestBody CreatePagoRequest request){
@@ -62,10 +41,10 @@ public class PagoController {
         return ResponseEntity.ok(pago);
     }
 
-    @PutMapping("/{id}/{tarjetaId}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PASAJERO')")
-    public ResponseEntity<PagoResponse> completarPago(@PathVariable Integer id, @PathVariable Integer tarjetaId){
-        PagoResponse pago = pagoService.completarPago(id, tarjetaId);
+    public ResponseEntity<PagoResponse> completarPago(@PathVariable Integer id){
+        PagoResponse pago = pagoService.completarPago(id);
         return ResponseEntity.ok(pago);
     }
 

@@ -46,5 +46,4 @@ public class NotificacionController {
         return ResponseEntity.ok(notificacionService.listarPorConductor(conductorId, orden));
     }
 
-
 }

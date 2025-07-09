@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateCalificacionRequest(
-        @NotNull(message = "La cantidad de estrellas son obligatoria")
         Integer estrellas,
 
         @Size(max = 255, message = "El comentario no puede superar los 255 caracteres")

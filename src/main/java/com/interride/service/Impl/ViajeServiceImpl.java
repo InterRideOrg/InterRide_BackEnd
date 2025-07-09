@@ -5,33 +5,24 @@ import com.interride.dto.response.*;
 
 import com.interride.exception.BusinessRuleException;
 import com.interride.exception.ResourceNotFoundException;
-import com.interride.integration.notification.email.dto.Mail;
-import com.interride.integration.notification.email.service.EmailService;
 import com.interride.mapper.PasajeroViajeMapper;
 import com.interride.mapper.UbicacionMapper;
 import com.interride.mapper.ViajeMapper;
 import com.interride.model.entity.*;
-import com.interride.model.enums.EstadoPago;
 import com.interride.model.enums.EstadoViaje;
 import com.interride.repository.*;
 import com.interride.service.ViajeService;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.math.RoundingMode;
-import java.math.BigDecimal;
-import java.util.Map;
+
 
 @RequiredArgsConstructor
 @Service
@@ -43,17 +34,12 @@ public class ViajeServiceImpl implements ViajeService {
     private final UbicacionRepository ubicacionRepository;
     private final PasajeroRepository pasajeroRepository;
     private final CalificacionRepository calificacionRepository;
-    private final PagoRepository pagoRepository;
-    private final EmailService emailService;
 
     private final ViajeMapper viajeMapper;
     private final UbicacionMapper ubicacionMapper;
     private final PasajeroViajeMapper pasajeroViajeMapper;
 
-    private String mailFrom = "interrideorg@gmail.com";
-
     @Override
-    @Transactional(readOnly = true)
     public List<PasajeroViajesResponse> getViajesByPasajeroId(Integer pasajeroId) {
         List<Object[]> resultados = viajeRepository.getViajesByPasajeroId(pasajeroId);
         // Verificar si se encontraron resultados
@@ -72,28 +58,7 @@ public class ViajeServiceImpl implements ViajeService {
         )).toList();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<PasajeroViajesResponse> getViajesCompletadosByPasajeroId(Integer pasajeroId){
-        List<Object[]> resultados = viajeRepository.getViajesCompletadosByPasajeroId(pasajeroId);
-        // Verificar si se encontraron resultados
-        if (resultados.isEmpty()) {
-            throw new ResourceNotFoundException("No se encontraron viajes completados para el pasajero con id: " + pasajeroId);
-        }
-        return resultados.stream().map(obj -> new PasajeroViajesResponse(
-                (Integer) obj[0],
-                ((Timestamp) obj[1]).toLocalDateTime(), // Convertir
-                EstadoViaje.valueOf((String) obj[2]),    // Convertir string a enum
-                (String) obj[3],
-                (String) obj[4],
-                ((Timestamp) obj[5]).toLocalDateTime(), // Convertir
-                ((Timestamp) obj[6]).toLocalDateTime(), // Convertir
-                ((Number) obj[7]).doubleValue()
-        )).toList();
-    }
 
-    @Override
-    @Transactional(readOnly = true)
     public DetalleViajeResponse obtenerDetalleViajeNoCancelado(Integer idViaje, Integer idPasajero) {
         List<Object[]> obj = viajeRepository.getDetalleViajeById(idViaje, idPasajero);
 
@@ -115,8 +80,6 @@ public class ViajeServiceImpl implements ViajeService {
         return response;
     }
 
-    @Override
-    @Transactional(readOnly = true)
     public DetalleViajeResponse obtenerDetalleViajeCancelado(Integer idViaje) {
         List<Object[]> obj = viajeRepository.getDetalleViajeCancelado(idViaje);
 
@@ -137,8 +100,6 @@ public class ViajeServiceImpl implements ViajeService {
         return response;
     }
 
-    @Override
-    @Transactional(readOnly = true)
     public DetalleViajeResponse obtenerDetalleViaje(Integer idViaje, Integer idPasajero) {
         DetalleViajeResponse detalleViajeResponse;
 
@@ -153,8 +114,6 @@ public class ViajeServiceImpl implements ViajeService {
         return detalleViajeResponse;
     }
 
-    @Override
-    @Transactional(readOnly = true)
     public ViajeEnCursoResponse obtenerDetalleViajeEnCurso(Integer idPasajero) {
         List<Object[]> obj = viajeRepository.getViajeEnCursoById(idPasajero);
 
@@ -243,35 +202,28 @@ public class ViajeServiceImpl implements ViajeService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ViajeDisponibleResponse> obtenerViajesDisponibles() {
-        return viajeRepository.findViajesDisponibles();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ViajeDisponibleResponse obtenerViajesDisponiblesByViajeId(Integer viajeId) {
-        Viaje viaje = viajeRepository.findById(viajeId)
-                .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + viajeId + " no existe."));
-
-        if(viaje.getEstado() != EstadoViaje.ACEPTADO) {
-            throw new BusinessRuleException("El viaje con ID " + viajeId + " no está en estado ACEPTADO y no puede ser consultado.");
+    public List<ViajeDisponibleResponse> obtenerViajesDisponibles(String provinciaOrigen, String provinciaDestino, LocalDate fechaViaje){
+        /* Sera descomentado en la fase de produccion
+        if(fechaViaje.isBefore(LocalDate.now())){
+            throw  new RuntimeException("La fecha del viaje tiene que ser posterior o igual al de hoy");
         }
-
-        return viajeRepository.findViajesDisponiblesByViajeId(viaje.getId());
+        */
+        return viajeRepository.findViajesDisponibles(
+                provinciaOrigen,
+                provinciaDestino,
+                fechaViaje
+        );
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ViajeCompletadoResponse> obtenerViajesCompletados(Integer idConductor) {
-        Conductor conductor = conductorRepository.findById(idConductor)
-                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
-
-        return viajeRepository.findViajesCompletadosByConductorId(conductor.getId());
+        return viajeRepository.findViajesCompletadosByConductorId(idConductor);
     }
 
     @Override
     @Transactional
-    public ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor) throws Exception {
+    public ViajeAceptadoResponse aceptarViaje(Integer idViaje, Integer idConductor) {
         // Verificar si el viaje existe
         Viaje viaje = viajeRepository.findById(idViaje)
                 .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
@@ -283,10 +235,7 @@ public class ViajeServiceImpl implements ViajeService {
         // Obtener el ID de la ubicación de destino del viaje
         PasajeroViaje boletoInicial = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
 
-        Pasajero pasajero = pasajeroRepository.findById(boletoInicial.getPasajero().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("El pasajero con ID " + boletoInicial.getPasajero().getId() + " no existe."));
 
-        Usuario usuarioPasajero = pasajero.getUsuario();
 
         Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
 
@@ -321,26 +270,6 @@ public class ViajeServiceImpl implements ViajeService {
                 boletoInicial.getPasajero().getId(),
                 "Tu viaje de " + origen.getProvincia() + " a " + destino.getProvincia() + " ha sido aceptado por el conductor " + conductor.getNombre() + "."
         );
-        // Enviar correo al pasajero
-        String tripUrl = "http://localhost:5173/";
-        Map<String, Object> model = new HashMap<>();
-        model.put("user", usuarioPasajero.getCorreo());
-        model.put("conductor", conductor.getNombre() + " " + conductor.getApellidos());
-        model.put("origen", origen.getProvincia());
-        model.put("destino", destino.getProvincia());
-        model.put("tripUrl", tripUrl);
-
-
-
-
-        Mail mail = emailService.createEmail(
-                usuarioPasajero.getCorreo(),
-                "Viaje Aceptado",
-                model,
-                mailFrom
-        );
-
-        emailService.sendEmail(mail, "email/accepted-trip-template.html");
 
         notificacionRepository.save(notificacionPasajero);
 
@@ -357,18 +286,6 @@ public class ViajeServiceImpl implements ViajeService {
         Viaje viaje = viajeRepository.findById(idViaje)
                 .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + idViaje + " no existe."));
 
-        // Verificar si el conductor existe
-        Conductor conductor = conductorRepository.findById(idConductor)
-                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
-
-        // Verificar que el conductor no tiene otro viaje en curso
-        List<Viaje> viajesEnCurso = viajeRepository.findByConductorIdAndState(conductor.getId(), EstadoViaje.EN_CURSO);
-
-        if (!viajesEnCurso.isEmpty()) {
-            throw new BusinessRuleException("Ya tiene un viaje en curso.");
-        }
-
-
         // Verificar si es la hora de inicio del viaje con margen de 30 minutos
         LocalDateTime horaInicioViaje = viaje.getFechaHoraPartida();
         LocalDateTime horaActual = LocalDateTime.now();
@@ -376,7 +293,9 @@ public class ViajeServiceImpl implements ViajeService {
             throw new BusinessRuleException("El viaje con ID " + idViaje + " no puede comenzar ahora. La hora de inicio es: " + horaInicioViaje);
         }
 
-
+        // Verificar si el conductor existe
+        Conductor conductor = conductorRepository.findById(idConductor)
+                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
 
         // Verificar si el viaje está en estado ACEPTADO
         if (!viaje.getEstado().equals(EstadoViaje.ACEPTADO)) {
@@ -403,26 +322,12 @@ public class ViajeServiceImpl implements ViajeService {
                 "El viaje con ID " + idViaje + " ha comenzado.",
                 conductor.getId()
         );
-        // Enviar notificación a los pasajeros y generar pagos pandientes
+        // Enviar notificación a los pasajeros
         for (PasajeroViaje boleto : boletos) {
             notificacionRepository.enviarNotificacionPasajero(
                     "El viaje con ID " + idViaje + " ha comenzado.",
                     boleto.getPasajero().getId()
             );
-
-            /* Ahora el pago se crea cuando el pasajero aborda el viaje
-            Pago pago = Pago.builder()
-                    .estado(EstadoPago.PENDIENTE)
-                    .monto(25.0)
-                    .pasajero(boleto.getPasajero())
-                    .conductor(conductor)
-                    .viaje(viaje)
-                    .fechaHoraPago(LocalDateTime.now())
-                    .build();
-
-            pagoRepository.save(pago);
-
-             */
         }
 
         // Crear la respuesta
@@ -439,10 +344,6 @@ public class ViajeServiceImpl implements ViajeService {
         Pair<Ubicacion, Ubicacion> origenANDdestino = ubicacionMapper.OrigenDestinotoEntity(request);
         Ubicacion origen = origenANDdestino.getFirst();
         Ubicacion destino = origenANDdestino.getSecond();
-        // Eliminar los valores numericos al final de las provincias
-        origen.setProvincia(origen.getProvincia().replaceAll("\\s*\\d+$", ""));
-        destino.setProvincia(destino.getProvincia().replaceAll("\\s*\\d+$", ""));
-
         PasajeroViaje boleto = pasajeroViajeMapper.toEntity(request);
 
         if(boleto.getAsientosOcupados() <= 0){
@@ -455,15 +356,8 @@ public class ViajeServiceImpl implements ViajeService {
         //Ajustes del boleto
         boleto.setPasajero(pasajero);
         boleto.setViaje(viajeSolicitado);
-
-
-        //boleto.setCosto(25.0); //Falta implementar logica para el costo real
-
-        BigDecimal distancia = new BigDecimal(Math.sqrt(origen.getLatitud().pow(2).add(origen.getLongitud().pow(2)).doubleValue()))
-                .setScale(2, RoundingMode.HALF_UP);
-        boleto.setCosto(distancia.multiply(new BigDecimal("0.5")).doubleValue());
-
-        boleto.setFechaHoraLLegada(viaje.getFechaHoraPartida().plusHours(4));//Falta implementar logica para la fecha de llegada real
+        boleto.setCosto(25.0); //Falta implementar logica para el costo real
+        boleto.setFechaHoraLLegada(LocalDateTime.now().plusDays(3));//Falta implementar logica para la fecha de llegada real
 
         //Guardar el boleto
         PasajeroViaje boletoCreado = pasajeroViajeRepository.save(boleto);
@@ -485,14 +379,13 @@ public class ViajeServiceImpl implements ViajeService {
 
 
     @Override
-    @Transactional(readOnly = true)
     public ViajeCompletadoConductorResponse verDetalleViajeCompletadoPorConductor(Integer viajeId) {
         Viaje viaje = viajeRepository.findById(viajeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con ID: " + viajeId));
 
         List<PasajeroViaje> pasajerosViaje = pasajeroViajeRepository.findPasajerosCompletadosByViajeId(viajeId);
         if (pasajerosViaje.isEmpty()) {
-            throw new ResourceNotFoundException("No se encontraron pasajeros para este viaje.");
+            throw new ResourceNotFoundException("No se encontraron pasajeros completados para este viaje.");
         }
 
         Ubicacion ubicacion = ubicacionRepository.findByViajeId(viajeId);
@@ -501,165 +394,6 @@ public class ViajeServiceImpl implements ViajeService {
         return ViajeMapper.toDetalleViajeConductorResponse(viaje, ubicacion, pasajerosViaje, calificaciones);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ViajeSolicitadoResponse> obtenerViajesSolicitados(){
-        List<Viaje> viajesSolicitados = viajeRepository.findByEstado(EstadoViaje.SOLICITADO);
-        if (viajesSolicitados.isEmpty()) {
-            throw new ResourceNotFoundException("No se encontraron viajes solicitados.");
-        }
 
-        return viajesSolicitados.stream()
-                .map(viaje -> {
-                    PasajeroViaje boleto = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
-                    Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
-                    Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boleto.getId());
-                    return viajeMapper.toViajeSolicitadoResponse(viaje, boleto, origen, destino);
-                })
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ViajeSolicitadoResponse obtenerDetalleViajeSolicitado(Integer idViaje) {
-        Viaje viaje = viajeRepository.findById(idViaje)
-                .orElseThrow(() -> new ResourceNotFoundException("El viaje solicitado con ID " + idViaje + " no existe."));
-
-        if (viaje.getEstado() != EstadoViaje.SOLICITADO) {
-            throw new BusinessRuleException("El viaje con ID " + idViaje + " no está en estado SOLICITADO.");
-        }
-
-        PasajeroViaje boleto = pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje);
-        if (boleto == null) {
-            throw new ResourceNotFoundException("No se encontró un boleto inicial para el viaje con ID " + idViaje + ".");
-        }
-
-        Ubicacion origen = ubicacionRepository.findByViajeId(idViaje);
-        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boleto.getId());
-
-        return viajeMapper.toViajeSolicitadoResponse(viaje, boleto, origen, destino);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ViajeEnCursoResponse getViajeAceptadoByPasajeroId(Integer pasajeroId) {
-        List<Object[]> obj = viajeRepository.getViajeAceptadoByPasajeroId(pasajeroId);
-
-        if (obj.isEmpty()) {
-            throw new ResourceNotFoundException("No hay viajes aceptados para el pasajero con id: " + pasajeroId);
-        }
-
-        Object[] viaje = obj.getFirst();
-
-        ViajeEnCursoResponse response = new ViajeEnCursoResponse();
-        response.setId((Integer) viaje[0]);
-        response.setNombreConductor((String) viaje[1]);
-        response.setApellidoConductor((String) viaje[2]);
-        response.setModeloVehiculo((String) viaje[3]);
-        response.setPlacaVehiculo((String) viaje[4]);
-        response.setMarcaVehiculo((String) viaje[5]);
-        response.setCantidadAsientos((Integer) viaje[6]);
-        response.setAsientosOcupados((Integer) viaje[7]);
-        response.setOrigenLongitud(((Number) viaje[8]).doubleValue());
-        response.setOrigenLatitud(((Number) viaje[9]).doubleValue());
-        response.setOrigenProvincia((String) viaje[10]);
-        response.setDestinoLongitud(((Number) viaje[11]).doubleValue());
-        response.setDestinoLatitud(((Number) viaje[12]).doubleValue());
-        response.setDestinoProvincia((String) viaje[13]);
-        response.setEstadoViaje(EstadoViaje.valueOf((String) viaje[14]));
-        response.setFecha_hora_partida(((Timestamp) viaje[15]).toLocalDateTime());
-
-        return response;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ViajeAceptadoResponse> obtenerViajesAceptadosPorConductor(Integer idConductor){
-        Conductor conductor = conductorRepository.findById(idConductor)
-                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
-
-        List<Viaje> viajesAceptados = viajeRepository.findByConductorIdAndEstado(conductor.getId(), EstadoViaje.ACEPTADO);
-        List<Ubicacion> origenes = new ArrayList<>();
-        List<Ubicacion> destinos = new ArrayList<>();
-
-        List<ViajeAceptadoResponse> viajeAceptadoResponses = new ArrayList<>();
-
-        if (viajesAceptados.isEmpty()) {
-            return viajeAceptadoResponses; // Retorna una lista vacía si no hay viajes aceptados
-        }
-
-        for (Viaje viaje : viajesAceptados) {
-            Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
-            Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId()).getId());
-            origenes.add(origen);
-            destinos.add(destino);
-        }
-
-
-
-        for (int i = 0; i < viajesAceptados.size(); i++) {
-            Viaje viaje = viajesAceptados.get(i);
-            Ubicacion origen = origenes.get(i);
-            Ubicacion destino = destinos.get(i);
-            viajeAceptadoResponses.add(viajeMapper.toViajeAceptadoResponse(viaje, conductor, origen, destino));
-        }
-
-
-
-        return viajeAceptadoResponses;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ViajeAceptadoResponse getViajeAceptadoById(Integer viajeId){
-        Viaje viaje = viajeRepository.findById(viajeId)
-                .orElseThrow(() -> new ResourceNotFoundException("El viaje con ID " + viajeId + " no existe."));
-
-        Conductor conductor = conductorRepository.findById(viaje.getConductor().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + viaje.getConductor().getId() + " no existe."));
-
-        if(viaje.getEstado() != EstadoViaje.ACEPTADO) {
-            throw new BusinessRuleException("El viaje con ID " + viajeId + " no está en estado ACEPTADO.");
-        }
-
-        Ubicacion origen= ubicacionRepository.findByViajeId(viaje.getId());
-        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId()).getId());
-
-
-
-        return viajeMapper.toViajeAceptadoResponse(viaje, conductor, origen, destino);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ViajeEnCursoResponse obtenerDetalleViajeEnCursoByConductorId(Integer idConductor) {
-        List<Object[]> obj = viajeRepository.getViajeEnCursoByConductorId(idConductor);
-
-        if (obj.isEmpty()) {
-            throw new ResourceNotFoundException("No hay viajes en curso para el conductor con id: " + idConductor);
-        }
-
-        Object[] viaje = obj.getFirst();
-
-        ViajeEnCursoResponse response = new ViajeEnCursoResponse();
-        response.setId((Integer) viaje[0]);
-        response.setNombreConductor((String) viaje[1]);
-        response.setApellidoConductor((String) viaje[2]);
-        response.setModeloVehiculo((String) viaje[3]);
-        response.setPlacaVehiculo((String) viaje[4]);
-        response.setMarcaVehiculo((String) viaje[5]);
-        response.setCantidadAsientos((Integer) viaje[6]);
-        response.setAsientosOcupados((Integer) viaje[7]);
-        response.setOrigenLongitud(((Number) viaje[8]).doubleValue());
-        response.setOrigenLatitud(((Number) viaje[9]).doubleValue());
-        response.setOrigenProvincia((String) viaje[10]);
-        response.setDestinoLongitud(((Number) viaje[11]).doubleValue());
-        response.setDestinoLatitud(((Number) viaje[12]).doubleValue());
-        response.setDestinoProvincia((String) viaje[13]);
-        response.setEstadoViaje(EstadoViaje.valueOf((String) viaje[14]));
-        response.setFecha_hora_partida(((Timestamp) viaje[15]).toLocalDateTime());
-
-        return response;
-    }
 }
 

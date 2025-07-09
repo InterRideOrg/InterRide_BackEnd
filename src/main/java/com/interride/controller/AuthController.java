@@ -1,7 +1,6 @@
 package com.interride.controller;
 
 import com.interride.dto.request.ConductorRegistroRequest;
-import com.interride.dto.request.GoogleLoginRequest;
 import com.interride.dto.response.ConductorRegistroResponse;
 import com.interride.dto.request.LoginRequest;
 import com.interride.dto.request.PasajeroRegistrationRequest;
@@ -13,14 +12,15 @@ import com.interride.mapper.PasajeroMapper;
 import com.interride.model.entity.Pasajero;
 import com.interride.security.TokenProvider;
 import com.interride.security.UserPrincipal;
-import com.interride.service.*;
-import com.interride.service.Impl.GoogleLoginServiceImpl;
+import com.interride.service.ConductorService;
+import com.interride.service.PasajeroService;
+import com.interride.service.PasswordResetService;
+import com.interride.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +38,6 @@ public class AuthController {
     private final ModelMapper modelMapper;
     private final ConductorService conductorService;
     private final UsuarioService usuarioService;
-    private final GoogleLoginService googleLoginService;
 
 
     @PostMapping("/register/pasajero")
@@ -58,11 +57,6 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = usuarioService.login(request);
         return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/google-login")
-    public ResponseEntity<AuthResponse> loginWithGoogle(@RequestBody GoogleLoginRequest request) {
-        return ResponseEntity.ok(googleLoginService.loginWithGoogle(request));
     }
 
 /*

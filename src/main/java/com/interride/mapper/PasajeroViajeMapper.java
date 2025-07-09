@@ -3,10 +3,8 @@ package com.interride.mapper;
 import com.interride.dto.request.PasajeroViajeRequest;
 import com.interride.dto.request.ViajeSolicitadoRequest;
 import com.interride.dto.response.BoletoCompletadoResponse;
-import com.interride.dto.response.BoletoResponse;
 import com.interride.model.entity.Pasajero;
 import com.interride.model.entity.PasajeroViaje;
-import com.interride.model.entity.Ubicacion;
 import com.interride.model.entity.Viaje;
 import com.interride.model.enums.EstadoViaje;
 import org.springframework.stereotype.Component;
@@ -49,7 +47,7 @@ public class PasajeroViajeMapper {
                 .build();
     }
 
-    public BoletoCompletadoResponse toBoletoCompletadoResponse(PasajeroViaje boleto, String mensaje) {
+    public BoletoCompletadoResponse toBoletoResponse(PasajeroViaje boleto, String mensaje) {
         if(boleto == null) {
             return null;
         }
@@ -61,32 +59,6 @@ public class PasajeroViajeMapper {
                 boleto.getPasajero().getId(),
                 boleto.getViaje().getId(),
                 mensaje
-        );
-    }
-
-    public BoletoResponse toBoletoResponse(PasajeroViaje boleto, Ubicacion origen, Ubicacion destino, Viaje viaje) {
-        if(boleto == null) {
-            return null;
-        }
-        return new BoletoResponse(
-                boleto.getId(),
-                boleto.getViaje().getId(),
-                boleto.getPasajero().getId(),
-                (viaje.getConductor() != null ?
-                        viaje.getConductor().getId() :
-                        null
-                ),
-                viaje.getFechaHoraPartida().toString(),
-                boleto.getFechaHoraLLegada().toString(),
-                boleto.getFechaHoraUnion().toString(),
-                boleto.getAsientosOcupados(),
-                boleto.getCosto(),
-                boleto.getEstado().toString(),
-                boleto.getAbordo(),
-                origen.getProvincia(),
-                destino.getProvincia(),
-                origen.getDireccion(),
-                destino.getDireccion()
         );
     }
 }

@@ -87,12 +87,4 @@ public class TokenProvider {
             return false;  // El token no es válido
         }
     }
-
-    public String getCorreoFromToken(String token) {
-        return jwtParser.parseClaimsJws(token).getBody().getSubject();
-    }
-
-    public String getRolFromToken(String token) {
-        return jwtParser.parseClaimsJws(token).getBody().get("role", String.class);
-    }
 }

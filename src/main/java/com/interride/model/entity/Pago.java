@@ -21,9 +21,8 @@ public class Pago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado", nullable = false, length = 20)
-    private EstadoPago estado;
+    @Column(name = "estado", nullable = false)
+    EstadoPago estado;
 
     @Column(name = "fecha_hora_pago", nullable = false)
     private LocalDateTime fechaHoraPago;

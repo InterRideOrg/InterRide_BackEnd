@@ -1,13 +1,9 @@
 package com.interride.dto.request;
 
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@RequiredArgsConstructor
 public class PasajeroRegistrationRequest {
     @NotBlank(message = "El nombre no puede estar vacío")
     private String nombre;
