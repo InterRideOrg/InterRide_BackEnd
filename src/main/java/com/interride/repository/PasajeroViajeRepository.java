@@ -1,6 +1,7 @@
 package com.interride.repository;
 
 import com.interride.model.entity.PasajeroViaje;
+import com.interride.model.enums.EstadoViaje;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,9 +14,19 @@ public interface PasajeroViajeRepository extends JpaRepository<PasajeroViaje, In
     PasajeroViaje findBoletoInicialIdByViajeId(@Param("id") Integer viajeId);
 
     @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId " +
-            "AND pv.estado = 'ACEPTADO'")
+            "AND (pv.estado = 'ACEPTADO' or pv.estado = 'EN_CURSO')")
     List<PasajeroViaje> findPasajerosAceptadosByViajeId(@Param("viajeId") Integer viajeId);
 
     @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId AND pv.estado = 'COMPLETADO'")
     List<PasajeroViaje> findPasajerosCompletadosByViajeId(@Param("viajeId") Integer viajeId);
+
+    @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId AND pv.pasajero.id = :pasajeroId")
+    PasajeroViaje findByPasajeroIdAndViajeId(Integer pasajeroId, Integer viajeId);
+
+    @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.pasajero.id = :pasajeroId AND pv.estado = :estado")
+    List<PasajeroViaje> findByPasajeroIdAndEstado(Integer pasajeroId, EstadoViaje estado);
+
+
+    @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId")
+    List<PasajeroViaje> findByViajeId(Integer viajeId);
 }

@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -161,12 +162,15 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public UsuarioResponse actualizarUsuario(Integer id, ActualizarUsuarioPerfilRequest request) {
         boolean existsByCorreo = usuarioRepository.existsByCorreo(request.correo());
-        boolean existsByUsername = pasajeroRepository.existsByUsername(request.username());
-        boolean existsByTelefono = pasajeroRepository.existsByTelefono(request.telefono());
+//        boolean existsByPasajeroUsername = pasajeroRepository.existsByUsername(request.username());
+        boolean existsByPasajeroTelefono = pasajeroRepository.existsByTelefono(request.telefono());
+//        boolean existsByConductorUsername = conductorRepository.existsByUsername(request.username());
+        boolean existsByConductorTelefono = conductorRepository.existsByTelefono(request.telefono());
+
 
 
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
 
         String username = (usuario.getConductor() != null) ? usuario.getConductor().getUsername() : usuario.getPasajero().getUsername();
         String telefono = (usuario.getConductor() != null) ? usuario.getConductor().getTelefono() : usuario.getPasajero().getTelefono();
@@ -177,13 +181,25 @@ public class UsuarioServiceImpl implements UsuarioService {
             );
         }
 
-        if(existsByUsername && !username.equals(request.username())) {
+//        if(existsByPasajeroUsername && !username.equals(request.username())) {
+//            throw new DuplicateResourceException(
+//                    "Ya existe un usuario con el nombre de usuario: " + request.username()
+//            );
+//        }
+
+        if(existsByPasajeroTelefono && !telefono.equals(request.telefono())) {
             throw new DuplicateResourceException(
-                    "Ya existe un usuario con el nombre de usuario: " + request.username()
+                    "Ya existe un usuario con el telefono: " + request.telefono()
             );
         }
 
-        if(existsByTelefono && !telefono.equals(request.telefono())) {
+//        if(existsByConductorUsername && !username.equals(request.username())) {
+//            throw new DuplicateResourceException(
+//                    "Ya existe un usuario con el nombre de usuario: " + request.username()
+//            );
+//        }
+
+        if(existsByConductorTelefono && !telefono.equals(request.telefono())) {
             throw new DuplicateResourceException(
                     "Ya existe un usuario con el telefono: " + request.telefono()
             );
@@ -197,7 +213,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             conductor.setNombre(request.nombres());
             conductor.setApellidos(request.apellidos());
             conductor.setTelefono(request.telefono());
-            conductor.setUsername(request.username());
+//            conductor.setUsername(request.username());
             conductor.setFechaHoraActualizacion(LocalDateTime.now());
             usuario.setConductor(conductor);
         } else if (usuario.getPasajero() != null) {
@@ -205,7 +221,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             pasajero.setNombre(request.nombres());
             pasajero.setApellidos(request.apellidos());
             pasajero.setTelefono(request.telefono());
-            pasajero.setUsername(request.username());
+//            pasajero.setUsername(request.username());
             pasajero.setFechaHoraActualizacion(LocalDateTime.now());
             usuario.setPasajero(pasajero);
         }
@@ -230,10 +246,65 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         String token = tokenProvider.createAccessToken(authentication);
 
-        AuthResponse authResponse = usuarioMapper.toAuthResponse(usuario, token);
-
-        return authResponse;
+        return usuarioMapper.toAuthResponse(usuario, token);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public UsuarioResponse obtenerPorConductorId(Integer conductorId){
+        Conductor conductor = conductorRepository.findById(conductorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conductor no encontrado con id: " + conductorId));
+
+        Integer usuarioId = conductor.getUsuario().getId();
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + usuarioId));
+
+        return usuarioMapper.toResponse(usuario, ERole.CONDUCTOR);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public UsuarioResponse obtenerPorPasajeroId(Integer pasajeroId){
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
+
+        Integer usuarioId = pasajero.getUsuario().getId();
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + usuarioId));
+
+        return usuarioMapper.toResponse(usuario, ERole.PASAJERO);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Integer obtenerPasajeroIdPorUsuarioId(Integer userId) {
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
+
+        if (usuario.getPasajero() == null) {
+            throw new ResourceNotFoundException("El usuario no tiene un pasajero asociado");
+        }
+
+        return usuario.getPasajero().getId();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Integer obtenerConductorIdPorUsuarioId(Integer userId) {
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
+
+        if (usuario.getConductor() == null) {
+            throw new ResourceNotFoundException("El usuario no tiene un conductor asociado");
+        }
+
+        return usuario.getConductor().getId();
+    }
+
+
+
+    public Optional<Usuario> findByCorreo(String correo) {
+        return usuarioRepository.findByCorreo(correo);
+    }
 
 }

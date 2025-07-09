@@ -15,5 +15,10 @@ public interface CalificacionRepository extends JpaRepository<Calificacion, Inte
     List<Calificacion> findByConductorId(@Param("id") Integer id);
 
 
+    @Query("SELECT COALESCE(AVG(c.estrellas), 0) FROM Calificacion c WHERE c.conductor.id = :id")
+    Double findAverageRatingByConductorId(@Param("id") Integer id);
+
+    @Query("SELECT c FROM Calificacion c WHERE c.viaje.id = :viajeId AND c.pasajero.id = :pasajeroId")
+    Calificacion findByPasajeroIdAndViajeId(Integer pasajeroId, Integer viajeId);
 
 }

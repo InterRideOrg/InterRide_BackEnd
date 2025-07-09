@@ -3,6 +3,9 @@ package com.interride.service.Impl;
 import com.interride.dto.response.CalificacionResponse;
 import com.interride.dto.request.CreateCalificacionRequest;
 import com.interride.dto.request.UpdateCalificacionRequest;
+import com.interride.exception.BusinessRuleException;
+import com.interride.exception.ResourceNotFoundException;
+
 import com.interride.model.entity.Calificacion;
 import com.interride.model.entity.Conductor;
 import com.interride.model.entity.Pasajero;
@@ -17,8 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
-import javax.swing.plaf.PanelUI;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,37 +33,47 @@ public class CalificacionServiceImpl implements CalificacionService {
     private final ViajeRepository viajeRepository;
     private final PasajeroRepository pasajeroRepository;
 
-
+    /*
     private Calificacion findById(Integer id) {
         return calificacionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Calificacion no encontrada con id:" + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Calificacion no encontrada con id:" + id));
     }
+    */
 
     private Viaje findViajeById(Integer id) {
         return viajeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Viaje no encontrado con id: " + id));
     }
 
     private Conductor findConductorById(Integer id) {
         return conductorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Conductor no encontrado con id: " + id));
     }
 
     private Pasajero findPasajeroById(Integer id) {
         return pasajeroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Pasajero no encontrado con id: " + id));
     }
 
     private void validateCalificacion(Calificacion calificacion) {
         if (calificacion.getEstrellas() < 1 || calificacion.getEstrellas() > 5) {
-            throw new RuntimeException("El número de estrellas debe estar entre 1 y 5");
+            throw new BusinessRuleException("El número de estrellas debe estar entre 1 y 5");
         }
-        // Otras validaciones for the future :b
     }
 
+    /*
+    @Transactional(readOnly = true)
+    @Override
+    public List<CalificacionResponse> findByConductorId(Integer conductorId) {
+        List<Calificacion> calificacionsPorConductor = calificacionRepository.findByConductorId(conductorId);
+        return calificacionsPorConductor.stream().map(calificacionMapper::toResponse).toList();
+    }
+    */
+
+    // Funcionalidades finales
 
 
     @Transactional(readOnly = true)
@@ -71,8 +82,6 @@ public class CalificacionServiceImpl implements CalificacionService {
         List<Calificacion> calificaciones = calificacionRepository.findAll();
         return calificaciones.stream().map(calificacionMapper::toResponse).toList();
     }
-
-
 
     @Transactional(readOnly = true)
     @Override
@@ -83,15 +92,43 @@ public class CalificacionServiceImpl implements CalificacionService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<CalificacionResponse> findByConductorId(Integer conductorId) {
-        List<Calificacion> calificacionsPorConductor = calificacionRepository.findByConductorId(conductorId);
-        return calificacionsPorConductor.stream().map(calificacionMapper::toResponse).toList();
+    public CalificacionResponse getByPasajeroIdAndViajeId(Integer pasajeroId, Integer viajeId){
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado con id: " + pasajeroId));
+
+        Viaje viaje = viajeRepository.findById(viajeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Viaje no encontrado con id: " + viajeId));
+
+        Calificacion calificacion = calificacionRepository.findByPasajeroIdAndViajeId(pasajero.getId(), viaje.getId());
+
+        return calificacionMapper.toResponse(calificacion);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public CalificacionPromedioConductorResponse findAverageRatingAndCommentsByConductorId(Integer conductorId) {
+        Double promedioCalificacion = calificacionRepository.findAverageRatingByConductorId(conductorId);
+        List<CalificacionResponse> calificaciones = calificacionRepository.findByConductorId(conductorId)
+                .stream().map(calificacionMapper::toResponse).toList();
+
+        if (calificaciones.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron calificaciones para el conductor con id: " + conductorId);
+        }
+
+        return new CalificacionPromedioConductorResponse(
+                conductorId,
+                promedioCalificacion,
+                calificaciones
+        );
+    }
 
     @Transactional
     @Override
     public CalificacionResponse create(CreateCalificacionRequest request) {
+        //log
+        if (request.estrellas() < 1 || request.estrellas() > 5) {
+            throw new BusinessRuleException("El número de estrellas debe estar entre 1 y 5");
+        }
         Calificacion calificacion = calificacionMapper.toEntity(request);
 
         calificacion.setViaje(findViajeById(calificacion.getViaje().getId()));
@@ -109,11 +146,11 @@ public class CalificacionServiceImpl implements CalificacionService {
     @Override
     public CalificacionResponse update(Integer id, UpdateCalificacionRequest request) {
         if (request.estrellas() < 1 || request.estrellas() > 5) {
-            throw new RuntimeException("El número de estrellas debe estar entre 1 y 5");
+            throw new BusinessRuleException("El número de estrellas debe estar entre 1 y 5");
         }
 
         Calificacion calificacionActual = calificacionRepository.findById(id)
-                .orElseThrow(()->new RuntimeException("Calificacion con id " + id + " no encontrado" ));
+                .orElseThrow(()->new ResourceNotFoundException("Calificacion con id " + id + " no encontrado" ));
 
         calificacionActual.setEstrellas(request.estrellas());
         calificacionActual.setComentario(request.comentario());
@@ -126,7 +163,7 @@ public class CalificacionServiceImpl implements CalificacionService {
     @Override
     public void delete(Integer id) {
         Calificacion calificacion = calificacionRepository.findById(id)
-                        .orElseThrow(()->new RuntimeException("Calificacion con id " + id + " no encontrado" ));
+                .orElseThrow(()->new ResourceNotFoundException("Calificacion con id " + id + " no encontrado" ));
         calificacionRepository.delete(calificacion);
     }
 

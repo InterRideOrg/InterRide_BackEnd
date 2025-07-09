@@ -9,12 +9,17 @@ import com.interride.dto.response.PagoResponse;
 import java.util.List;
 
 public interface PagoService {
+    PagoResponse getPagoById(Integer id);
+
     List<PagoResponse> getPagosByPasajeroId(Integer pasajeroId);
-    List<PagoResponse> getPagosByConductorId(Integer conductorId);
-    List<PagoResponse> getPagosByViajeId(Integer viajeId);
+    //List<PagoResponse> getPagosByConductorId(Integer conductorId);
+    //List<PagoResponse> getPagosByViajeId(Integer viajeId);
+
+    List<PagoResponse> getPagosPendientesByPasajeroId(Integer pasajeroId);
+    List<PagoResponse> getPagosCompletadosByPasajeroId(Integer pasajeroId);
     PagoResponse createPagoEfectivo(CreatePagoRequest pago);
     PagoResponse createPagoTarjeta(CreatePagoRequest request, Integer tarjetaId);
-    PagoResponse completarPago(Integer id);
+    PagoResponse completarPago(Integer id, Integer tarjetaId);
 
     List<AnnualProfitReport> getAnnualProfitReportByConductor(Integer year, Integer conductorId);
     List<MonthlyProfitReport> getMonthlyProfitReportByConductor(Integer year, Integer month, Integer conductorId);

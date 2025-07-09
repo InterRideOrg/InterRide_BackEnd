@@ -52,22 +52,22 @@ public class PagoServiceImpl implements PagoService {
 
     @Transactional(readOnly = true)
     @Override
+    public PagoResponse getPagoById(Integer id) {
+        Pago pago = pagoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pago con id " + id + " no encontrado"));
+        return pagoMapper.toResponse(pago);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<PagoResponse> getPagosByPasajeroId(Integer pasajeroId) {
-        List<Pago> pagos = pagoRepository.findByPasajeroId(pasajeroId);
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero con id " + pasajeroId + " no encontrado"));
+
+        List<Pago> pagos = pagoRepository.findByPasajeroId(pasajero.getId());
         return pagos.stream().map(pagoMapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public List<PagoResponse> getPagosByConductorId(Integer conductorId){
-        return null;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<PagoResponse> getPagosByViajeId(Integer viajeId){
-        return null;
-    }
 
     @Transactional
     @Override
@@ -93,11 +93,41 @@ public class PagoServiceImpl implements PagoService {
 
     @Transactional
     @Override
-    public PagoResponse completarPago(Integer id) {
+    public PagoResponse completarPago(Integer id, Integer tarjetaId) {
         Pago pagoActual = pagoRepository.findById(id)
-                        .orElseThrow(()->new RuntimeException("Pago con id " + id + " no encontrado" ));
+                        .orElseThrow(()->new ResourceNotFoundException("Pago con id " + id + " no encontrado" ));
         Pasajero pasajero = pasajeroRepository.findById(pagoActual.getPasajero().getId())
-                        .orElseThrow(()->new RuntimeException("Pasajero con id " + pagoActual.getPasajero().getId() + " no encontrado" ));
+                        .orElseThrow(()->new ResourceNotFoundException("Pasajero con id " + pagoActual.getPasajero().getId() + " no encontrado" ));
+
+        Conductor conductor = conductorRepository.findById(pagoActual.getConductor().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Conductor con id " + pagoActual.getConductor().getId() + " no encontrado"));
+
+        Tarjeta tarjeta = tarjetaRepository.findById(tarjetaId)
+                .orElse(null);
+
+
+        if(tarjeta != null) {
+            if (tarjeta.getSaldo() < pagoActual.getMonto()){
+                throw new BusinessRuleException("Saldo insuficiente en la tarjeta con id " + tarjetaId);
+            }else {
+                Tarjeta tarjetaConductor = tarjetaRepository.findByConductorId(conductor.getId());
+                if (tarjetaConductor == null) {
+                    throw new ResourceNotFoundException("El conductor " + conductor.getNombre() + " no tiene una tarjeta registrada. Por favor, pague con efectivo.");
+                }
+
+                // Transferir el monto del pago a la tarjeta del conductor
+                tarjetaConductor.setSaldo(tarjetaConductor.getSaldo() + pagoActual.getMonto());
+                tarjetaRepository.save(tarjetaConductor);
+
+                // Restar el monto del pago de la tarjeta del pasajero
+                tarjeta.setSaldo(tarjeta.getSaldo() - pagoActual.getMonto());
+                tarjetaRepository.save(tarjeta);
+            }
+        }
+
+        if(pagoActual.getEstado() != EstadoPago.PENDIENTE) {
+            throw new BusinessRuleException("El pago con id " + id + " no se encuentra en estado PENDIENTE");
+        }
 
         pagoActual.setEstado(EstadoPago.COMPLETADO);
         pagoActual.setFechaHoraPago(LocalDateTime.now());
@@ -131,7 +161,10 @@ public class PagoServiceImpl implements PagoService {
     @Override
     @Transactional(readOnly = true)
     public List<AnnualProfitReport> getAnnualProfitReportByConductor(Integer year, Integer conductorId){
-        List<Object[]> results = pagoRepository.findPagosByYearGroupedByMonth(year, conductorId);
+        Conductor conductor = conductorRepository.findById(conductorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conductor no encontrado con id: " + conductorId));
+
+        List<Object[]> results = pagoRepository.findPagosByYearGroupedByMonth(year, conductor.getId());
         return results.stream()
                 .map(result -> new AnnualProfitReport(
                         ((Number) result[0]).intValue(), // mes
@@ -142,11 +175,38 @@ public class PagoServiceImpl implements PagoService {
     @Override
     @Transactional(readOnly = true)
     public List<MonthlyProfitReport> getMonthlyProfitReportByConductor(Integer year, Integer month, Integer conductorId){
-        List<Object[]> results = pagoRepository.findPagosByMonthGroupedByDay(year, month, conductorId);
+        Conductor conductor = conductorRepository.findById(conductorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conductor no encontrado con id: " + conductorId));
+
+        List<Object[]> results = pagoRepository.findPagosByMonthGroupedByDay(year, month, conductor.getId());
         return results.stream()
                 .map(result -> new MonthlyProfitReport(
                         ((Number) result[0]).intValue(), // dia
                         ((Number) result[1]).doubleValue() // total
                 )).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PagoResponse> getPagosPendientesByPasajeroId(Integer pasajeroId){
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero con id " + pasajeroId + " no encontrado"));
+
+        List<Pago> pagosPendientes = pagoRepository.findByPagoPendientePasajeroId(pasajero.getId());
+
+        return pagosPendientes.stream().map(pagoMapper::toResponse).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PagoResponse> getPagosCompletadosByPasajeroId (Integer pasajeroId) {
+        Pasajero pasajero = pasajeroRepository.findById(pasajeroId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pasajero con id " + pasajeroId + " no encontrado"));
+
+        List<Pago> pagosCompletados = pagoRepository.findByPagoCompletadoPasajeroId(pasajero.getId());
+        return pagosCompletados.stream()
+                .filter(pago -> pago.getEstado() == EstadoPago.COMPLETADO)
+                .map(pagoMapper::toResponse)
+                .toList();
     }
 }

@@ -40,4 +40,13 @@ public class ConductorController {
         return ResponseEntity.ok(notificaciones);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONDUCTOR','PASAJERO')")
+    @GetMapping("/perfil-publico/{idViaje}")
+    public ResponseEntity<ConductorPerfilPublicoResponse> obtenerPerfilConductorAsignado(@PathVariable Integer idViaje) {
+        ConductorPerfilPublicoResponse response = conductorService.obtenerPerfilConductorAsignado(idViaje);
+        return ResponseEntity.ok(response);
+    }
+
+
+
 }

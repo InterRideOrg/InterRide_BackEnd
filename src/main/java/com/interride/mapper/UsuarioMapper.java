@@ -90,6 +90,7 @@ public class UsuarioMapper {
 
         authResponse.setUsername(username);
         authResponse.setRole(usuario.getRole().getNombre().toString());
+        authResponse.setUserId(usuario.getId());
         return authResponse;
     }
 }

@@ -27,7 +27,7 @@ public class CalificacionMapper {
                                 .build())
                 .viaje(
                         Viaje.builder()
-                                .id(request.pasajeroId())
+                                .id(request.viajeId())
                                 .build()
                 )
                 .conductor(

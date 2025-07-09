@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+
 import java.util.List;
 
 public interface PagoRepository extends JpaRepository<Pago, Integer> {
@@ -14,6 +15,11 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
 
     List<Pago> findByConductorId(@Param("id") Integer conductorId);
 
+    @Query(value="SELECT p FROM Pago p WHERE p.pasajero.id = :id AND p.estado = com.interride.model.enums.EstadoPago.PENDIENTE order By p.fechaHoraPago DESC")
+    List<Pago> findByPagoPendientePasajeroId(@Param("id") Integer id);
+
+    @Query(value="SELECT p FROM Pago p WHERE p.pasajero.id = :id AND p.estado = com.interride.model.enums.EstadoPago.COMPLETADO order By p.fechaHoraPago DESC")
+    List<Pago> findByPagoCompletadoPasajeroId(@Param("id") Integer id);
 
     //Duelve los pagos realizados en un año determinado divididos por mes
     @Query(value = "SELECT EXTRACT(MONTH FROM p.fecha_hora_pago) AS mes, SUM(p.monto) AS total " +

@@ -2,6 +2,8 @@ package com.interride.service.Impl;
 
 import com.interride.dto.request.ReclamoRequest;
 import com.interride.dto.response.ReclamoResponse;
+import com.interride.exception.BusinessRuleException;
+import com.interride.exception.ResourceNotFoundException;
 import com.interride.model.entity.Conductor;
 import com.interride.model.entity.Pasajero;
 import com.interride.model.entity.Reclamo;
@@ -34,14 +36,14 @@ public class ReclamoServiceImpl implements ReclamoService {
 
         if (request.idConductor() != null) {
             Conductor conductor = conductorRepository.findById(request.idConductor())
-                    .orElseThrow(() -> new RuntimeException("Conductor no encontrado."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Conductor no encontrado."));
             reclamo.setConductor(conductor);
         } else if (request.idPasajero() != null) {
             Pasajero pasajero = pasajeroRepository.findById(request.idPasajero())
-                    .orElseThrow(() -> new RuntimeException("Pasajero no encontrado."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Pasajero no encontrado."));
             reclamo.setPasajero(pasajero);
         } else {
-            throw new RuntimeException("Debe especificar algun ID.");
+            throw new BusinessRuleException("Debe especificar algun ID.");
         }
 
         Reclamo nuevoReclamo = reclamoRepository.save(reclamo);

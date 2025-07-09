@@ -28,7 +28,7 @@ public class WebSecurityConfig {
     private final TokenProvider tokenProvider;
     private final JWTFilter jwtRequestFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final CustomUserDetailsService userDetailsService;
+
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -45,6 +45,7 @@ public class WebSecurityConfig {
                         .requestMatchers(antMatcher("/auth/login")).permitAll()
                         .requestMatchers(antMatcher("/auth/register/pasajero")).permitAll()
                         .requestMatchers(antMatcher("/auth/register/conductor")).permitAll()
+                        .requestMatchers(antMatcher("/auth/google-login")).permitAll()
                         .requestMatchers(antMatcher("/mail/**")).permitAll()
                         .requestMatchers(antMatcher("/role/**")).permitAll()
                         .requestMatchers("/api/v1/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/webjars/**").permitAll()
@@ -67,4 +68,5 @@ public class WebSecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
 }

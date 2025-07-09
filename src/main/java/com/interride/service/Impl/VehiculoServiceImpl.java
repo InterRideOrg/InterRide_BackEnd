@@ -7,7 +7,10 @@ import com.interride.exception.DuplicateResourceException;
 import com.interride.exception.ResourceNotFoundException;
 import com.interride.mapper.VehiculoMapper;
 import com.interride.model.entity.Conductor;
+import com.interride.model.entity.Usuario;
+import com.interride.model.enums.ERole;
 import com.interride.repository.ConductorRepository;
+import com.interride.repository.UsuarioRepository;
 import com.interride.repository.VehiculoRepository;
 import com.interride.model.entity.Vehiculo;
 import com.interride.service.VehiculoService;
@@ -22,6 +25,7 @@ public class VehiculoServiceImpl implements VehiculoService {
 
     private final VehiculoRepository vehiculoRepository;
     private final ConductorRepository conductorRepository;
+    private final UsuarioRepository usuarioRepository;
     private final VehiculoMapper vehiculoMapper;
 
     @Transactional
@@ -55,9 +59,18 @@ public class VehiculoServiceImpl implements VehiculoService {
 
     @Transactional
     @Override
-    public Vehiculo registrar(Integer conductorId, RegistroDeVehiculoRequest registroDeVehiculoRequest) {
+    public VehiculoResponse registrar(Integer usuarioId, RegistroDeVehiculoRequest registroDeVehiculoRequest) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + usuarioId));
+
+        if(usuario.getRole().getNombre() != ERole.CONDUCTOR) {
+            throw new IllegalStateException("El usuario no es un conductor.");
+        }
+
+        Conductor conductor = usuario.getConductor();
+
         // Verificar que el conductor no tenga vehiculo registrado
-        if (vehiculoRepository.existsByConductorId(conductorId)) {
+        if (vehiculoRepository.existsByConductorId(conductor.getId())) {
             throw new IllegalStateException("El conductor ya tiene un vehículo registrado.");
         }
 
@@ -69,10 +82,20 @@ public class VehiculoServiceImpl implements VehiculoService {
         vehiculo.setCantidadAsientos(registroDeVehiculoRequest.getCantidadAsientos());
 
         // Asignar el conductor al vehículo
-        vehiculo.setConductor(conductorRepository.findById(conductorId)
-                .orElseThrow(() -> new EntityNotFoundException("Conductor no encontrado con ID: " + conductorId)));
+        vehiculo.setConductor(conductorRepository.findById(conductor.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Conductor no encontrado con ID: " + conductor.getId())));
         // Guardar el vehículo en la base de datos
-        return vehiculoRepository.save(vehiculo);
+        vehiculoRepository.save(vehiculo);
+
+        return vehiculoMapper.toResponse(vehiculo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public VehiculoResponse obtenerVehiculoPorConductorId(Integer conductorId) {
+        Vehiculo vehiculo = vehiculoRepository.findByConductorId(conductorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehículo no encontrado para el conductor con ID: " + conductorId));
+        return vehiculoMapper.toResponse(vehiculo);
     }
 
 }
