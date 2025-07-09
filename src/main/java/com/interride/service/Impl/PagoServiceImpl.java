@@ -110,14 +110,14 @@ public class PagoServiceImpl implements PagoService {
             if (tarjeta.getSaldo() < pagoActual.getMonto()){
                 throw new BusinessRuleException("Saldo insuficiente en la tarjeta con id " + tarjetaId);
             }else {
-                Tarjeta tarjetaConductor = tarjetaRepository.findByConductorId(conductor.getId());
+                /*Tarjeta tarjetaConductor = tarjetaRepository.findByConductorId(conductor.getId());
                 if (tarjetaConductor == null) {
                     throw new ResourceNotFoundException("El conductor " + conductor.getNombre() + " no tiene una tarjeta registrada. Por favor, pague con efectivo.");
-                }
+                }*/
 
                 // Transferir el monto del pago a la tarjeta del conductor
-                tarjetaConductor.setSaldo(tarjetaConductor.getSaldo() + pagoActual.getMonto());
-                tarjetaRepository.save(tarjetaConductor);
+                //tarjetaConductor.setSaldo(tarjetaConductor.getSaldo() + pagoActual.getMonto());
+                //tarjetaRepository.save(tarjetaConductor);
 
                 // Restar el monto del pago de la tarjeta del pasajero
                 tarjeta.setSaldo(tarjeta.getSaldo() - pagoActual.getMonto());
