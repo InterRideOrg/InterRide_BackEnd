@@ -108,7 +108,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
 
         //Validaciones
         if(boletosExistentes.stream().anyMatch(b -> b.getPasajero().getId().equals(pasajeroActual.getId()))){
-            throw new BusinessRuleException("El pasajero ya está unido a este viaje.");
+            throw new BusinessRuleException("Ya estas unido a este viaje!");
         }
 
         if(!viaje.getEstado().equals(EstadoViaje.ACEPTADO)){
@@ -116,7 +116,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         }
 
         if(boleto.getAsientosOcupados() > viaje.getAsientosDisponibles()){
-            throw  new BusinessRuleException("No hay suficientes asientos disponibles en el viaje.");
+            throw  new BusinessRuleException("Los asientos que requieres son mayores a los disponibles.");
         }
 
         viaje.setAsientosDisponibles(viaje.getAsientosDisponibles() - boleto.getAsientosOcupados());
