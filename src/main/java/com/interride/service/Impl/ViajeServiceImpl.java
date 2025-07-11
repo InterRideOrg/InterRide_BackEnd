@@ -446,7 +446,7 @@ public class ViajeServiceImpl implements ViajeService {
         PasajeroViaje boleto = pasajeroViajeMapper.toEntity(request);
 
         if(boleto.getAsientosOcupados() <= 0){
-            throw new BusinessRuleException("El número de asientos ocupados debe ser mayor a 0.");
+            throw new BusinessRuleException("Cantidad de asientos ocupados debe ser mayor a 0.");
         }
 
         //Creacion del viaje

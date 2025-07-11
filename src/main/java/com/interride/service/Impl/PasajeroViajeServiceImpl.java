@@ -119,6 +119,10 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
             throw  new BusinessRuleException("Los asientos que requieres son mayores a los disponibles.");
         }
 
+        if(asientosOcupados <= 0){
+            throw new BusinessRuleException("Cantidad de asientos ocupado inválida.");
+        }
+
         viaje.setAsientosDisponibles(viaje.getAsientosDisponibles() - boleto.getAsientosOcupados());
         viaje.setAsientosOcupados(viaje.getAsientosOcupados() + boleto.getAsientosOcupados());
 
