@@ -20,13 +20,13 @@ public interface PasajeroViajeRepository extends JpaRepository<PasajeroViaje, In
     @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId AND pv.estado = 'COMPLETADO'")
     List<PasajeroViaje> findPasajerosCompletadosByViajeId(@Param("viajeId") Integer viajeId);
 
-    @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId AND pv.pasajero.id = :pasajeroId")
+    @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId AND pv.pasajero.id = :pasajeroId AND pv.estado != 'CANCELADO'")
     PasajeroViaje findByPasajeroIdAndViajeId(Integer pasajeroId, Integer viajeId);
 
     @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.pasajero.id = :pasajeroId AND pv.estado = :estado")
     List<PasajeroViaje> findByPasajeroIdAndEstado(Integer pasajeroId, EstadoViaje estado);
 
 
-    @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId")
+    @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId AND pv.estado != 'CANCELADO'")
     List<PasajeroViaje> findByViajeId(Integer viajeId);
 }
