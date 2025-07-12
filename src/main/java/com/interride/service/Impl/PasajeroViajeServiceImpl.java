@@ -243,7 +243,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
         //Notificacion al pasajero de que debe pagar
         Notificacion notificacionPago = Notificacion.paraPasajero(
                 boleto.getPasajero().getId(),
-                "Se ha generado un pago pendiente de S/25.00 por el viaje hacia " + destino.getProvincia() + "."
+                "Se ha generado un pago pendiente de " + boleto.getCosto() + " por el viaje hacia " + destino.getProvincia() + "."
         );
 
         pagoRepository.save(pago);
