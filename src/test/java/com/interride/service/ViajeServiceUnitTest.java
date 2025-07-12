@@ -486,7 +486,6 @@ public class ViajeServiceUnitTest {
 
         when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
         when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(new Conductor()));
-        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(new PasajeroViaje());
         when(ubicacionRepository.findByViajeId(idViaje)).thenReturn(new Ubicacion());
         when(ubicacionRepository.findByPasajeroViajeId(any(Integer.class))).thenReturn(new Ubicacion());
 
@@ -510,7 +509,7 @@ public class ViajeServiceUnitTest {
 
         when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
         when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
-        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(new PasajeroViaje());
+        //when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(new PasajeroViaje());
         when(ubicacionRepository.findByViajeId(idViaje)).thenReturn(new Ubicacion());
         when(ubicacionRepository.findByPasajeroViajeId(any(Integer.class))).thenReturn(new Ubicacion());
 
@@ -538,7 +537,7 @@ public class ViajeServiceUnitTest {
 
         when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
         when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
-        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(new PasajeroViaje());
+        //when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(new PasajeroViaje());
         when(ubicacionRepository.findByViajeId(idViaje)).thenReturn(new Ubicacion());
         when(ubicacionRepository.findByPasajeroViajeId(any(Integer.class))).thenReturn(new Ubicacion());
 
@@ -852,7 +851,7 @@ public class ViajeServiceUnitTest {
 
         when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
         when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
-        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boleto);
+        //when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boleto);
         when(pasajeroViajeRepository.save(any(PasajeroViaje.class))).thenReturn(boleto);
         when(pasajeroViajeRepository.findPasajerosAceptadosByViajeId(idViaje)).thenReturn(List.of(boleto));
         when(viajeRepository.save(any(Viaje.class))).thenReturn(viaje);
@@ -899,7 +898,7 @@ public class ViajeServiceUnitTest {
 
         when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
         when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
-        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boleto);
+        //when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boleto);
         when(pasajeroViajeRepository.save(any(PasajeroViaje.class))).thenReturn(boleto);
         when(pasajeroViajeRepository.findPasajerosAceptadosByViajeId(idViaje)).thenReturn(List.of(boleto));
         when(viajeRepository.save(any(Viaje.class))).thenReturn(viaje);
@@ -947,7 +946,7 @@ public class ViajeServiceUnitTest {
 
         when(viajeRepository.findById(idViaje)).thenReturn(Optional.of(viaje));
         when(conductorRepository.findById(idConductor)).thenReturn(Optional.of(conductor));
-        when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boleto);
+        //when(pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje)).thenReturn(boleto);
         when(pasajeroViajeRepository.save(any(PasajeroViaje.class))).thenReturn(boleto);
         when(pasajeroViajeRepository.findPasajerosAceptadosByViajeId(idViaje)).thenReturn(List.of(boleto));
         when(viajeRepository.save(any(Viaje.class))).thenReturn(viaje);

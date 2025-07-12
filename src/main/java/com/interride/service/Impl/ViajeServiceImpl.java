@@ -281,7 +281,12 @@ public class ViajeServiceImpl implements ViajeService {
                 .orElseThrow(() -> new ResourceNotFoundException("El conductor con ID " + idConductor + " no existe."));
 
         // Obtener el ID de la ubicación de destino del viaje
-        PasajeroViaje boletoInicial = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
+        List<PasajeroViaje> boletos = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
+
+        PasajeroViaje boletoInicial = boletos.stream()
+                .filter(boleto -> boleto.getEstado() == EstadoViaje.SOLICITADO)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró un boleto inicial para el viaje con ID " + idViaje));
 
         Pasajero pasajero = pasajeroRepository.findById(boletoInicial.getPasajero().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("El pasajero con ID " + boletoInicial.getPasajero().getId() + " no existe."));
@@ -509,9 +514,14 @@ public class ViajeServiceImpl implements ViajeService {
             throw new ResourceNotFoundException("No se encontraron viajes solicitados.");
         }
 
+
         return viajesSolicitados.stream()
                 .map(viaje -> {
-                    PasajeroViaje boleto = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
+                    List<PasajeroViaje> boletos = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
+                    PasajeroViaje boleto = boletos.stream()
+                            .filter(b -> b.getEstado() == EstadoViaje.SOLICITADO)
+                            .findFirst()
+                            .orElseThrow(() -> new ResourceNotFoundException("No se encontró un boleto inicial para el viaje con ID " + viaje.getId()));
                     Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
                     Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boleto.getId());
                     return viajeMapper.toViajeSolicitadoResponse(viaje, boleto, origen, destino);
@@ -529,7 +539,12 @@ public class ViajeServiceImpl implements ViajeService {
             throw new BusinessRuleException("El viaje con ID " + idViaje + " no está en estado SOLICITADO.");
         }
 
-        PasajeroViaje boleto = pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje);
+        List<PasajeroViaje> boletos = pasajeroViajeRepository.findBoletoInicialIdByViajeId(idViaje);
+        PasajeroViaje boleto = boletos.stream()
+                .filter(b -> b.getEstado() == EstadoViaje.SOLICITADO)
+                .findFirst()
+                .orElse(null);
+
         if (boleto == null) {
             throw new ResourceNotFoundException("No se encontró un boleto inicial para el viaje con ID " + idViaje + ".");
         }
@@ -590,7 +605,16 @@ public class ViajeServiceImpl implements ViajeService {
 
         for (Viaje viaje : viajesAceptados) {
             Ubicacion origen = ubicacionRepository.findByViajeId(viaje.getId());
-            Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId()).getId());
+            List<PasajeroViaje> boletos = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
+            if (boletos.isEmpty()) {
+                throw new ResourceNotFoundException("No se encontraron boletos para el viaje con ID " + viaje.getId());
+            }
+            // Asumimos que el primer boleto es el inicial
+            PasajeroViaje boletoInicial = boletos.stream()
+                    .filter(boleto -> boleto.getEstado() != EstadoViaje.CANCELADO)
+                    .findFirst()
+                    .orElseThrow(() -> new ResourceNotFoundException("No se encontró un boleto aceptado para el viaje con ID " + viaje.getId()));
+            Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boletoInicial.getId());
             origenes.add(origen);
             destinos.add(destino);
         }
@@ -623,7 +647,12 @@ public class ViajeServiceImpl implements ViajeService {
         }
 
         Ubicacion origen= ubicacionRepository.findByViajeId(viaje.getId());
-        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId()).getId());
+        List<PasajeroViaje> boletos = pasajeroViajeRepository.findBoletoInicialIdByViajeId(viaje.getId());
+        PasajeroViaje boletoInicial = boletos.stream()
+                .filter(boleto -> boleto.getEstado() != EstadoViaje.CANCELADO)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró un boleto aceptado para el viaje con ID " + viaje.getId()));
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boletoInicial.getId());
 
 
 

@@ -11,7 +11,7 @@ import java.util.List;
 public interface PasajeroViajeRepository extends JpaRepository<PasajeroViaje, Integer> {
 
     @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :id")
-    PasajeroViaje findBoletoInicialIdByViajeId(@Param("id") Integer viajeId);
+    List<PasajeroViaje> findBoletoInicialIdByViajeId(@Param("id") Integer viajeId);
 
     @Query("SELECT pv FROM PasajeroViaje pv WHERE pv.viaje.id = :viajeId " +
             "AND (pv.estado = 'ACEPTADO' or pv.estado = 'EN_CURSO')")
