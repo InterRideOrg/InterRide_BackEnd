@@ -217,13 +217,13 @@ public class ViajeServiceImpl implements ViajeService {
 
         // Enviar notificación al conductor y a los pasajeros
         notificacionRepository.enviarNotificacionConductor(
-                "El viaje con ID " + idViaje + " ha sido cancelado por el conductor.",
+                "Tu viaje hacia " + destino.getProvincia() + " ha sido cancelado.",
                 conductor.getId()
         );
 
         for(PasajeroViaje boleto : boletos){
             notificacionRepository.enviarNotificacionPasajero(
-                    "El viaje con ID " + idViaje + " ha sido cancelado por el conductor. ¿Desea solicitar el mismo viaje?",
+                    "Tu viaje hacia " + destino.getProvincia() + " ha sido cancelado por el conductor. ¿Desea solicitar el mismo viaje?",
                     boleto.getPasajero().getId()
             );
         }
@@ -403,15 +403,17 @@ public class ViajeServiceImpl implements ViajeService {
         viaje.setEstado(EstadoViaje.EN_CURSO);
         viaje.setFechaHoraPartida(LocalDateTime.now());
 
+        Ubicacion destino = ubicacionRepository.findByPasajeroViajeId(boletos.getFirst().getId());
+
         // Enviar notificación al conductor
         notificacionRepository.enviarNotificacionConductor(
-                "El viaje con ID " + idViaje + " ha comenzado.",
+                "Tu viaje viaje hacia " + destino.getProvincia() + " ha comenzado.",
                 conductor.getId()
         );
         // Enviar notificación a los pasajeros y generar pagos pandientes
         for (PasajeroViaje boleto : boletos) {
             notificacionRepository.enviarNotificacionPasajero(
-                    "El viaje con ID " + idViaje + " ha comenzado.",
+                    "Tu viaje hacia " + destino.getProvincia() + " ha comenzado.",
                     boleto.getPasajero().getId()
             );
 

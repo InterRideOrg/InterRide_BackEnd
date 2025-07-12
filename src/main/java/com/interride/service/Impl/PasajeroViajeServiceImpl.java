@@ -53,7 +53,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
             if(pasajeros.size() == 1){
                 viaje.setEstado(EstadoViaje.CANCELADO);
                 notificacionRepository.enviarNotificacionConductor(
-                        "El viaje con ID " + viaje.getId() + " ha sido cancelado debido a la falta de pasajeros.",
+                        "Tu viaje hacia " + destino.getProvincia() + " ha sido cancelado debido a la falta de pasajeros.",
                         viaje.getConductor().getId()
                 );
             }
@@ -63,7 +63,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
             viaje.setAsientosDisponibles(viaje.getAsientosDisponibles() + asientosOcupadosAntiguos);
 
             notificacionRepository.enviarNotificacionPasajero(
-                    "Tu boleto con ID " + boleto.getId() + " ha sido cancelado.",
+                    "Haz cancelado tu boleto de viaje hacia " + destino.getProvincia() + ".",
                     boleto.getPasajero().getId()
             );
             boleto.setEstado(EstadoViaje.CANCELADO);
@@ -72,7 +72,7 @@ public class PasajeroViajeServiceImpl implements PasajeroViajeService {
             viaje.setEstado(EstadoViaje.CANCELADO);
             boleto.setEstado(EstadoViaje.CANCELADO);
             notificacionRepository.enviarNotificacionPasajero(
-                    "El viaje con ID " + viaje.getId() + " ha sido cancelado.",
+                    "Tu solicitud de viaje hacia " + destino.getProvincia() + " ha sido cancelada.",
                     boleto.getPasajero().getId()
             );
         }else{
